@@ -13,21 +13,25 @@ namespace EventSourcingDemo
         static void Main(string[] args)
         {
 
+            //Create new note
             Note tmpNote = new Note("Test Note","Event Sourcing System Demo","Event Sourcing");
 
             Console.WriteLine("After Creation:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
             Console.WriteLine();
 
+            //Do some changes
             tmpNote.ChangeTitle("Test Note 123");
             tmpNote.ChangeCategory("Event Sourcing in .NET Example");
 
             Console.WriteLine("After Events:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
 
+            //Commit and get event list to save
             var events = tmpNote.GetUncommittedChanges();
             tmpNote.MarkChangesAsCommitted();
 
+            //Apply the events to a blank Note
             tmpNote = null;
             tmpNote = new Note();
             tmpNote.LoadsFromHistory(events);
