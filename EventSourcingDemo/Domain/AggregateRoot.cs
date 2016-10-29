@@ -22,7 +22,7 @@ namespace EventSourcingDemo.Domain
 
         public IEnumerable<Events.Event> GetUncommittedChanges()
         {
-            return _changes;
+            return _changes.ToList();
         }
 
         public void MarkChangesAsCommitted()
@@ -32,8 +32,10 @@ namespace EventSourcingDemo.Domain
 
         public void LoadsFromHistory(IEnumerable<Events.Event> history)
         {
-            foreach (var e in history) HandleEvent(e, false);
-            Version = history.Last().TargetVersion;
+            foreach (var e in history)
+            {
+                HandleEvent(e, false);
+            }
         }
 
         protected void HandleEvent(Events.Event @event)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Domain;
@@ -22,6 +23,17 @@ namespace EventSourcingDemo
             tmpNote.ChangeCategory("Event Sourcing in .NET Example");
 
             Console.WriteLine("After Events:");
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
+
+            var events = tmpNote.GetUncommittedChanges();
+            tmpNote.MarkChangesAsCommitted();
+
+            tmpNote = null;
+            tmpNote = new Note();
+            tmpNote.LoadsFromHistory(events);
+            
+            Console.WriteLine("");
+            Console.WriteLine("After Replaying:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
 
             Console.WriteLine();

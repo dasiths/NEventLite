@@ -18,6 +18,11 @@ namespace EventSourcingDemo.Domain
 
         #region "Constructor and Methods"
 
+        public Note()
+        {
+            
+        }
+
         public Note(string title, string desc, string cat)
         {
             HandleEvent(new NoteCreatedEvent(new Guid(), 0, title, desc, cat, DateTime.Now));
