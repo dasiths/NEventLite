@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Events;
 using EventSourcingDemo.Event_Handlers;
+using EventSourcingDemo.Snapshot;
 
 namespace EventSourcingDemo.Domain
 {
-    class Note : AggregateRoot,
-                IEventHandler<NoteCreatedEvent>, IEventHandler<NoteTitleChangedEvent>, IEventHandler<NoteCategoryChangedEvent>
+    public class Note : AggregateRoot,
+                IEventHandler<NoteCreatedEvent>, IEventHandler<NoteTitleChangedEvent>, IEventHandler<NoteCategoryChangedEvent>,
+                ISnapshottable
     {
         public DateTime CreatedDate { get; private set; }
         public string Title { get; private set; }
@@ -20,7 +22,7 @@ namespace EventSourcingDemo.Domain
 
         public Note()
         {
-            
+
         }
 
         public Note(string title, string desc, string cat)
@@ -66,6 +68,32 @@ namespace EventSourcingDemo.Domain
             this.Category = @event.cat;
         }
 
+        #endregion
+
+        #region "Snapshots"
+        public Snapshot.Snapshot GetSnapshot()
+        {
+            return new NoteSnapshot(new Guid(),
+                                    this.Id,
+                                    this.CurrentVersion,
+                                    this.CreatedDate,
+                                    this.Title,
+                                    this.Description,
+                                    this.Category);
+        }
+
+        public void SetSnapshot(Snapshot.Snapshot snapshot)
+        {
+            NoteSnapshot item = (NoteSnapshot)snapshot;
+
+            this.Id = item.AggregateId;
+            this.CurrentVersion = item.Version;
+            this.LastCommittedVersion = item.Version;
+            this.CreatedDate = item.CreatedDate;
+            this.Title = item.Title;
+            this.Description = item.Description;
+            this.Category = item.Category;
+        }
         #endregion
 
     }

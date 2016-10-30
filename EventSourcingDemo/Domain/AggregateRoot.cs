@@ -14,12 +14,12 @@ namespace EventSourcingDemo.Domain
 
         public Guid Id { get; internal set; }
         public int CurrentVersion { get; internal set; }
-        public int LastCommitedVersion { get; internal set; }
+        public int LastCommittedVersion { get; internal set; }
 
         protected AggregateRoot()
         {
             CurrentVersion = 0;
-            LastCommitedVersion = 0;
+            LastCommittedVersion = 0;
             _changes = new List<Events.Event>();
         }
 
@@ -31,7 +31,7 @@ namespace EventSourcingDemo.Domain
         public void MarkChangesAsCommitted()
         {
             _changes.Clear();
-            LastCommitedVersion = CurrentVersion;
+            LastCommittedVersion = CurrentVersion;
         }
 
         public void LoadsFromHistory(IEnumerable<Events.Event> history)
@@ -40,7 +40,7 @@ namespace EventSourcingDemo.Domain
             {
                 HandleEvent(e, false);
             }
-            LastCommitedVersion = CurrentVersion;
+            LastCommittedVersion = CurrentVersion;
         }
 
         protected void HandleEvent(Events.Event @event)

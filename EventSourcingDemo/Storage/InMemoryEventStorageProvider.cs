@@ -10,10 +10,11 @@ using EventSourcingDemo.Exceptions;
 
 namespace EventSourcingDemo.Storage
 {
-    class InMemoryStorageProvider : IEventStorageProvider
+    class InMemoryEventStorageProvider : IEventStorageProvider
     {
+        public ISnapshotStorageProvider snapshotStorage { get; set; }
         private Dictionary<Guid, List<Event>> eventStream = new Dictionary<Guid, List<Event>>();
-
+        
         public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end)
         {
             try

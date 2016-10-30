@@ -20,12 +20,17 @@ namespace EventSourcingDemo
             var Resolver = new DependencyResolver();
             var rep = Resolver.ResolveDependecy<IRepository<Note>>();
 
+            #region "Create Note"
+
             //Create new note
-            Note tmpNote = new Note("Test Note","Event Sourcing System Demo","Event Sourcing");
+            Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
 
             Console.WriteLine("After Creation:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
             Console.WriteLine();
+            #endregion
+
+            #region "Edit Note"
 
             //Do some changes
             tmpNote.ChangeTitle("Test Note 123");
@@ -37,10 +42,14 @@ namespace EventSourcingDemo
             Console.WriteLine("After Committing Events:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
 
+            #endregion
+
+            #region "Reload Note From Storage"
+
             //Load same note using the aggregate id
             //This will replay the saved events and contruct a new note
             var tmpNoteToLoad = rep.GetById(tmpNote.Id);
-            
+
             Console.WriteLine("");
             Console.WriteLine("After Replaying:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
@@ -49,6 +58,8 @@ namespace EventSourcingDemo
             Console.WriteLine("Press enter key to exit.");
 
             Console.ReadLine();
+
+            #endregion
 
         }
     }

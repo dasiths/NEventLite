@@ -15,9 +15,10 @@ namespace EventSourcingDemo.Repository
         private readonly IEventStorageProvider _storageProvider;
         private static object syncLockObject = new object();
 
-        public Repository(IEventStorageProvider storageProvider)
+        public Repository(IEventStorageProvider storageProvider, ISnapshotStorageProvider snapshotProvider)
         {
             _storageProvider = storageProvider;
+            _storageProvider.snapshotStorage = snapshotProvider;
         }
 
         public void Save(AggregateRoot aggregate)
@@ -27,7 +28,7 @@ namespace EventSourcingDemo.Repository
                 lock (syncLockObject)
                 {
                     var item = new T();
-                    var expectedVersion = aggregate.LastCommitedVersion;
+                    var expectedVersion = aggregate.LastCommittedVersion;
 
                     if (expectedVersion != 0)
                     {
