@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EventSourcingDemo.Domain;
 using EventSourcingDemo.Repository;
 using EventSourcingDemo.Storage;
+using EventSourcingDemo.Util;
 
 namespace EventSourcingDemo
 {
@@ -14,6 +15,10 @@ namespace EventSourcingDemo
     {
         static void Main(string[] args)
         {
+
+            //Load dependecy resolver
+            var Resolver = new DependencyResolver();
+            var rep = Resolver.ResolveDependecy<IRepository<Note>>();
 
             //Create new note
             Note tmpNote = new Note("Test Note","Event Sourcing System Demo","Event Sourcing");
@@ -26,8 +31,7 @@ namespace EventSourcingDemo
             tmpNote.ChangeTitle("Test Note 123");
             tmpNote.ChangeCategory("Event Sourcing in .NET Example");
 
-            //Commit and get event list to save
-            var rep = new Repository<Note>(new InMemoryStorageProvider());
+            //Commit chnages to the repository
             rep.Save(tmpNote);
 
             Console.WriteLine("After Committing Events:");
@@ -35,11 +39,11 @@ namespace EventSourcingDemo
 
             //Load same note using the aggregate id
             //This will replay the saved events and contruct a new note
-            tmpNote = rep.GetById(tmpNote.Id);
+            var tmpNoteToLoad = rep.GetById(tmpNote.Id);
             
             Console.WriteLine("");
             Console.WriteLine("After Replaying:");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
 
             Console.WriteLine();
             Console.WriteLine("Press enter key to exit.");
