@@ -34,7 +34,11 @@ namespace EventSourcingDemo
 
             //Do some changes
             tmpNote.ChangeTitle("Test Note 123");
-            tmpNote.ChangeCategory("Event Sourcing in .NET Example");
+            tmpNote.ChangeCategory("Event Sourcing in .NET Example.");
+            tmpNote.ChangeTitle("Test Note 123 ABC");
+            tmpNote.ChangeCategory("Event Sourcing in .NET Example..");
+            tmpNote.ChangeTitle("Test Note 123 XYZ");
+            tmpNote.ChangeCategory("Event Sourcing in .NET Example...");
 
             //Commit chnages to the repository
             rep.Save(tmpNote);

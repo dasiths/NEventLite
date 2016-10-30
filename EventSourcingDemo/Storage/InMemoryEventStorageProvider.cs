@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 using EventSourcingDemo.Domain;
 using EventSourcingDemo.Events;
 using EventSourcingDemo.Exceptions;
+using EventSourcingDemo.Snapshot;
 
 namespace EventSourcingDemo.Storage
 {
     class InMemoryEventStorageProvider : IEventStorageProvider
     {
-        public ISnapshotStorageProvider snapshotStorage { get; set; }
         private Dictionary<Guid, List<Event>> eventStream = new Dictionary<Guid, List<Event>>();
         
         public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end)
@@ -46,7 +46,6 @@ namespace EventSourcingDemo.Storage
                     eventStream[aggregate.Id].AddRange(events);
                 }
             }
-
 
         }
     }

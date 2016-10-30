@@ -12,7 +12,6 @@ namespace EventSourcingDemo.Storage
 {
     public interface IEventStorageProvider
     {
-        ISnapshotStorageProvider snapshotStorage { get; set; }
         IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end);
         void CommitChanges(AggregateRoot aggregate);
     }

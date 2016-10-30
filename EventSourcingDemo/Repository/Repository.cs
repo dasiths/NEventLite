@@ -6,19 +6,21 @@ using System.Threading.Tasks;
 using EventSourcingDemo.Domain;
 using EventSourcingDemo.Events;
 using EventSourcingDemo.Exceptions;
+using EventSourcingDemo.Snapshot;
 using EventSourcingDemo.Storage;
 
 namespace EventSourcingDemo.Repository
 {
-    class Repository<T>:IRepository<T> where T : AggregateRoot, new()
+    class Repository<T> : IRepository<T> where T : AggregateRoot, new()
     {
-        private readonly IEventStorageProvider _storageProvider;
+        private readonly IEventStorageProvider _EventStorageProvider;
+        private readonly ISnapshotStorageProvider _snapshotStorageProvider;
         private static object syncLockObject = new object();
 
-        public Repository(IEventStorageProvider storageProvider, ISnapshotStorageProvider snapshotProvider)
+        public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider)
         {
-            _storageProvider = storageProvider;
-            _storageProvider.snapshotStorage = snapshotProvider;
+            _EventStorageProvider = eventStorageProvider;
+            _snapshotStorageProvider = snapshotStorageProvider;
         }
 
         public void Save(AggregateRoot aggregate)
@@ -39,7 +41,15 @@ namespace EventSourcingDemo.Repository
                         }
                     }
 
-                    _storageProvider.CommitChanges(aggregate);
+                    _EventStorageProvider.CommitChanges(aggregate);
+
+                    //Every 3 events we save a snapshot
+                    if ((aggregate.CurrentVersion > 2) &&
+                        (aggregate.CurrentVersion - aggregate.LastCommittedVersion > 3) || (aggregate.CurrentVersion % 3 == 0))
+                    {
+                        _snapshotStorageProvider.SaveSnapshot(((ISnapshottable)aggregate).GetSnapshot());
+                    }
+
                     aggregate.MarkChangesAsCommitted();
                 }
             }
@@ -47,10 +57,21 @@ namespace EventSourcingDemo.Repository
 
         public T GetById(Guid id)
         {
-            var events = _storageProvider.GetEvents(id, 0, int.MaxValue);
 
             var item = new T();
-            item.LoadsFromHistory(events);
+            var snapshot = _snapshotStorageProvider.GetSnapshot(id);
+
+            if (snapshot != null)
+            {
+                ((ISnapshottable)item).SetSnapshot(snapshot);
+                var events = _EventStorageProvider.GetEvents(id, snapshot.Version + 1, int.MaxValue);
+                item.LoadsFromHistory(events);
+            }
+            else
+            {
+                var events = _EventStorageProvider.GetEvents(id, 0, int.MaxValue);
+                item.LoadsFromHistory(events);
+            }
 
             return item;
         }

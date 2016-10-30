@@ -6,16 +6,15 @@ using System.Threading.Tasks;
 
 namespace EventSourcingDemo.Storage
 {
-    class InMemorySnapshotStorageProvider:ISnapshotStorageProvider
-    {
+    class InMemorySnapshotStorageProvider:ISnapshotStorageProvider{
 
-        private Dictionary<Guid,Snapshot.Snapshot> items = new Dictionary<Guid,Snapshot.Snapshot>();
+        private readonly Dictionary<Guid,Snapshot.Snapshot> _items = new Dictionary<Guid,Snapshot.Snapshot>();
 
         public Snapshot.Snapshot GetSnapshot(Guid aggregateId)
         {
-            if (items.ContainsKey(aggregateId))
+            if (_items.ContainsKey(aggregateId))
             {
-                return items[aggregateId];
+                return _items[aggregateId];
             }
             else
             {
@@ -25,13 +24,13 @@ namespace EventSourcingDemo.Storage
 
         public void SaveSnapshot(Snapshot.Snapshot snapshot)
         {
-            if (items.ContainsKey(snapshot.AggregateId))
+            if (_items.ContainsKey(snapshot.AggregateId))
             {
-               items[snapshot.AggregateId] = snapshot;
+               _items[snapshot.AggregateId] = snapshot;
             }
             else
             {
-                items.Add(snapshot.AggregateId,snapshot);
+                _items.Add(snapshot.AggregateId,snapshot);
             }
         }
     }
