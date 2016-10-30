@@ -20,7 +20,8 @@ namespace EventSourcingDemo.Util
             // Create your builder.
             var builder = new ContainerBuilder();
             builder.RegisterType<InMemoryStorageProvider>().As<IEventStorageProvider>().SingleInstance();
-            builder.RegisterType<Repository<Note>>().As<IRepository<Note>>().SingleInstance();
+            builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
+            //builder.RegisterType<Repository<Note>>().As<IRepository<Note>>().SingleInstance();
             Container = builder.Build();
         }
 
