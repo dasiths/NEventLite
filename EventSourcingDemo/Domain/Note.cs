@@ -30,12 +30,12 @@ namespace EventSourcingDemo.Domain
 
         public void ChangeTitle(string newTitle)
         {
-            HandleEvent(new NoteTitleChangedEvent(this.Id, this.Version, newTitle));
+            HandleEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
         }
 
         public void ChangeCategory(string newCategory)
         {
-            HandleEvent(new NoteCategoryChangedEvent(this.Id, this.Version, newCategory));
+            HandleEvent(new NoteCategoryChangedEvent(this.Id, this.CurrentVersion, newCategory));
         }
 
         #endregion

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Events;
+using EventSourcingDemo.Exceptions;
 
 namespace EventSourcingDemo.Domain
 {
@@ -12,11 +13,13 @@ namespace EventSourcingDemo.Domain
         private readonly List<Events.Event> _changes;
 
         public Guid Id { get; internal set; }
-        public int Version { get; internal set; }
+        public int CurrentVersion { get; internal set; }
+        public int LastCommitedVersion { get; internal set; }
 
         protected AggregateRoot()
         {
-            Version = 0;
+            CurrentVersion = 0;
+            LastCommitedVersion = 0;
             _changes = new List<Events.Event>();
         }
 
@@ -28,6 +31,7 @@ namespace EventSourcingDemo.Domain
         public void MarkChangesAsCommitted()
         {
             _changes.Clear();
+            LastCommitedVersion = CurrentVersion;
         }
 
         public void LoadsFromHistory(IEnumerable<Events.Event> history)
@@ -36,6 +40,7 @@ namespace EventSourcingDemo.Domain
             {
                 HandleEvent(e, false);
             }
+            LastCommitedVersion = CurrentVersion;
         }
 
         protected void HandleEvent(Events.Event @event)
@@ -61,7 +66,7 @@ namespace EventSourcingDemo.Domain
 
         private bool CanApply(Event @event, bool isCreationEvent)
         {
-            if (((isCreationEvent) || (this.Id == @event.AggregateId)) && (this.Version == @event.TargetVersion))
+            if (((isCreationEvent) || (this.Id == @event.AggregateId)) && (this.CurrentVersion == @event.TargetVersion))
             {
                 return true;
             }
@@ -76,11 +81,11 @@ namespace EventSourcingDemo.Domain
             if (this.CanApply(@event, isCreationEvent))
             {
                 this.Id = @event.AggregateId;
-                this.Version++;
+                this.CurrentVersion++;
             }
             else
             {
-                throw new Exception($"The event target version is {@event.TargetVersion} and AggregateRoot version is {this.Version}");
+                throw new AggregateStateMismatchException($"The event target version is {@event.TargetVersion} and AggregateRoot version is {this.CurrentVersion}");
             }
         }
     }
