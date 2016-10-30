@@ -5,6 +5,8 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Domain;
+using EventSourcingDemo.Repository;
+using EventSourcingDemo.Storage;
 
 namespace EventSourcingDemo
 {
@@ -24,17 +26,16 @@ namespace EventSourcingDemo
             tmpNote.ChangeTitle("Test Note 123");
             tmpNote.ChangeCategory("Event Sourcing in .NET Example");
 
-            Console.WriteLine("After Events:");
+            //Commit and get event list to save
+            var rep = new Repository<Note>(new InMemoryStorageProvider());
+            rep.Save(tmpNote);
+
+            Console.WriteLine("After Committing Events:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
 
-            //Commit and get event list to save
-            var events = tmpNote.GetUncommittedChanges();
-            tmpNote.MarkChangesAsCommitted();
-
-            //Apply the events to a blank Note
-            tmpNote = null;
-            tmpNote = new Note();
-            tmpNote.LoadsFromHistory(events);
+            //Load same note using the aggregate id
+            //This will replay the saved events and contruct a new note
+            tmpNote = rep.GetById(tmpNote.Id);
             
             Console.WriteLine("");
             Console.WriteLine("After Replaying:");

@@ -15,6 +15,11 @@ namespace EventSourcingDemo.Repository
         private readonly IEventStorageProvider _storageProvider;
         private static object syncLockObject = new object();
 
+        public Repository(IEventStorageProvider storageProvider)
+        {
+            _storageProvider = storageProvider;
+        }
+
         public void Save(AggregateRoot aggregate)
         {
             if (aggregate.GetUncommittedChanges().Any())

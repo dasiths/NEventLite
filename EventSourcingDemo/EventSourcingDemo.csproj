@@ -56,6 +56,7 @@
     <Compile Include="Events\NoteCategoryChangedEvent.cs" />
     <Compile Include="Events\NoteTitleChangedEvent.cs" />
     <Compile Include="Events\NoteCreatedEvent.cs" />
+    <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\ConcurrencyException.cs" />
     <Compile Include="Exceptions\AggregateStateMismatchException.cs" />
     <Compile Include="Program.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Repository\IRepository.cs" />
     <Compile Include="Repository\Repository.cs" />
     <Compile Include="Storage\IEventStorageProvider.cs" />
+    <Compile Include="Storage\InMemoryStorageProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
