@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Domain;
@@ -15,6 +16,7 @@ namespace EventSourcingDemo.Storage
     class EventstoreEventStorageProvider : IEventStorageProvider
     {
         private static readonly string eventsourcedemo = "EventSourceDemo";
+        private static readonly int maxEventStoreReadCount = 4096;
 
         public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end)
         {
@@ -22,8 +24,24 @@ namespace EventSourcingDemo.Storage
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
 
-            //There is a max limit of 4096 messages per read so use paging
-            if (end > 4096) end = 4096;
+            var events = ReadEvents(connection, aggregateId, start, end);
+
+            connection.Close();
+
+            return events;
+        }
+
+        public IEnumerable<Event> ReadEvents(IEventStoreConnection connection, Guid aggregateId, int start, int end)
+        {
+
+            var events = new List<Event>();
+
+            //There is a max limit of 4096 messages per read in eventstore so use paging
+            int readUpTo = end;
+            if (end - start >= maxEventStoreReadCount)
+            {
+                end = start + maxEventStoreReadCount;
+            }
 
             JsonSerializerSettings serializerSettings = new JsonSerializerSettings
             {
@@ -31,9 +49,7 @@ namespace EventSourcingDemo.Storage
             };
 
             var streamEvents = connection.ReadStreamEventsForwardAsync(
-                $"{eventsourcedemo}-{aggregateId}", (start == 0 ? 0 : start - 1), end - 1, false).Result;
-
-            var events = new List<Event>();
+                $"{eventsourcedemo}-{aggregateId}", (start == 0 ? 0 : start - 1),  (end-start) - 1, false).Result;
 
             foreach (var returnedEvent in streamEvents.Events)
             {
@@ -42,7 +58,10 @@ namespace EventSourcingDemo.Storage
                     Encoding.UTF8.GetString(returnedEvent.Event.Data), serializerSettings));
             }
 
-            connection.Close();
+            if (events.Count() >= maxEventStoreReadCount && end<readUpTo)
+            {
+                events.AddRange(ReadEvents(connection,aggregateId,end,readUpTo));
+            }
 
             return events;
         }
