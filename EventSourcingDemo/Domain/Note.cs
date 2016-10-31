@@ -27,7 +27,7 @@ namespace EventSourcingDemo.Domain
 
         public Note(string title, string desc, string cat)
         {
-            HandleEvent(new NoteCreatedEvent(new Guid(), 0, title, desc, cat, DateTime.Now));
+            HandleEvent(new NoteCreatedEvent(Guid.NewGuid(), 0, title, desc, cat, DateTime.Now));
         }
 
         public void ChangeTitle(string newTitle)
@@ -73,7 +73,7 @@ namespace EventSourcingDemo.Domain
         #region "Snapshots"
         public Snapshot.Snapshot GetSnapshot()
         {
-            return new NoteSnapshot(new Guid(),
+            return new NoteSnapshot(Guid.NewGuid(),
                                     this.Id,
                                     this.CurrentVersion,
                                     this.CreatedDate,

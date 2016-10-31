@@ -51,13 +51,13 @@ namespace EventSourcingDemo.Storage
 
                 foreach (var @event in events)
                 {
-                    ExpectedVersion++;
-
                     var myEvent = new EventData(@event.Id, @event.GetType().ToString().ToLower(), false,
                             Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(@event)),
                             Encoding.UTF8.GetBytes(@event.GetType().ToString()));
 
                     connection.AppendToStreamAsync($"{eventsourcedemo}-{aggregate.Id}", ExpectedVersion, myEvent).Wait(); //ExpectedVersion.Any
+
+                    ExpectedVersion++;
                 }
             }
 
