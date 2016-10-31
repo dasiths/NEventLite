@@ -38,6 +38,10 @@
       <HintPath>..\packages\Autofac.4.1.1\lib\net45\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="EventStore.ClientAPI, Version=3.9.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\EventStore.Client.3.9.2\lib\net40\EventStore.ClientAPI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -70,6 +74,7 @@
     <Compile Include="Snapshot\ISnapshottable.cs" />
     <Compile Include="Snapshot\NoteSnapshot.cs" />
     <Compile Include="Snapshot\Snapshot.cs" />
+    <Compile Include="Storage\EventstoreEventStorageProvider.cs" />
     <Compile Include="Storage\InMemorySnapshotStorageProvider.cs" />
     <Compile Include="Storage\ISnapshotStorageProvider.cs" />
     <Compile Include="Storage\IEventStorageProvider.cs" />

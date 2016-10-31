@@ -16,7 +16,7 @@ namespace EventSourcingDemo
         static void Main(string[] args)
         {
 
-            //Load dependecy resolver
+            //Load dependency resolver
             var Resolver = new DependencyResolver();
             var rep = Resolver.ResolveDependecy<IRepository<Note>>();
 
@@ -51,7 +51,7 @@ namespace EventSourcingDemo
             #region "Reload Note From Storage"
 
             //Load same note using the aggregate id
-            //This will replay the saved events and contruct a new note
+            //This will replay the saved events and construct a new note
             var tmpNoteToLoad = rep.GetById(tmpNote.Id);
 
             Console.WriteLine("");
