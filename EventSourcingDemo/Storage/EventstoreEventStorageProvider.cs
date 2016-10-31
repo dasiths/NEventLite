@@ -60,6 +60,8 @@ namespace EventSourcingDemo.Storage
                     connection.AppendToStreamAsync($"{eventsourcedemo}-{aggregate.Id}", ExpectedVersion, myEvent).Wait(); //ExpectedVersion.Any
                 }
             }
+
+            connection.Close();
         }
 
         private static IEventStoreConnection GetEventStoreConnection()
