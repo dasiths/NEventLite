@@ -58,7 +58,9 @@ namespace EventSourcingDemo.Storage
                     Encoding.UTF8.GetString(returnedEvent.Event.Data), serializerSettings));
             }
 
-            if (events.Count() >= maxEventStoreReadCount && end<readUpTo)
+            //recursively call with new start value to load next page
+            //No need to try to read again if the last read returned less than the max count
+            if ((events.Count() >= (maxEventStoreReadCount - 1)) && (end<readUpTo))
             {
                 events.AddRange(ReadEvents(connection,aggregateId,end,readUpTo));
             }
