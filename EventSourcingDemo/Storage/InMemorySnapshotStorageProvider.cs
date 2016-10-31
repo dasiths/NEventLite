@@ -26,11 +26,11 @@ namespace EventSourcingDemo.Storage
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {
-               _items[snapshot.AggregateId] = snapshot;
+               //_items[snapshot.AggregateId] = snapshot;
             }
             else
             {
-                _items.Add(snapshot.AggregateId,snapshot);
+               // _items.Add(snapshot.AggregateId,snapshot);
             }
         }
     }

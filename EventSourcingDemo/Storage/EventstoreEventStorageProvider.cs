@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using EventSourcingDemo.Domain;
 using EventSourcingDemo.Events;
 using EventStore.ClientAPI;
+using Newtonsoft.Json;
 
 namespace EventSourcingDemo.Storage
 {
@@ -20,15 +22,24 @@ namespace EventSourcingDemo.Storage
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
 
-            var streamEvents = connection.ReadStreamEventsForwardAsync($"{eventsourcedemo}-{aggregateId}", start - 1, end - 1, false).Result;
+            //There is a max limit of 4096 messages per read so use paging
+            if (end > 4096) end = 4096;
+
+            JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All
+            };
+
+            var streamEvents = connection.ReadStreamEventsForwardAsync(
+                $"{eventsourcedemo}-{aggregateId}", (start == 0 ? 0 : start - 1), end - 1, false).Result;
 
             var events = new List<Event>();
 
             foreach (var returnedEvent in streamEvents.Events)
             {
                 var strObjectType = Encoding.UTF8.GetString(returnedEvent.Event.Metadata);
-                events.Add((Event)Newtonsoft.Json.JsonConvert.DeserializeObject(
-                    Encoding.UTF8.GetString(returnedEvent.Event.Data)));
+                events.Add(JsonConvert.DeserializeObject<Event>(
+                    Encoding.UTF8.GetString(returnedEvent.Event.Data), serializerSettings));
             }
 
             connection.Close();
@@ -47,18 +58,23 @@ namespace EventSourcingDemo.Storage
 
             if (events.Any())
             {
-                var ExpectedVersion = aggregate.LastCommittedVersion;
+                var LastVersion = aggregate.LastCommittedVersion - 1;
+                List<EventData> eventData = new List<EventData>();
 
                 foreach (var @event in events)
                 {
-                    var myEvent = new EventData(@event.Id, @event.GetType().ToString().ToLower(), false,
-                            Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(@event)),
-                            Encoding.UTF8.GetBytes(@event.GetType().ToString()));
+                    JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+                    {
+                        TypeNameHandling = TypeNameHandling.All
+                    };
 
-                    connection.AppendToStreamAsync($"{eventsourcedemo}-{aggregate.Id}", ExpectedVersion, myEvent).Wait(); //ExpectedVersion.Any
-
-                    ExpectedVersion++;
+                    eventData.Add(new EventData(@event.Id, @event.GetType().ToString(), false,
+                            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, serializerSettings)),
+                            Encoding.UTF8.GetBytes(@event.GetType().ToString())));
                 }
+
+                connection.AppendToStreamAsync($"{eventsourcedemo}-{aggregate.Id}", 
+                                                (LastVersion < 0 ? ExpectedVersion.Any : LastVersion), eventData).Wait();
             }
 
             connection.Close();
