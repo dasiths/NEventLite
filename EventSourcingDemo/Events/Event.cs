@@ -14,7 +14,7 @@ namespace EventSourcingDemo.Events
         {
             this.AggregateId = AggregateID;
             this.TargetVersion = TargetVersion;
-            this.Id = new Guid();
+            this.Id = Guid.NewGuid();
         }
     }
 

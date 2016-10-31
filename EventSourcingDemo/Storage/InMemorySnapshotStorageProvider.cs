@@ -30,7 +30,7 @@ namespace EventSourcingDemo.Storage
             }
             else
             {
-                _items.Add(snapshot.AggregateId,snapshot);
+               _items.Add(snapshot.AggregateId,snapshot);
             }
         }
     }

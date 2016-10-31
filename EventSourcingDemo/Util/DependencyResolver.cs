@@ -19,15 +19,23 @@ namespace EventSourcingDemo.Util
         {
             // Create your builder.
             var builder = new ContainerBuilder();
-            builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
+
+            //If you don't have eventstore installed use the InMemoeryEventStorageProvider and comment out EventstoreEventStorageProvider line here.
+            //Event store connection settings are in EventstoreEventStorageProvider class
+            builder.RegisterType<EventstoreEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
+            //builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
+
+            //Can use Redis as cache/snapshot provider
             builder.RegisterType<InMemorySnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
+
+            //This will resolve and bind storage types to a concrete repository of <T> as needed
             builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
             Container = builder.Build();
         }
 
         public T ResolveDependecy<T>()
         {
-                return Container.Resolve<T>();
+            return Container.Resolve<T>();
         }
     }
 }
