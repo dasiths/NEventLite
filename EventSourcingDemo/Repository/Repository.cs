@@ -14,13 +14,13 @@ namespace EventSourcingDemo.Repository
     class Repository<T> : IRepository<T> where T : AggregateRoot, new()
     {
         private readonly IEventStorageProvider _EventStorageProvider;
-        private readonly ISnapshotStorageProvider _snapshotStorageProvider;
+        private readonly ISnapshotStorageProvider _SnapshotStorageProvider;
         private static object syncLockObject = new object();
 
         public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider)
         {
             _EventStorageProvider = eventStorageProvider;
-            _snapshotStorageProvider = snapshotStorageProvider;
+            _SnapshotStorageProvider = snapshotStorageProvider;
         }
 
         public void Save(AggregateRoot aggregate)
@@ -47,7 +47,7 @@ namespace EventSourcingDemo.Repository
                     if ((aggregate.CurrentVersion > 2) &&
                         (aggregate.CurrentVersion - aggregate.LastCommittedVersion > 3) || (aggregate.CurrentVersion % 3 == 0))
                     {
-                        _snapshotStorageProvider.SaveSnapshot(((ISnapshottable)aggregate).GetSnapshot());
+                        _SnapshotStorageProvider.SaveSnapshot(((ISnapshottable)aggregate).GetSnapshot());
                     }
 
                     aggregate.MarkChangesAsCommitted();
@@ -59,7 +59,7 @@ namespace EventSourcingDemo.Repository
         {
 
             var item = new T();
-            var snapshot = _snapshotStorageProvider.GetSnapshot(id);
+            var snapshot = _SnapshotStorageProvider.GetSnapshot(id);
 
             if (snapshot != null)
             {
