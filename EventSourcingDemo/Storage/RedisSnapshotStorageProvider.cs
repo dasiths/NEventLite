@@ -11,7 +11,7 @@ namespace EventSourcingDemo.Storage
     public class RedisSnapshotStorageProvider : ISnapshotStorageProvider
     {
         private BasicRedisClientManager clientsManager = null;
-        private const string redisConnectionString = "EventSourcingTest:redisPassword@redis-12322.c10.us-east-1-3.ec2.cloud.redislabs.com:12322";
+        private const string redisConnectionString = "EventSourcingTest:redisPassword123@redis-12322.c10.us-east-1-3.ec2.cloud.redislabs.com:12322";
 
         public RedisSnapshotStorageProvider()
         {
@@ -55,7 +55,7 @@ namespace EventSourcingDemo.Storage
 
                 var strSnapshot = JsonConvert.SerializeObject(snapshot, serializerSettings);
 
-                redis.Set(snapshot.AggregateId.ToString(), strSnapshot);
+                redis.SetValue(snapshot.AggregateId.ToString(), strSnapshot);
 
             }
         }
