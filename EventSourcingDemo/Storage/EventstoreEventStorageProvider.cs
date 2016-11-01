@@ -37,6 +37,8 @@ namespace EventSourcingDemo.Storage
             var events = new List<Event>();
 
             //There is a max limit of 4096 messages per read in eventstore so use paging
+            //Todo: Use streamEvents.IsEndOfStream() and streamEvents.NextEventNumber to implement reccomended paging method
+
             int readUpTo = end;
             if (end - start >= maxEventStoreReadCount)
             {
@@ -70,8 +72,6 @@ namespace EventSourcingDemo.Storage
 
         public void CommitChanges(AggregateRoot aggregate)
         {
-
-            //Connection to the local eventstore on default port 1113
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
 
