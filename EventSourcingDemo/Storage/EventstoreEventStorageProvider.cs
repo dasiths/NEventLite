@@ -15,8 +15,8 @@ namespace EventSourcingDemo.Storage
 {
     class EventstoreEventStorageProvider : IEventStorageProvider
     {
-        private static readonly string eventsourcedemo = "EventSourceDemo";
-        private static readonly int maxEventStoreReadCount = 4096;
+        private static readonly string eventNamePrefix = "EventSourceDemo";
+        private const int maxEventStoreReadCount = 4096;
 
         public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end)
         {
@@ -49,7 +49,7 @@ namespace EventSourcingDemo.Storage
             };
 
             var streamEvents = connection.ReadStreamEventsForwardAsync(
-                $"{eventsourcedemo}-{aggregateId}", (start == 0 ? 0 : start - 1),  (end-start) - 1, false).Result;
+                $"{eventNamePrefix}-{aggregateId}", (start == 0 ? 0 : start - 1),  (end-start) - 1, false).Result;
 
             foreach (var returnedEvent in streamEvents.Events)
             {
@@ -80,7 +80,7 @@ namespace EventSourcingDemo.Storage
             if (events.Any())
             {
                 var LastVersion = aggregate.LastCommittedVersion - 1;
-                List<EventData> eventData = new List<EventData>();
+                List<EventData> lstEventData = new List<EventData>();
 
                 foreach (var @event in events)
                 {
@@ -89,13 +89,13 @@ namespace EventSourcingDemo.Storage
                         TypeNameHandling = TypeNameHandling.All
                     };
 
-                    eventData.Add(new EventData(@event.Id, @event.GetType().ToString(), false,
+                    lstEventData.Add(new EventData(@event.Id, @event.GetType().ToString(), false,
                             Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, serializerSettings)),
                             Encoding.UTF8.GetBytes(@event.GetType().ToString())));
                 }
 
-                connection.AppendToStreamAsync($"{eventsourcedemo}-{aggregate.Id}", 
-                                                (LastVersion < 0 ? ExpectedVersion.Any : LastVersion), eventData).Wait();
+                connection.AppendToStreamAsync($"{eventNamePrefix}-{aggregate.Id}", 
+                                                (LastVersion < 0 ? ExpectedVersion.Any : LastVersion), lstEventData).Wait();
             }
 
             connection.Close();

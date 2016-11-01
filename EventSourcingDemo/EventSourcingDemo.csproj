@@ -76,6 +76,7 @@
     <Compile Include="Snapshot\NoteSnapshot.cs" />
     <Compile Include="Snapshot\Snapshot.cs" />
     <Compile Include="Storage\EventstoreEventStorageProvider.cs" />
+    <Compile Include="Storage\EventstoreSnapshotStorageProvider.cs" />
     <Compile Include="Storage\InMemorySnapshotStorageProvider.cs" />
     <Compile Include="Storage\ISnapshotStorageProvider.cs" />
     <Compile Include="Storage\IEventStorageProvider.cs" />
