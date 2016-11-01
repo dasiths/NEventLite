@@ -25,24 +25,34 @@ namespace EventSourcingDemo
             //Create new note
             Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
 
-            Console.WriteLine("After Creation:");
+            Console.WriteLine("After Creation: This is version 1 of the AggregateRoot.");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
             Console.WriteLine();
             #endregion
 
             #region "Edit Note"
 
-            //Do some changes
-            tmpNote.ChangeTitle("Test Note 123");
-            tmpNote.ChangeCategory("Event Sourcing in .NET Example.");
-            tmpNote.ChangeTitle("Test Note 123 ABC");
-            tmpNote.ChangeCategory("Event Sourcing in .NET Example..");
-            tmpNote.ChangeTitle("Test Note 123 XYZ");
-            tmpNote.ChangeCategory("Event Sourcing in .NET Example...");
+            Console.WriteLine("Doing some changes now...");
+            Console.WriteLine("");
 
-            //Commit chnages to the repository
-            rep.Save(tmpNote);
 
+            //Do 10 x 5 events cycle to check snapshots too.
+            for (int i = 0; i < 10; i++)
+            {
+                //Do some changes
+                for (int x = 0; x < 5; x++)
+                {
+                    tmpNote.ChangeTitle($"Test Note 123 Event({tmpNote.CurrentVersion + 1})");
+                    tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event({tmpNote.CurrentVersion + 1})");
+                }
+
+                Console.WriteLine($"Committing Changes Now For Cycle {i}");
+
+                //Commit chnages to the repository
+                rep.Save(tmpNote);
+            }
+
+            Console.WriteLine("");
             Console.WriteLine("After Committing Events:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
 
