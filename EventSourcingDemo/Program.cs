@@ -35,7 +35,6 @@ namespace EventSourcingDemo
             Console.WriteLine("Doing some changes now...");
             Console.WriteLine("");
 
-
             //Do 10 x 5 events cycle to check snapshots too.
             for (int i = 0; i < 10; i++)
             {
