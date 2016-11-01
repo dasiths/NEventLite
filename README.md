@@ -16,5 +16,5 @@ Please feel free to contribute and improve the code as you see fit.
 
 What's next?
 Have a look at this awesome CQRS tutorial: http://www.codeproject.com/Articles/555855/Introduction-to-CQRS
-The event sourcing pattern I implemented is very close to the implementation here.
+The event sourcing pattern I implemented is very close to the implementation in the tutorial linked.
 
