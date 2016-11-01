@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Domain;
+﻿using EventSourcingDemo.Domain;
 using EventSourcingDemo.Events;
 using EventSourcingDemo.Exceptions;
-using EventSourcingDemo.Snapshot;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EventSourcingDemo.Storage
 {
     class InMemoryEventStorageProvider : IEventStorageProvider
     {
         private Dictionary<Guid, List<Event>> eventStream = new Dictionary<Guid, List<Event>>();
-        
+
+        public bool HasConcurrencyCheck => false;
+
         public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end)
         {
             try

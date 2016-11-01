@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Domain;
+﻿using EventSourcingDemo.Domain;
 using EventSourcingDemo.Events;
-using EventSourcingDemo.Snapshot;
+using System;
+using System.Collections.Generic;
 
 namespace EventSourcingDemo.Storage
 {
@@ -14,6 +9,7 @@ namespace EventSourcingDemo.Storage
     {
         IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end);
         void CommitChanges(AggregateRoot aggregate);
+        bool HasConcurrencyCheck { get; }
     }
 }
 

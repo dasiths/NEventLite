@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Domain;
+﻿using EventSourcingDemo.Domain;
 using EventSourcingDemo.Events;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
 
 namespace EventSourcingDemo.Storage
 {
@@ -17,6 +14,8 @@ namespace EventSourcingDemo.Storage
     {
         private static readonly string eventNamePrefix = "EventSourceDemo";
         private const int maxEventStoreReadCount = 4096;
+
+        public bool HasConcurrencyCheck => true;
 
         public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end)
         {
@@ -51,7 +50,7 @@ namespace EventSourcingDemo.Storage
             };
 
             var streamEvents = connection.ReadStreamEventsForwardAsync(
-                $"{eventNamePrefix}-{aggregateId}", (start == 0 ? 0 : start - 1),  (end-start) - 1, false).Result;
+                $"{eventNamePrefix}-{aggregateId}", (start == 0 ? 0 : start - 1), (end - start) - 1, false).Result;
 
             foreach (var returnedEvent in streamEvents.Events)
             {
@@ -62,9 +61,9 @@ namespace EventSourcingDemo.Storage
 
             //recursively call with new start value to load next page
             //No need to try to read again if the last read returned less than the max count
-            if ((events.Count() >= (maxEventStoreReadCount - 1)) && (end<readUpTo))
+            if ((events.Count() >= (maxEventStoreReadCount - 1)) && (end < readUpTo))
             {
-                events.AddRange(ReadEvents(connection,aggregateId,end,readUpTo));
+                events.AddRange(ReadEvents(connection, aggregateId, end, readUpTo));
             }
 
             return events;
@@ -94,7 +93,7 @@ namespace EventSourcingDemo.Storage
                             Encoding.UTF8.GetBytes(@event.GetType().ToString())));
                 }
 
-                connection.AppendToStreamAsync($"{eventNamePrefix}-{aggregate.Id}", 
+                connection.AppendToStreamAsync($"{eventNamePrefix}-{aggregate.Id}",
                                                 (LastVersion < 0 ? ExpectedVersion.Any : LastVersion), lstEventData).Wait();
             }
 
