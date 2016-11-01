@@ -20,12 +20,12 @@ namespace EventSourcingDemo.Util
             // Create your builder.
             var builder = new ContainerBuilder();
 
-            //If you don't have eventstore installed use the InMemoeryEventStorageProvider and comment out EventstoreEventStorageProvider line here.
+            //If you don't have eventstore installed use the InMemoryEventStorageProvider and comment out EventstoreEventStorageProvider line here.
             //Event store connection settings are in EventstoreEventStorageProvider class
             builder.RegisterType<EventstoreEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
             //builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
 
-            //If you don't have eventstore installed use the InMemoeryEventStorageProvider and comment out EventstoreEventStorageProvider line here.
+            //If you don't have eventstore installed use the InMemorySnapshotStorageProvider and comment out EventstoreEventStorageProvider line here.
             //Event store connection settings are in EventstoreEventStorageProvider class
             builder.RegisterType<EventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
             //builder.RegisterType<RedisSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
