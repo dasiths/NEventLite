@@ -26,8 +26,9 @@ namespace EventSourcingDemo.Util
             //builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
 
             //If you don't have eventstore installed use the InMemorySnapshotStorageProvider and comment out EventstoreEventStorageProvider line here.
-            //Event store connection settings are in EventstoreEventStorageProvider class
+            //Event store connection settings are in EventstoreConnection class
             builder.RegisterType<EventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
+            //Redis connection settings are in RedisConnection class
             //builder.RegisterType<RedisSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
             //builder.RegisterType<InMemorySnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
 

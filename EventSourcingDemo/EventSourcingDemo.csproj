@@ -99,6 +99,8 @@
     <Compile Include="Storage\InMemoryEventStorageProvider.cs" />
     <Compile Include="Storage\RedisSnapshotStorageProvider.cs" />
     <Compile Include="Util\DependencyResolver.cs" />
+    <Compile Include="Util\EventstoreConnection.cs" />
+    <Compile Include="Util\RedisConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

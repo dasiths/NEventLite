@@ -64,8 +64,7 @@ namespace EventSourcingDemo.Storage
 
         private static IEventStoreConnection GetEventStoreConnection()
         {
-            //Connection to the local eventstore on default port 1113
-            return EventStoreConnection.Create(new IPEndPoint(IPAddress.Loopback, 1113));
+            return Util.EventstoreConnection.GetEventstoreConnection();
         }
     }
 }

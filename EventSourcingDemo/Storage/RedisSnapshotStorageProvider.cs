@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EventSourcingDemo.Util;
 using Newtonsoft.Json;
 using ServiceStack.Redis;
 
@@ -11,11 +12,10 @@ namespace EventSourcingDemo.Storage
     public class RedisSnapshotStorageProvider : ISnapshotStorageProvider
     {
         private BasicRedisClientManager clientsManager = null;
-        private const string redisConnectionString = "EventSourcingTest:redisPassword123@redis-12322.c10.us-east-1-3.ec2.cloud.redislabs.com:12322";
 
         public RedisSnapshotStorageProvider()
         {
-            clientsManager = new BasicRedisClientManager(redisConnectionString);
+            clientsManager = new BasicRedisClientManager(RedisConnection.redisConnectionString);
         }
 
         public Snapshot.Snapshot GetSnapshot(Guid aggregateId)
