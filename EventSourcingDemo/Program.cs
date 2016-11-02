@@ -45,7 +45,7 @@ namespace EventSourcingDemo
                 //Create new note
                 tmpNote = CreateNewNote();
 
-                Console.WriteLine("After Creation: This is version 1 of the AggregateRoot.");
+                Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
                 Console.WriteLine();
             }
@@ -105,8 +105,8 @@ namespace EventSourcingDemo
             {
                 for (int x = 0; x < 5; x++)
                 {
-                    tmpNote.ChangeTitle($"Test Note 123 Event({tmpNote.CurrentVersion + 1})");
-                    tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event({tmpNote.CurrentVersion + 1})");
+                    tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
+                    tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event ({tmpNote.CurrentVersion + 1})");
                 }
 
                 Console.WriteLine($"Committing Changes Now For Cycle {i}");
@@ -116,8 +116,8 @@ namespace EventSourcingDemo
             }
 
             //Do some changes that don't get caught in the snapshot
-            tmpNote.ChangeTitle($"Test Note 123 Event({tmpNote.CurrentVersion + 1})");
-            tmpNote.ChangeTitle($"Test Note 123 Event({tmpNote.CurrentVersion + 1})");
+            tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
+            tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
             //Commit changes to the repository
             rep.Save(tmpNote);
         }
