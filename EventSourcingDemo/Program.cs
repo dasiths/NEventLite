@@ -24,7 +24,7 @@ namespace EventSourcingDemo
 
             Note tmpNote = null;
 
-            //Try to load a given guid
+            //Try to load a given guid. Example: 76bc9edb-9857-4e2a-9fa0-762b90844119
             Console.WriteLine("Enter a GUID to try to load or leave blank and press enter:");
             string strGUID = Console.ReadLine();
             Guid LoadID;
