@@ -100,8 +100,8 @@ namespace EventSourcingDemo
 
         private static void DoChanges(Note tmpNote, IRepository<Note> rep)
         {
-            //Do 10 x 5 events cycle to check snapshots too.
-            for (int i = 0; i < 10; i++)
+            //Do 3 x 5 events cycle to check snapshots too.
+            for (int i = 0; i < 3; i++)
             {
                 for (int x = 0; x < 5; x++)
                 {
@@ -117,7 +117,7 @@ namespace EventSourcingDemo
 
             //Do some changes that don't get caught in the snapshot
             tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
-            tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
+            tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event ({tmpNote.CurrentVersion + 1})");
             //Commit changes to the repository
             rep.Save(tmpNote);
         }

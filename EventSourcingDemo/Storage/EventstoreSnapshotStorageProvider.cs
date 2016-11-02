@@ -27,7 +27,7 @@ namespace EventSourcingDemo.Storage
             };
 
             var streamEvents = connection.ReadStreamEventsBackwardAsync(
-                $"{eventNamePrefix}-{aggregateId}", 0, 1, false).Result;
+                $"{eventNamePrefix}-{aggregateId}", StreamPosition.End, 1, false).Result;
 
             if (streamEvents.Events.Any())
             {
