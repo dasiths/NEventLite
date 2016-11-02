@@ -22,12 +22,15 @@ namespace EventSourcingDemo
 
             #region "Create Note"
 
+            Note tmpNote = null;
+
             //Create new note
-            Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
+            tmpNote = CreateNewNote();
 
             Console.WriteLine("After Creation: This is version 1 of the AggregateRoot.");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
             Console.WriteLine();
+
             #endregion
 
             #region "Edit Note"
@@ -35,6 +38,47 @@ namespace EventSourcingDemo
             Console.WriteLine("Doing some changes now...");
             Console.WriteLine("");
 
+            DoChanges(tmpNote, rep);
+
+            Console.WriteLine("");
+            Console.WriteLine("After Committing Events:");
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
+
+            #endregion
+
+            #region "Reload Note From Storage"
+
+            //Load same note using the aggregate id
+            //This will replay the saved events and construct a new note
+            var tmpNoteToLoad = LoadNote(tmpNote.Id, rep);
+
+            Console.WriteLine("");
+            Console.WriteLine("After Replaying:");
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
+
+            Console.WriteLine();
+            Console.WriteLine("Press enter key to exit.");
+
+            Console.ReadLine();
+
+            #endregion
+
+        }
+
+        private static Note CreateNewNote()
+        {
+            Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
+            return tmpNote;
+        }
+
+        private static Note LoadNote(Guid NoteID, IRepository<Note> rep)
+        {
+            var tmpNoteToLoad = rep.GetById(NoteID);
+            return tmpNoteToLoad;
+        }
+
+        private static void DoChanges(Note tmpNote, IRepository<Note> rep)
+        {
             //Do 10 x 5 events cycle to check snapshots too.
             for (int i = 0; i < 10; i++)
             {
@@ -50,30 +94,7 @@ namespace EventSourcingDemo
                 //Commit chnages to the repository
                 rep.Save(tmpNote);
             }
-
-            Console.WriteLine("");
-            Console.WriteLine("After Committing Events:");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
-
-            #endregion
-
-            #region "Reload Note From Storage"
-
-            //Load same note using the aggregate id
-            //This will replay the saved events and construct a new note
-            var tmpNoteToLoad = rep.GetById(tmpNote.Id);
-
-            Console.WriteLine("");
-            Console.WriteLine("After Replaying:");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
-
-            Console.WriteLine();
-            Console.WriteLine("Press enter key to exit.");
-
-            Console.ReadLine();
-
-            #endregion
-
         }
+
     }
 }
