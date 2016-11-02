@@ -38,7 +38,7 @@ namespace EventSourcingDemo.Storage
             var events = new List<Event>();
             var streamEvents = new List<ResolvedEvent>();
             StreamEventsSlice currentSlice;
-            var nextSliceStart = StreamPosition.Start;
+            var nextSliceStart = start < 0 ? StreamPosition.Start: start;
 
             JsonSerializerSettings serializerSettings = new JsonSerializerSettings
             {
