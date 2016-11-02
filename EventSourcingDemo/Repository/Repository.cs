@@ -43,7 +43,7 @@ namespace EventSourcingDemo.Repository
             if (expectedVersion != 0)
             {
                 item = GetById(aggregate.Id);
-                if (item.CurrentVersion != expectedVersion)
+                if ((item != null) && (item.CurrentVersion != expectedVersion))
                 {
                     throw new ConcurrencyException($"Aggregate {item.Id} has been modified externally and has an updated state. Can't commit changes.");
                 }
