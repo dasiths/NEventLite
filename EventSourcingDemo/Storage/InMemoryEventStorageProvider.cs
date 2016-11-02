@@ -17,14 +17,31 @@ namespace EventSourcingDemo.Storage
         {
             try
             {
-                return
-                    eventStream[aggregateId].Where(
-                        o => (eventStream[aggregateId].IndexOf(o) >= start) && (eventStream[aggregateId].IndexOf(o) < (start + count)))
-                        .ToArray();
+                if (eventStream.ContainsKey(aggregateId))
+                {
+
+                    //this is needed for make sure it doesn't fail when we have int.maxValue for count
+                    if (count > int.MaxValue - start)
+                    {
+                        count = int.MaxValue - start;
+                    }
+
+                    return
+                        eventStream[aggregateId].Where(
+                            o =>
+                                (eventStream[aggregateId].IndexOf(o) >= start) &&
+                                (eventStream[aggregateId].IndexOf(o) < (start + count)))
+                            .ToArray();
+                }
+                else
+                {
+                    return new List<Event>();
+                }
+                
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new AggregateNotFoundException($"The aggregate with {aggregateId} was not found.");
+                throw new AggregateNotFoundException($"The aggregate with {aggregateId} was not found. Details {ex.Message}");
             }
 
         }
