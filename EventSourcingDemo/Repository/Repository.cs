@@ -63,11 +63,12 @@ namespace EventSourcingDemo.Repository
         public T GetById(Guid id)
         {
 
-            var item = new T();
+            T item = null;
             var snapshot = _SnapshotStorageProvider.GetSnapshot(id);
 
             if (snapshot != null)
             {
+                item = new T();
                 ((ISnapshottable)item).SetSnapshot(snapshot);
                 var events = _EventStorageProvider.GetEvents(id, snapshot.Version + 1, int.MaxValue);
                 item.LoadsFromHistory(events);
@@ -75,7 +76,12 @@ namespace EventSourcingDemo.Repository
             else
             {
                 var events = _EventStorageProvider.GetEvents(id, 0, int.MaxValue);
-                item.LoadsFromHistory(events);
+
+                if (events.Any())
+                {
+                    item = new T();
+                    item.LoadsFromHistory(events);
+                }
             }
 
             return item;
