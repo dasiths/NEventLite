@@ -51,12 +51,20 @@ namespace EventSourcingDemo.Repository
 
             _EventStorageProvider.CommitChanges(aggregate);
 
-            //Every N events we save a snapshot
-            if ((aggregate.CurrentVersion > (snapshotFrequency-1)) &&
-                (aggregate.CurrentVersion - aggregate.LastCommittedVersion > snapshotFrequency) || (aggregate.CurrentVersion % snapshotFrequency == 0))
+
+            //If the Aggregate implements snaphottable
+            var snapshottable = aggregate as ISnapshottable;
+
+            if (snapshottable != null)
             {
-                _SnapshotStorageProvider.SaveSnapshot(((ISnapshottable)aggregate).GetSnapshot());
+                //Every N events we save a snapshot
+                if ((aggregate.CurrentVersion > (snapshotFrequency - 1)) &&
+                    (aggregate.CurrentVersion - aggregate.LastCommittedVersion > snapshotFrequency) || (aggregate.CurrentVersion % snapshotFrequency == 0))
+                {
+                    _SnapshotStorageProvider.SaveSnapshot(snapshottable.GetSnapshot());
+                }
             }
+
 
             aggregate.MarkChangesAsCommitted();
         }
