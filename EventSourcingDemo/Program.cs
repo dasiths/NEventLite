@@ -20,16 +20,36 @@ namespace EventSourcingDemo
             var Resolver = new DependencyResolver();
             var rep = Resolver.ResolveDependecy<IRepository<Note>>();
 
-            #region "Create Note"
+            #region "Create / Load Note"
 
             Note tmpNote = null;
 
-            //Create new note
-            tmpNote = CreateNewNote();
+            //Try to load a given guid
+            Console.WriteLine("Enter a GUID to try to load or leave blank and press enter:");
+            string strGUID = Console.ReadLine();
+            Guid LoadID;
 
-            Console.WriteLine("After Creation: This is version 1 of the AggregateRoot.");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
-            Console.WriteLine();
+            if ((string.IsNullOrEmpty(strGUID)==false) && (Guid.TryParse(strGUID, out LoadID)))
+            {
+                tmpNote = LoadNote(LoadID, rep);
+
+                if (tmpNote == null)
+                {
+                    Console.WriteLine($"No Note found with provided Guid of {LoadID.ToString()}. Press enter key to exit.");
+                    Console.ReadLine();
+                    return;
+                }
+            }
+            else
+            {
+                //Create new note
+                tmpNote = CreateNewNote();
+
+                Console.WriteLine("After Creation: This is version 1 of the AggregateRoot.");
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
+                Console.WriteLine();
+            }
+
 
             #endregion
 
@@ -38,6 +58,7 @@ namespace EventSourcingDemo
             Console.WriteLine("Doing some changes now...");
             Console.WriteLine("");
 
+            //Do some changes
             DoChanges(tmpNote, rep);
 
             Console.WriteLine("");
@@ -82,7 +103,6 @@ namespace EventSourcingDemo
             //Do 10 x 5 events cycle to check snapshots too.
             for (int i = 0; i < 10; i++)
             {
-                //Do some changes
                 for (int x = 0; x < 5; x++)
                 {
                     tmpNote.ChangeTitle($"Test Note 123 Event({tmpNote.CurrentVersion + 1})");
@@ -91,7 +111,7 @@ namespace EventSourcingDemo
 
                 Console.WriteLine($"Committing Changes Now For Cycle {i}");
 
-                //Commit chnages to the repository
+                //Commit changes to the repository
                 rep.Save(tmpNote);
             }
         }

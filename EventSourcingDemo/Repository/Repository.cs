@@ -12,6 +12,7 @@ namespace EventSourcingDemo.Repository
         private readonly IEventStorageProvider _EventStorageProvider;
         private readonly ISnapshotStorageProvider _SnapshotStorageProvider;
         private static object syncLockObject;
+        private static readonly int snapshotFrequency = 5;
 
         public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider)
         {
@@ -50,9 +51,9 @@ namespace EventSourcingDemo.Repository
 
             _EventStorageProvider.CommitChanges(aggregate);
 
-            //Every 3 events we save a snapshot
-            if ((aggregate.CurrentVersion > 2) &&
-                (aggregate.CurrentVersion - aggregate.LastCommittedVersion > 3) || (aggregate.CurrentVersion % 3 == 0))
+            //Every N events we save a snapshot
+            if ((aggregate.CurrentVersion > (snapshotFrequency-1)) &&
+                (aggregate.CurrentVersion - aggregate.LastCommittedVersion > snapshotFrequency) || (aggregate.CurrentVersion % snapshotFrequency == 0))
             {
                 _SnapshotStorageProvider.SaveSnapshot(((ISnapshottable)aggregate).GetSnapshot());
             }
