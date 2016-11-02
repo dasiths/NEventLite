@@ -114,6 +114,12 @@ namespace EventSourcingDemo
                 //Commit changes to the repository
                 rep.Save(tmpNote);
             }
+
+            //Do some changes that don't get caught in the snapshot
+            tmpNote.ChangeTitle($"Test Note 123 Event({tmpNote.CurrentVersion + 1})");
+            tmpNote.ChangeTitle($"Test Note 123 Event({tmpNote.CurrentVersion + 1})");
+            //Commit changes to the repository
+            rep.Save(tmpNote);
         }
 
     }
