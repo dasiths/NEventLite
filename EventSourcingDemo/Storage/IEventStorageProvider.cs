@@ -7,7 +7,7 @@ namespace EventSourcingDemo.Storage
 {
     public interface IEventStorageProvider
     {
-        IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end);
+        IEnumerable<Event> GetEvents(Guid aggregateId, int start, int count);
         void CommitChanges(AggregateRoot aggregate);
         bool HasConcurrencyCheck { get; }
     }

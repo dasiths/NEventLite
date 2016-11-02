@@ -25,7 +25,8 @@ namespace EventSourcingDemo.Domain
     /// </summary>
     public abstract class AggregateRoot
     {
-        private readonly List<Events.Event> _changes;
+        private const string ApplyMethodNameInEventHandler = "Apply";
+        private readonly List<Events.Event> _uncommittedChanges;
 
         public Guid Id { get; internal set; } //The AggregateID must be unique
         public int CurrentVersion { get; internal set; } //This will store the current version of the aggregate
@@ -33,9 +34,9 @@ namespace EventSourcingDemo.Domain
 
         protected AggregateRoot()
         {
-            CurrentVersion = 0;
-            LastCommittedVersion = 0;
-            _changes = new List<Events.Event>();
+            CurrentVersion = -1;
+            LastCommittedVersion = -1;
+            _uncommittedChanges = new List<Events.Event>();
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace EventSourcingDemo.Domain
         /// <returns>The uncommited events</returns>
         public IEnumerable<Events.Event> GetUncommittedChanges()
         {
-            return _changes.ToList();
+            return _uncommittedChanges.ToList();
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace EventSourcingDemo.Domain
         /// </summary>
         public void MarkChangesAsCommitted()
         {
-            _changes.Clear();
+            _uncommittedChanges.Clear();
             LastCommittedVersion = CurrentVersion;
         }
 
@@ -95,12 +96,12 @@ namespace EventSourcingDemo.Domain
             try
             {
                 object[] args = new object[] { @event };
-                var method = ((object)this).GetType().GetMethod("Apply",new Type[] { @event.GetType() }); //Find the right method
+                var method = ((object)this).GetType().GetMethod(ApplyMethodNameInEventHandler,new Type[] { @event.GetType() }); //Find the right method
                 method.Invoke(this, args); //invoke with the event as argument
 
                 if (isNew)
                 {
-                    _changes.Add(@event); //only add to the events collection if it's a new event
+                    _uncommittedChanges.Add(@event); //only add to the events collection if it's a new event
                 }
             }
             catch (Exception ex)

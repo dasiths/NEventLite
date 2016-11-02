@@ -13,57 +13,62 @@ namespace EventSourcingDemo.Storage
     class EventstoreEventStorageProvider : IEventStorageProvider
     {
         private static readonly string eventNamePrefix = "EventSourceDemo";
-        private const int maxEventStoreReadCount = 4096;
+
+        //There is a max limit of 4096 messages per read in eventstore so use paging
+        private const int eventStorePageSize = 200;
 
         public bool HasConcurrencyCheck => true;
 
-        public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end)
+        public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int count)
         {
 
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
 
-            var events = ReadEvents(connection, aggregateId, start, end);
+            var events = ReadEvents(connection, aggregateId, start, count);
 
             connection.Close();
 
             return events;
         }
 
-        public IEnumerable<Event> ReadEvents(IEventStoreConnection connection, Guid aggregateId, int start, int end)
+        public IEnumerable<Event> ReadEvents(IEventStoreConnection connection, Guid aggregateId, int start, int count)
         {
 
             var events = new List<Event>();
-
-            //There is a max limit of 4096 messages per read in eventstore so use paging
-            //Todo: Use streamEvents.IsEndOfStream() and streamEvents.NextEventNumber to implement recommended paging method
-
-            int readUpTo = end;
-            if (end - start >= maxEventStoreReadCount)
-            {
-                end = start + maxEventStoreReadCount;
-            }
+            var streamEvents = new List<ResolvedEvent>();
+            StreamEventsSlice currentSlice;
+            var nextSliceStart = StreamPosition.Start;
 
             JsonSerializerSettings serializerSettings = new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.All
             };
 
-            var streamEvents = connection.ReadStreamEventsForwardAsync(
-                $"{eventNamePrefix}-{aggregateId}", (start == 0 ? 0 : start - 1), (end - start) - 1, false).Result;
+            //Read the stream using pagesize which was set before.
+            //We only need to read the full page ahead if expected results are larger than the page size
 
-            foreach (var returnedEvent in streamEvents.Events)
+            do
+            {
+                int nextReadCount = count - streamEvents.Count();
+
+                if (nextReadCount > eventStorePageSize)
+                {
+                    nextReadCount = eventStorePageSize;
+                }
+
+                currentSlice = connection.ReadStreamEventsForwardAsync($"{eventNamePrefix}-{aggregateId}", nextSliceStart, nextReadCount, false).Result;
+                nextSliceStart = currentSlice.NextEventNumber;
+
+                streamEvents.AddRange(currentSlice.Events);
+
+            } while (!currentSlice.IsEndOfStream);
+
+            foreach (var returnedEvent in streamEvents)
             {
                 var strObjectType = Encoding.UTF8.GetString(returnedEvent.Event.Metadata);
                 events.Add(JsonConvert.DeserializeObject<Event>(
                     Encoding.UTF8.GetString(returnedEvent.Event.Data), serializerSettings));
-            }
-
-            //recursively call with new start value to load next page
-            //No need to try to read again if the last read returned less than the max count
-            if ((events.Count() >= (maxEventStoreReadCount - 1)) && (end < readUpTo))
-            {
-                events.AddRange(ReadEvents(connection, aggregateId, end, readUpTo));
             }
 
             return events;
@@ -78,7 +83,7 @@ namespace EventSourcingDemo.Storage
 
             if (events.Any())
             {
-                var LastVersion = aggregate.LastCommittedVersion - 1;
+                var LastVersion = aggregate.LastCommittedVersion;
                 List<EventData> lstEventData = new List<EventData>();
 
                 foreach (var @event in events)

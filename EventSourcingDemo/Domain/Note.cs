@@ -49,10 +49,10 @@ namespace EventSourcingDemo.Domain
         /// <param name="title">Title</param>
         /// <param name="desc">Description</param>
         /// <param name="cat">Category</param>
-        public Note(string title, string desc, string cat)
+        public Note(string title, string desc, string cat):this()
         {
             //Pattern: Create the event and call HandleEvent(Event)
-            HandleEvent(new NoteCreatedEvent(Guid.NewGuid(), 0, title, desc, cat, DateTime.Now));
+            HandleEvent(new NoteCreatedEvent(Guid.NewGuid(), this.CurrentVersion, title, desc, cat, DateTime.Now));
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace EventSourcingDemo.Domain
         }
 
         /// <summary>
-        /// Chnage category of the note
+        /// Change category of the note
         /// </summary>
         /// <param name="newCategory">New Category</param>
         public void ChangeCategory(string newCategory)

@@ -13,13 +13,13 @@ namespace EventSourcingDemo.Storage
 
         public bool HasConcurrencyCheck => false;
 
-        public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int end)
+        public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int count)
         {
             try
             {
                 return
                     eventStream[aggregateId].Where(
-                        o => (eventStream[aggregateId].IndexOf(o) >= start) && (eventStream[aggregateId].IndexOf(o) < end))
+                        o => (eventStream[aggregateId].IndexOf(o) >= start) && (eventStream[aggregateId].IndexOf(o) < (start + count)))
                         .ToArray();
             }
             catch (Exception)
