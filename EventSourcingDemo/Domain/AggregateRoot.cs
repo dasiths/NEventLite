@@ -13,6 +13,7 @@ This way we can contruct the state for the aggregate to any point in time by rep
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Events;
@@ -89,15 +90,17 @@ namespace EventSourcingDemo.Domain
         {
             //All state changes to AggregateRoot must happen via the Apply method
             //Make sure the right Apply method is called with the right type.
-            //We will use reflection for this.
-
-            //TODO: I tried dynamic object for this but ran into some issues. Give it a try using dynamics again.
+            //We can you use dynamic objects or reflection for this.
 
             try
             {
-                object[] args = new object[] { @event };
-                var method = ((object)this).GetType().GetMethod(ApplyMethodNameInEventHandler,new Type[] { @event.GetType() }); //Find the right method
-                method.Invoke(this, args); //invoke with the event as argument
+                var method = ((object)this).GetType().GetMethod(ApplyMethodNameInEventHandler, new Type[] { @event.GetType() }); //Find the right method
+                method.Invoke(this, new object[] {@event}); //invoke with the event as argument
+
+                // or we can use dynamics
+                //dynamic d = this;
+                //dynamic e = Convert.ChangeType(@event, @event.GetType());
+                //d.Apply(e);
 
                 if (isNew)
                 {
