@@ -1,22 +1,17 @@
-﻿using EventSourcingDemo.Domain;
-using EventSourcingDemo.Events;
-using EventStore.ClientAPI;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
+using EventStore.ClientAPI;
+using Newtonsoft.Json;
 using NEventLite.Domain;
 using NEventLite.Events;
 using NEventLite.Storage;
 
-namespace EventSourcingDemo.Storage
+namespace NEventLite_Storage_Providers.EventStore
 {
-    class EventstoreEventStorageProvider : IEventStorageProvider
+    public abstract class EventstoreEventStorageProvider : IEventStorageProvider
     {
-        private static readonly string eventNamePrefix = "EventSourceDemo";
-
         //There is a max limit of 4096 messages per read in eventstore so use paging
         private const int eventStorePageSize = 200;
 
@@ -60,7 +55,7 @@ namespace EventSourcingDemo.Storage
                     nextReadCount = eventStorePageSize;
                 }
 
-                currentSlice = connection.ReadStreamEventsForwardAsync($"{eventNamePrefix}-{aggregateId}", nextSliceStart, nextReadCount, false).Result;
+                currentSlice = connection.ReadStreamEventsForwardAsync($"{GetStreamNamePrefix()}{aggregateId}", nextSliceStart, nextReadCount, false).Result;
                 nextSliceStart = currentSlice.NextEventNumber;
 
                 streamEvents.AddRange(currentSlice.Events);
@@ -101,16 +96,15 @@ namespace EventSourcingDemo.Storage
                             Encoding.UTF8.GetBytes(@event.GetType().ToString())));
                 }
 
-                connection.AppendToStreamAsync($"{eventNamePrefix}-{aggregate.Id}",
+                connection.AppendToStreamAsync($"{GetStreamNamePrefix()}{aggregate.Id}",
                                                 (LastVersion < 0 ? ExpectedVersion.Any : LastVersion), lstEventData).Wait();
             }
 
             connection.Close();
         }
 
-        private static IEventStoreConnection GetEventStoreConnection()
-        {
-            return Util.EventstoreConnection.GetEventstoreConnection();
-        }
+        public abstract IEventStoreConnection GetEventStoreConnection();
+
+        public abstract String GetStreamNamePrefix();
     }
 }

@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
 using NEventLite.Storage;
 
-namespace EventSourcingDemo.Storage
+namespace NEventLite_Storage_Providers.EventStore
 {
-    class EventstoreSnapshotStorageProvider:ISnapshotStorageProvider
+    public abstract class EventstoreSnapshotStorageProvider:ISnapshotStorageProvider
     {
-        private static readonly string eventNamePrefix = "EventSourceDemo_Snapshot";
-
         public NEventLite.Snapshot.Snapshot GetSnapshot(Guid aggregateId)
         {
 
@@ -28,7 +23,7 @@ namespace EventSourcingDemo.Storage
             };
 
             var streamEvents = connection.ReadStreamEventsBackwardAsync(
-                $"{eventNamePrefix}-{aggregateId}", StreamPosition.End, 1, false).Result;
+                $"{GetStreamNamePrefix()}{aggregateId}", StreamPosition.End, 1, false).Result;
 
             if (streamEvents.Events.Any())
             {
@@ -57,15 +52,14 @@ namespace EventSourcingDemo.Storage
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(snapshot, serializerSettings)),
                 Encoding.UTF8.GetBytes(snapshot.GetType().ToString()));
 
-            connection.AppendToStreamAsync($"{eventNamePrefix}-{snapshot.AggregateId}",
+            connection.AppendToStreamAsync($"{GetStreamNamePrefix()}{snapshot.AggregateId}",
                                                 ExpectedVersion.Any, snapshotyEvent).Wait();
 
             connection.Close();
         }
 
-        private static IEventStoreConnection GetEventStoreConnection()
-        {
-            return Util.EventstoreConnection.GetEventstoreConnection();
-        }
+        public abstract IEventStoreConnection GetEventStoreConnection();
+
+        public abstract String GetStreamNamePrefix();
     }
 }

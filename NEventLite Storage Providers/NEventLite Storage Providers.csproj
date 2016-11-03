@@ -4,18 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2935C3C2-24BE-4434-ADD7-DFB712DBB9F1}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{14FDA88E-B5A0-4BE0-8B49-1828B9A3A4F2}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventSourcingDemo</RootNamespace>
-    <AssemblyName>EventSourcingDemo</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <RootNamespace>NEventLite_Storage_Providers</RootNamespace>
+    <AssemblyName>NEventLite Storage Providers</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=4.1.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.1.1\lib\net45\Autofac.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="EventStore.ClientAPI, Version=3.9.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\EventStore.Client.3.9.2\lib\net40\EventStore.ClientAPI.dll</HintPath>
       <Private>True</Private>
@@ -72,37 +64,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\Note.cs" />
-    <Compile Include="Events\NoteCategoryChangedEvent.cs" />
-    <Compile Include="Events\NoteTitleChangedEvent.cs" />
-    <Compile Include="Events\NoteCreatedEvent.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="EventStore\EventstoreEventStorageProvider.cs" />
+    <Compile Include="EventStore\EventstoreSnapshotStorageProvider.cs" />
+    <Compile Include="InMemory\InMemoryEventStorageProvider.cs" />
+    <Compile Include="InMemory\InMemorySnapshotStorageProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Snapshot\NoteSnapshot.cs" />
-    <Compile Include="Storage\MyEventstoreEventStorageProvider.cs" />
-    <Compile Include="Storage\MyEventstoreSnapshotStorageProvider.cs" />
-    <Compile Include="Storage\MyRedisSnapshotStorageProvider.cs" />
-    <Compile Include="Util\DependencyResolver.cs" />
-    <Compile Include="Util\EventstoreConnection.cs" />
-    <Compile Include="Util\RedisConnection.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <Compile Include="Redis\RedisSnapshotStorageProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NEventLite Framework\NEventLite.csproj">
       <Project>{0b52f02d-037e-4c47-9246-882fd59304db}</Project>
       <Name>NEventLite</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NEventLite Storage Providers\NEventLite Storage Providers.csproj">
-      <Project>{14fda88e-b5a0-4be0-8b49-1828b9a3a4f2}</Project>
-      <Name>NEventLite Storage Providers</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Exceptions\" />
+    <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

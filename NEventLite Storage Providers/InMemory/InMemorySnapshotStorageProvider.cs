@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NEventLite.Storage;
 
-namespace EventSourcingDemo.Storage
+namespace NEventLite_Storage_Providers.InMemory
 {
-    class InMemorySnapshotStorageProvider:ISnapshotStorageProvider{
+    public class InMemorySnapshotStorageProvider:ISnapshotStorageProvider{
 
         private readonly Dictionary<Guid,NEventLite.Snapshot.Snapshot> _items = new Dictionary<Guid,NEventLite.Snapshot.Snapshot>();
 

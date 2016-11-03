@@ -1,6 +1,4 @@
-﻿using EventSourcingDemo.Domain;
-using EventSourcingDemo.Events;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NEventLite.Domain;
@@ -8,9 +6,9 @@ using NEventLite.Events;
 using NEventLite.Exceptions;
 using NEventLite.Storage;
 
-namespace EventSourcingDemo.Storage
+namespace NEventLite_Storage_Providers.InMemory
 {
-    class InMemoryEventStorageProvider : IEventStorageProvider
+    public class InMemoryEventStorageProvider : IEventStorageProvider
     {
         private Dictionary<Guid, List<Event>> eventStream = new Dictionary<Guid, List<Event>>();
 

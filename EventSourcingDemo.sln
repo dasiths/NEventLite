@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcingDemo", "EventS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite", "NEventLite Framework\NEventLite.csproj", "{0B52F02D-037E-4C47-9246-882FD59304DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite Storage Providers", "NEventLite Storage Providers\NEventLite Storage Providers.csproj", "{14FDA88E-B5A0-4BE0-8B49-1828B9A3A4F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{0B52F02D-037E-4C47-9246-882FD59304DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B52F02D-037E-4C47-9246-882FD59304DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B52F02D-037E-4C47-9246-882FD59304DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14FDA88E-B5A0-4BE0-8B49-1828B9A3A4F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14FDA88E-B5A0-4BE0-8B49-1828B9A3A4F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14FDA88E-B5A0-4BE0-8B49-1828B9A3A4F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14FDA88E-B5A0-4BE0-8B49-1828B9A3A4F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

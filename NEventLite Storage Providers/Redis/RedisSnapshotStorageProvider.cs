@@ -1,23 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Util;
 using Newtonsoft.Json;
 using NEventLite.Storage;
 using ServiceStack.Redis;
 
-namespace EventSourcingDemo.Storage
+namespace NEventLite_Storage_Providers.Redis
 {
-    public class RedisSnapshotStorageProvider : ISnapshotStorageProvider
+    public abstract class RedisSnapshotStorageProvider : ISnapshotStorageProvider
     {
         private BasicRedisClientManager clientsManager = null;
 
         public RedisSnapshotStorageProvider()
         {
-            clientsManager = new BasicRedisClientManager(RedisConnection.redisConnectionString);
+            clientsManager = GetClientsManager();
         }
+
+        public abstract BasicRedisClientManager GetClientsManager();
 
         public NEventLite.Snapshot.Snapshot GetSnapshot(Guid aggregateId)
         {
