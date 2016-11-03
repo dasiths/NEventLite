@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Autofac;
-using EventSourcingDemo.Domain;
-using EventSourcingDemo.Storage;
+﻿using Autofac;
 using NEventLite.Repository;
 using NEventLite.Storage;
 using NEventLite_Storage_Providers.InMemory;
 
-namespace EventSourcingDemo.Util
+namespace NEventLite_Example.Util
 {
     public class DependencyResolver
     {

@@ -1,9 +1,8 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25402.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcingDemo", "NEventLite Example\EventSourcingDemo.csproj", "{2935C3C2-24BE-4434-ADD7-DFB712DBB9F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite Example", "NEventLite Example\NEventLite Example.csproj", "{2935C3C2-24BE-4434-ADD7-DFB712DBB9F1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0B52F02D-037E-4C47-9246-882FD59304DB} = {0B52F02D-037E-4C47-9246-882FD59304DB}
 	EndProjectSection

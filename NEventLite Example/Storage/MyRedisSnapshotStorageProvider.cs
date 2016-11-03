@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Util;
+﻿using NEventLite_Example.Util;
 using ServiceStack.Redis;
 
-namespace EventSourcingDemo.Storage
+namespace NEventLite_Example.Storage
 {
     class MyRedisSnapshotStorageProvider:NEventLite_Storage_Providers.Redis.RedisSnapshotStorageProvider
     {

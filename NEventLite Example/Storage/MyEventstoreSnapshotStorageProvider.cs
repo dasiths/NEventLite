@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EventStore.ClientAPI;
+﻿using EventStore.ClientAPI;
 
-namespace EventSourcingDemo.Storage
+namespace NEventLite_Example.Storage
 {
     class MyEventstoreSnapshotStorageProvider:NEventLite_Storage_Providers.EventStore.EventstoreSnapshotStorageProvider
     {

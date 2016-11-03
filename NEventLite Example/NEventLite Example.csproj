@@ -7,8 +7,8 @@
     <ProjectGuid>{2935C3C2-24BE-4434-ADD7-DFB712DBB9F1}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventSourcingDemo</RootNamespace>
-    <AssemblyName>EventSourcingDemo</AssemblyName>
+    <RootNamespace>NEventLite_Example</RootNamespace>
+    <AssemblyName>NEventLite_Example</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

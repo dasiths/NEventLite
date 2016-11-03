@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Domain;
-using EventSourcingDemo.Util;
 using NEventLite.Repository;
+using NEventLite_Example.Domain;
+using NEventLite_Example.Util;
 
-namespace EventSourcingDemo
+namespace NEventLite_Example
 {
     class Program
     {

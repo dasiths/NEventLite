@@ -9,18 +9,13 @@ The "Note" is an AggregateRoot and implements event handlers and ISnapshottable 
 \***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Events;
-using EventSourcingDemo.Snapshot;
 using NEventLite.Domain;
-using NEventLite.Events;
 using NEventLite.Event_Handlers;
 using NEventLite.Snapshot;
+using NEventLite_Example.Events;
+using NEventLite_Example.Snapshot;
 
-namespace EventSourcingDemo.Domain
+namespace NEventLite_Example.Domain
 {
     /// <summary>
     /// Note is an AggregateRoot. 
