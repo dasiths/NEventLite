@@ -1,6 +1,6 @@
 ﻿/****************************** Class Header ******************************\
 Module Name:    <IEvent.cs>
-Project:        <EventSourcingDemo> [https://github.com/dasiths/EventSourcingDemo]
+Project:        <NEventLite> [https://github.com/dasiths/NEventLite]
 Author:         Dasith Wijesiriwardena [https://github.com/dasiths]
 
 Interface for all events in the system. Requires an unique eventID

@@ -1,6 +1,6 @@
 ﻿/****************************** Class Header ******************************\
 Module Name:    <IEventHandler.cs>
-Project:        <EventSourcingDemo> [https://github.com/dasiths/EventSourcingDemo]
+Project:        <NEventLite> [https://github.com/dasiths/NEventLite]
 Author:         Dasith Wijesiriwardena [https://github.com/dasiths]
 
 This simply has an Apply method to do state changes in the implemented AggregateRoot

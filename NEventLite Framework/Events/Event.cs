@@ -1,6 +1,6 @@
 ﻿/****************************** Class Header ******************************\
 Module Name:    <Event.cs>
-Project:        <EventSourcingDemo> [https://github.com/dasiths/EventSourcingDemo]
+Project:        <NEventLite> [https://github.com/dasiths/NEventLite]
 Author:         Dasith Wijesiriwardena [https://github.com/dasiths]
 
 This is the base class for all events. We implement the reqauired properties to make it work with Aggregates. 

@@ -1,6 +1,6 @@
 ﻿/****************************** Class Header ******************************\
 Module Name:    <AggregateRoot.cs>
-Project:        <EventSourcingDemo> [https://github.com/dasiths/EventSourcingDemo]
+Project:        <NEventLite> [https://github.com/dasiths/NEventLite]
 Author:         Dasith Wijesiriwardena [https://github.com/dasiths]
 
 What is an "AggregateRoot" in DDD? http://martinfowler.com/bliki/DDD_Aggregate.html
