@@ -95,11 +95,11 @@ namespace EventSourcingDemo.Domain
             try
             {
                 var method = ((object)this).GetType().GetMethod(ApplyMethodNameInEventHandler, new Type[] { @event.GetType() }); //Find the right method
-                method.Invoke(this, new object[] {@event}); //invoke with the event as argument
+                method.Invoke(this, new object[] { @event }); //invoke with the event as argument
 
                 // or we can use dynamics
                 //dynamic d = this;
-                //dynamic e = Convert.ChangeType(@event, @event.GetType());
+                //dynamic e = @event;
                 //d.Apply(e);
 
                 if (isNew)
