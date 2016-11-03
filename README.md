@@ -1,12 +1,16 @@
-# EventSourcingDemo - Demonstrate the event sourcing pattern using c# and EventStore
+# NEventLite - Light weight .NET framework for Event Sourcing with support for custom Event and Snapshot Stores (EventSore, Redis, SQL Server or Custom)
 ---------------------------------
-This purpose of this project is to demonstrate the Event Sourcing design pattern using the EventStore (https://geteventstore.com/) and .NET
+NEventLite makes it easier to implement the event sourcing patrtern in your .NET project. It is opinionated and enforces some patterns though. The framework is built with custom storage providers/event bus archetectures in mind. We also provide some popular event/storage storage provider implementations here. Feel free to use it as is or customisze it to suit your needs.
 
 Author: Dasith Wijesiriwardena
 ----------------------------------
 Requirements:
+
 •	A basic understanding of what Event Sourcing is. I recommend watching Greg Young's presentations and speeches about it on YouTube. 
 Start with : https://www.youtube.com/watch?v=JHGkaShoyNs
+
+• This purpose of the example project is to demonstrate the Event Sourcing design pattern using the EventStore (https://geteventstore.com/) and .NET
+
 •	Installation of EventStore (Optional, There is a built in InMemoryStorageProvider too)
 "Event Store stores your data as a series of immutable events over time, making it easy to build event-sourced applications" - https://geteventstore.com/)
 
