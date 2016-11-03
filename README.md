@@ -1,4 +1,4 @@
-# NEventLite - Light weight .NET framework for Event Sourcing with support for custom Event and Snapshot Stores (EventSore, Redis, SQL Server or Custom) written in C#
+# NEventLite - Light weight .NET framework for Event Sourcing with support for custom Event and Snapshot Stores (EventSore, Redis, SQL Server or Custom) written in C#.
 ---------------------------------
 NEventLite makes it easier to implement the event sourcing pattern in your .NET project. It is opinionated and enforces some patterns. The framework is built with support for custom storage providers and event bus architectures in mind. We also provide some popular event/snapshot storage provider implementations for NEventLite here. Feel free to use it as is or customisze it to suit your needs.
 
@@ -21,4 +21,3 @@ Please feel free to contribute and improve the code as you see fit.
 What's next?
 Have a look at this awesome CQRS tutorial: http://www.codeproject.com/Articles/555855/Introduction-to-CQRS
 The event sourcing pattern I implemented is very close to the implementation in the tutorial linked.
-
