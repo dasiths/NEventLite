@@ -53,6 +53,7 @@
     <Compile Include="Repository\Repository.cs" />
     <Compile Include="Snapshot\ISnapshottable.cs" />
     <Compile Include="Snapshot\Snapshot.cs" />
+    <Compile Include="Storage\IEventSnapshotStorageProvider.cs" />
     <Compile Include="Storage\IEventStorageProvider.cs" />
     <Compile Include="Storage\ISnapshotStorageProvider.cs" />
   </ItemGroup>

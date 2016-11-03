@@ -3,16 +3,17 @@ using System.Linq;
 using System.Text;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
+using NEventLite.Snapshot;
 using NEventLite.Storage;
 
 namespace NEventLite_Storage_Providers.EventStore
 {
-    public abstract class EventstoreSnapshotStorageProvider:ISnapshotStorageProvider
+    public abstract class EventstoreSnapshotStorageProvider:IEventSnapshotStorageProvider
     {
-        public NEventLite.Snapshot.Snapshot GetSnapshot(Guid aggregateId)
+        public Snapshot GetSnapshot(Guid aggregateId)
         {
 
-            NEventLite.Snapshot.Snapshot snapshot = null;
+            Snapshot snapshot = null;
 
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
@@ -29,7 +30,7 @@ namespace NEventLite_Storage_Providers.EventStore
             {
                 var result =  streamEvents.Events.FirstOrDefault();
 
-                snapshot = JsonConvert.DeserializeObject<NEventLite.Snapshot.Snapshot>(
+                snapshot = JsonConvert.DeserializeObject<Snapshot>(
                     Encoding.UTF8.GetString(result.Event.Data), serializerSettings);
             }
             
@@ -38,7 +39,7 @@ namespace NEventLite_Storage_Providers.EventStore
             return snapshot;
         }
 
-        public void SaveSnapshot(NEventLite.Snapshot.Snapshot snapshot)
+        public void SaveSnapshot(Snapshot snapshot)
         {
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
@@ -58,8 +59,36 @@ namespace NEventLite_Storage_Providers.EventStore
             connection.Close();
         }
 
+        public Snapshot GetSnapshot(Guid aggregateId, int version)
+        {
+            Snapshot snapshot = null;
+
+            var connection = GetEventStoreConnection();
+            connection.ConnectAsync().Wait();
+
+            JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All
+            };
+
+            var streamEvents = connection.ReadStreamEventsBackwardAsync(
+                $"{GetStreamNamePrefix()}{aggregateId}", version, 1, false).Result;
+
+            if (streamEvents.Events.Any())
+            {
+                var result = streamEvents.Events.FirstOrDefault();
+
+                snapshot = JsonConvert.DeserializeObject<Snapshot>(
+                    Encoding.UTF8.GetString(result.Event.Data), serializerSettings);
+            }
+
+            connection.Close();
+
+            return snapshot;
+        }
+
         public abstract IEventStoreConnection GetEventStoreConnection();
 
-        public abstract String GetStreamNamePrefix();
+        public abstract string GetStreamNamePrefix();
     }
 }

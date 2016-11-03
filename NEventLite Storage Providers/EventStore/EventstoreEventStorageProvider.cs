@@ -105,6 +105,6 @@ namespace NEventLite_Storage_Providers.EventStore
 
         public abstract IEventStoreConnection GetEventStoreConnection();
 
-        public abstract String GetStreamNamePrefix();
+        public abstract string GetStreamNamePrefix();
     }
 }
