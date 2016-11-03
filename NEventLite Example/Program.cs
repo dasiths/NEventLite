@@ -13,6 +13,7 @@ namespace NEventLite_Example
             //Load dependency resolver
             var Resolver = new DependencyResolver();
             var rep = Resolver.ResolveDependecy<IRepository<Note>>();
+            rep.SnapshotFrequency = 5;
 
             #region "Create / Load Note"
 

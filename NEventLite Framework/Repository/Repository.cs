@@ -12,7 +12,9 @@ namespace NEventLite.Repository
         private readonly IEventStorageProvider _EventStorageProvider;
         private readonly ISnapshotStorageProvider _SnapshotStorageProvider;
         private static object syncLockObject;
-        private static readonly int snapshotFrequency = 5;
+        private static readonly int defaultSnapshotFrequency = 5;
+
+        public int SnapshotFrequency { get; set; }
 
         public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider)
         {
@@ -21,6 +23,7 @@ namespace NEventLite.Repository
 
             _EventStorageProvider = eventStorageProvider;
             _SnapshotStorageProvider = snapshotStorageProvider;
+            SnapshotFrequency = defaultSnapshotFrequency;
         }
 
         public void Save(AggregateRoot aggregate)
@@ -58,8 +61,8 @@ namespace NEventLite.Repository
             if (snapshottable != null)
             {
                 //Every N events we save a snapshot
-                if ((aggregate.CurrentVersion > (snapshotFrequency - 1)) &&
-                    (aggregate.CurrentVersion - aggregate.LastCommittedVersion > snapshotFrequency) || (aggregate.CurrentVersion % snapshotFrequency == 0))
+                if ((aggregate.CurrentVersion > (SnapshotFrequency - 1)) &&
+                    (aggregate.CurrentVersion - aggregate.LastCommittedVersion > SnapshotFrequency) || (aggregate.CurrentVersion % SnapshotFrequency == 0))
                 {
                     _SnapshotStorageProvider.SaveSnapshot(snapshottable.GetSnapshot());
                 }
