@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Domain;
 
-namespace EventSourcingDemo.Snapshot
+namespace NEventLite.Snapshot
 {
     public class Snapshot
     {

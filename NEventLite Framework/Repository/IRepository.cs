@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Domain;
+using NEventLite.Domain;
 
-namespace EventSourcingDemo.Repository
+namespace NEventLite.Repository
 {
     public interface IRepository<T> where T : AggregateRoot, new()
     {

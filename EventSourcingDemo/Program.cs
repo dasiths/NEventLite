@@ -5,9 +5,9 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Domain;
-using EventSourcingDemo.Repository;
 using EventSourcingDemo.Storage;
 using EventSourcingDemo.Util;
+using NEventLite.Repository;
 
 namespace EventSourcingDemo
 {

@@ -14,8 +14,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Events;
-using EventSourcingDemo.Event_Handlers;
 using EventSourcingDemo.Snapshot;
+using NEventLite.Domain;
+using NEventLite.Events;
+using NEventLite.Snapshot;
 
 namespace EventSourcingDemo.Domain
 {
@@ -132,7 +134,7 @@ namespace EventSourcingDemo.Domain
         /// Get new snapshot of the current state of the Aggregate
         /// </summary>
         /// <returns>A snapshot of the Aggregate</returns>
-        public Snapshot.Snapshot GetSnapshot()
+        public NEventLite.Snapshot.Snapshot GetSnapshot()
         {
             return new NoteSnapshot(Guid.NewGuid(),
                                     this.Id,
@@ -147,7 +149,7 @@ namespace EventSourcingDemo.Domain
         /// Applies the snapshot and updates state of the Aggregate
         /// </summary>
         /// <param name="snapshot"></param>
-        public void SetSnapshot(Snapshot.Snapshot snapshot)
+        public void SetSnapshot(NEventLite.Snapshot.Snapshot snapshot)
         {
             //Important: State changes are done here.
             //Make sure you set the CurrentVersion and LastCommittedVersions here too

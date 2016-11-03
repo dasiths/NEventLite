@@ -6,8 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using EventSourcingDemo.Domain;
-using EventSourcingDemo.Repository;
 using EventSourcingDemo.Storage;
+using NEventLite.Repository;
+using NEventLite.Storage;
 
 namespace EventSourcingDemo.Util
 {

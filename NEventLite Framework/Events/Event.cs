@@ -9,9 +9,8 @@ Important: Events are immutable by design. I've left the property set methods pu
 \***************************************************************************/
 
 using System;
-using EventSourcingDemo.Domain;
 
-namespace EventSourcingDemo.Events
+namespace NEventLite.Events
 {
 
     /// <summary>

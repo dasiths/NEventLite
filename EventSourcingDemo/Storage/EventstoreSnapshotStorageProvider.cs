@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
+using NEventLite.Storage;
 
 namespace EventSourcingDemo.Storage
 {
@@ -13,10 +14,10 @@ namespace EventSourcingDemo.Storage
     {
         private static readonly string eventNamePrefix = "EventSourceDemo_Snapshot";
 
-        public Snapshot.Snapshot GetSnapshot(Guid aggregateId)
+        public NEventLite.Snapshot.Snapshot GetSnapshot(Guid aggregateId)
         {
 
-            Snapshot.Snapshot snapshot = null;
+            NEventLite.Snapshot.Snapshot snapshot = null;
 
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
@@ -33,7 +34,7 @@ namespace EventSourcingDemo.Storage
             {
                 var result =  streamEvents.Events.FirstOrDefault();
 
-                snapshot = JsonConvert.DeserializeObject<Snapshot.Snapshot>(
+                snapshot = JsonConvert.DeserializeObject<NEventLite.Snapshot.Snapshot>(
                     Encoding.UTF8.GetString(result.Event.Data), serializerSettings);
             }
             
@@ -42,7 +43,7 @@ namespace EventSourcingDemo.Storage
             return snapshot;
         }
 
-        public void SaveSnapshot(Snapshot.Snapshot snapshot)
+        public void SaveSnapshot(NEventLite.Snapshot.Snapshot snapshot)
         {
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();

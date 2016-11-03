@@ -13,13 +13,10 @@ This way we can contruct the state for the aggregate to any point in time by rep
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Events;
-using EventSourcingDemo.Exceptions;
+using NEventLite.Events;
+using NEventLite.Exceptions;
 
-namespace EventSourcingDemo.Domain
+namespace NEventLite.Domain
 {
     /// <summary>
     /// Base AggregateRoot class to inherit from
@@ -29,9 +26,9 @@ namespace EventSourcingDemo.Domain
         private const string ApplyMethodNameInEventHandler = "Apply";
         private readonly List<Events.Event> _uncommittedChanges;
 
-        public Guid Id { get; internal set; } //The AggregateID must be unique
-        public int CurrentVersion { get; internal set; } //This will store the current version of the aggregate
-        public int LastCommittedVersion { get; internal set; } //We use this for implement optimistic concurrency
+        public Guid Id { get; protected set; } //The AggregateID must be unique
+        public int CurrentVersion { get; protected set; } //This will store the current version of the aggregate
+        public int LastCommittedVersion { get; protected set; } //We use this for implement optimistic concurrency
 
         protected AggregateRoot()
         {

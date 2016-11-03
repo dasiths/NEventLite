@@ -1,13 +1,13 @@
-﻿using EventSourcingDemo.Domain;
-using EventSourcingDemo.Exceptions;
-using EventSourcingDemo.Snapshot;
-using EventSourcingDemo.Storage;
-using System;
+﻿using System;
 using System.Linq;
+using NEventLite.Domain;
+using NEventLite.Exceptions;
+using NEventLite.Snapshot;
+using NEventLite.Storage;
 
-namespace EventSourcingDemo.Repository
+namespace NEventLite.Repository
 {
-    class Repository<T> : IRepository<T> where T : AggregateRoot, new()
+    public class Repository<T> : IRepository<T> where T : AggregateRoot, new()
     {
         private readonly IEventStorageProvider _EventStorageProvider;
         private readonly ISnapshotStorageProvider _SnapshotStorageProvider;

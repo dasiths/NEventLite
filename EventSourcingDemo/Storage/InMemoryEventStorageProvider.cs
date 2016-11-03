@@ -1,9 +1,12 @@
 ﻿using EventSourcingDemo.Domain;
 using EventSourcingDemo.Events;
-using EventSourcingDemo.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NEventLite.Domain;
+using NEventLite.Events;
+using NEventLite.Exceptions;
+using NEventLite.Storage;
 
 namespace EventSourcingDemo.Storage
 {

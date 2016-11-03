@@ -7,7 +7,7 @@ using EventSourcingDemo.Domain;
 
 namespace EventSourcingDemo.Snapshot
 {
-    public class NoteSnapshot : Snapshot
+    public class NoteSnapshot : NEventLite.Snapshot.Snapshot
     {
         public DateTime CreatedDate { get; private set; }
         public string Title { get; private set; }

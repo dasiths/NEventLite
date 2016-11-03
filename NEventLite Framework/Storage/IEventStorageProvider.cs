@@ -1,9 +1,9 @@
-﻿using EventSourcingDemo.Domain;
-using EventSourcingDemo.Events;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using NEventLite.Domain;
+using NEventLite.Events;
 
-namespace EventSourcingDemo.Storage
+namespace NEventLite.Storage
 {
     public interface IEventStorageProvider
     {

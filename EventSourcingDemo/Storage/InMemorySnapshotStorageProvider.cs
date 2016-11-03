@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NEventLite.Storage;
 
 namespace EventSourcingDemo.Storage
 {
     class InMemorySnapshotStorageProvider:ISnapshotStorageProvider{
 
-        private readonly Dictionary<Guid,Snapshot.Snapshot> _items = new Dictionary<Guid,Snapshot.Snapshot>();
+        private readonly Dictionary<Guid,NEventLite.Snapshot.Snapshot> _items = new Dictionary<Guid,NEventLite.Snapshot.Snapshot>();
 
-        public Snapshot.Snapshot GetSnapshot(Guid aggregateId)
+        public NEventLite.Snapshot.Snapshot GetSnapshot(Guid aggregateId)
         {
             if (_items.ContainsKey(aggregateId))
             {
@@ -22,7 +23,7 @@ namespace EventSourcingDemo.Storage
             }
         }
 
-        public void SaveSnapshot(Snapshot.Snapshot snapshot)
+        public void SaveSnapshot(NEventLite.Snapshot.Snapshot snapshot)
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {

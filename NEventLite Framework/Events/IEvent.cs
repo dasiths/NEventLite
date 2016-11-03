@@ -8,7 +8,7 @@ Interface for all events in the system. Requires an unique eventID
 
 using System;
 
-namespace EventSourcingDemo.Events
+namespace NEventLite.Events
 {
     /// <summary>
     /// Interface for all events

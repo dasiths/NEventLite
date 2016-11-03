@@ -6,20 +6,13 @@ Author:         Dasith Wijesiriwardena [https://github.com/dasiths]
 This simply has an Apply method to do state changes in the implemented AggregateRoot
 \***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EventSourcingDemo.Domain;
-
-namespace EventSourcingDemo.Event_Handlers
+namespace NEventLite.Events
 {
     /// <summary>
     /// Interface to expose the Apply() of event T in an AggregateRoot
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IEventHandler<T> where T: Events.Event
+    public interface IEventHandler<T> where T: Event
     {
         /// <summary>
         /// Apply the event

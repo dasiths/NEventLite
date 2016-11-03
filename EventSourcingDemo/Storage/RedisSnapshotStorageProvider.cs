@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EventSourcingDemo.Util;
 using Newtonsoft.Json;
+using NEventLite.Storage;
 using ServiceStack.Redis;
 
 namespace EventSourcingDemo.Storage
@@ -18,10 +19,10 @@ namespace EventSourcingDemo.Storage
             clientsManager = new BasicRedisClientManager(RedisConnection.redisConnectionString);
         }
 
-        public Snapshot.Snapshot GetSnapshot(Guid aggregateId)
+        public NEventLite.Snapshot.Snapshot GetSnapshot(Guid aggregateId)
         {
 
-            Snapshot.Snapshot snapshot = null;
+            NEventLite.Snapshot.Snapshot snapshot = null;
 
             using (IRedisClient redis = clientsManager.GetClient())
             {
@@ -34,7 +35,7 @@ namespace EventSourcingDemo.Storage
                         TypeNameHandling = TypeNameHandling.All
                     };
 
-                    snapshot = JsonConvert.DeserializeObject<Snapshot.Snapshot>(
+                    snapshot = JsonConvert.DeserializeObject<NEventLite.Snapshot.Snapshot>(
                     strSnapshot, serializerSettings);
                 }
             }
@@ -43,7 +44,7 @@ namespace EventSourcingDemo.Storage
 
         }
 
-        public void SaveSnapshot(Snapshot.Snapshot snapshot)
+        public void SaveSnapshot(NEventLite.Snapshot.Snapshot snapshot)
         {
             using (IRedisClient redis = clientsManager.GetClient())
             {
