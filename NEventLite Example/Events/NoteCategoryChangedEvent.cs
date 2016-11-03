@@ -7,10 +7,8 @@ namespace NEventLite_Example.Events
     {
         public string cat { get; set; }
 
-        public NoteCategoryChangedEvent(Guid aggregateID, int version, string cat)
+        public NoteCategoryChangedEvent(Guid aggregateID, int version, string cat):base(aggregateID,version)
         {
-            Setup(aggregateID,version);
-
             this.cat = cat;
         }
     }

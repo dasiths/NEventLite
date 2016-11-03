@@ -10,10 +10,8 @@ namespace NEventLite_Example.Events
         public string cat { get; set; }
         public DateTime createdTime { get; set; }
 
-        public NoteCreatedEvent(Guid aggregateID, int version, string title, string desc, string cat, DateTime createdTime)
+        public NoteCreatedEvent(Guid aggregateID, int version, string title, string desc, string cat, DateTime createdTime):base(aggregateID, version)
         {
-            Setup(aggregateID,version);
-
             this.title = title;
             this.desc = desc;
             this.cat = cat;

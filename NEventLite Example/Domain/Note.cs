@@ -36,9 +36,9 @@ namespace NEventLite_Example.Domain
         /// <summary>
         /// Blank constructor as required
         /// </summary>
-        public Note()
+        public Note():base()
         {
-            //Important: Aggregte roots must have a blank constructor
+            //Important: Aggregate roots must have a blank constructor
         }
 
         /// <summary>

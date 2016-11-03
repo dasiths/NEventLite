@@ -7,10 +7,8 @@ namespace NEventLite_Example.Events
     {
         public string title { get; set; }
 
-        public NoteTitleChangedEvent(Guid aggregateID, int version, string title)
+        public NoteTitleChangedEvent(Guid aggregateID, int version, string title):base(aggregateID, version)
         {
-            Setup(aggregateID,version);
-
             this.title = title;
         }
     }
