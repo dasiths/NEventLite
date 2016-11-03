@@ -6,7 +6,9 @@ Author:         Dasith Wijesiriwardena [https://github.com/dasiths]
 This simply has an Apply method to do state changes in the implemented AggregateRoot
 \***************************************************************************/
 
-namespace NEventLite.Events
+using NEventLite.Events;
+
+namespace NEventLite.Event_Handlers
 {
     /// <summary>
     /// Interface to expose the Apply() of event T in an AggregateRoot

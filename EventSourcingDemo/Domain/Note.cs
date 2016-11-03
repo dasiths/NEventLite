@@ -17,6 +17,7 @@ using EventSourcingDemo.Events;
 using EventSourcingDemo.Snapshot;
 using NEventLite.Domain;
 using NEventLite.Events;
+using NEventLite.Event_Handlers;
 using NEventLite.Snapshot;
 
 namespace EventSourcingDemo.Domain
