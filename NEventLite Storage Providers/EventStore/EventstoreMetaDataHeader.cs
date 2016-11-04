@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NEventLite_Storage_Providers.EventStore
 {
-    public sealed class EventstoreMetaDataHeader
+    public class EventstoreMetaDataHeader
     {
         public string CLRType { get; set; }
         public int CommitNumber { get; set; }
