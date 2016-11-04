@@ -24,7 +24,7 @@ namespace NEventLite.Domain
     /// </summary>
     public abstract class AggregateRoot
     {
-        public enum State
+        public enum StreamState
         {
             NoStream = -1,
             HasStream = 1
@@ -37,22 +37,22 @@ namespace NEventLite.Domain
         public int CurrentVersion { get; protected set; } //This will store the current version of the aggregate
         public int LastCommittedVersion { get; protected set; } //We use this for implement optimistic concurrency
 
-        public State GetStreamState()
+        public StreamState GetStreamState()
         {
             if (CurrentVersion == -1)
             {
-                return State.NoStream;
+                return StreamState.NoStream;
             }
             else
             {
-                return State.HasStream;
+                return StreamState.HasStream;
             }
         }
 
         protected AggregateRoot()
         {
-            CurrentVersion = (int)State.NoStream;
-            LastCommittedVersion = (int)State.NoStream;
+            CurrentVersion = (int)StreamState.NoStream;
+            LastCommittedVersion = (int)StreamState.NoStream;
             _uncommittedChanges = new List<Events.Event>();
         }
 
