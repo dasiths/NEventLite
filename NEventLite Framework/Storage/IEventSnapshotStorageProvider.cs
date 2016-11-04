@@ -9,6 +9,6 @@ namespace NEventLite.Storage
 {
     public interface IEventSnapshotStorageProvider:ISnapshotStorageProvider
     {
-        Snapshot.Snapshot GetSnapshot<T>(Guid aggregateId, int version) where T : AggregateRoot;
+        Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId, int version);
     }
 }

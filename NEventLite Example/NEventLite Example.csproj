@@ -82,6 +82,7 @@
     <Compile Include="Storage\MyEventstoreEventStorageProvider.cs" />
     <Compile Include="Storage\MyEventstoreSnapshotStorageProvider.cs" />
     <Compile Include="Storage\MyRedisSnapshotStorageProvider.cs" />
+    <Compile Include="Unit Of Work\MyUnitOfWork.cs" />
     <Compile Include="Util\DependencyResolver.cs" />
     <Compile Include="Util\EventstoreConnection.cs" />
     <Compile Include="Util\RedisConnection.cs" />

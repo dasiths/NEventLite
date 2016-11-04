@@ -16,6 +16,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using NEventLite.Events;
 using NEventLite.Exceptions;
+using NEventLite.Repository;
 
 namespace NEventLite.Domain
 {
@@ -36,6 +37,7 @@ namespace NEventLite.Domain
         public Guid Id { get; protected set; } //The AggregateID must be unique
         public int CurrentVersion { get; protected set; } //This will store the current version of the aggregate
         public int LastCommittedVersion { get; protected set; } //We use this for implement optimistic concurrency
+        private ChangeTrackingContext _context;
 
         public StreamState GetStreamState()
         {
@@ -54,6 +56,16 @@ namespace NEventLite.Domain
             CurrentVersion = (int)StreamState.NoStream;
             LastCommittedVersion = (int)StreamState.NoStream;
             _uncommittedChanges = new List<Events.Event>();
+        }
+
+        public void SetTracker(ChangeTrackingContext context)
+        {
+            if (context != null)
+            {
+                            context.AddTrackedAggregate(this);
+            }
+
+            _context = context;
         }
 
         /// <summary>

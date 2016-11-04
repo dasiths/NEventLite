@@ -17,20 +17,20 @@ namespace NEventLite_Storage_Providers.EventStore
 
         public bool HasConcurrencyCheck => true;
 
-        public IEnumerable<Event> GetEvents<T>(Guid aggregateId, int start, int count) where T : AggregateRoot
+        public IEnumerable<Event> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
         {
 
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
 
-            var events = ReadEvents<T>(connection, aggregateId, start, count);
+            var events = ReadEvents(aggregateType,connection, aggregateId, start, count);
 
             connection.Close();
 
             return events;
         }
 
-        protected IEnumerable<Event> ReadEvents<T>(IEventStoreConnection connection, Guid aggregateId, int start, int count) where T : AggregateRoot
+        protected IEnumerable<Event> ReadEvents(Type aggregateType, IEventStoreConnection connection, Guid aggregateId, int start, int count)
         {
 
             var events = new List<Event>();
@@ -50,7 +50,7 @@ namespace NEventLite_Storage_Providers.EventStore
                     nextReadCount = eventStorePageSize;
                 }
 
-                currentSlice = connection.ReadStreamEventsForwardAsync($"{AggregateIdToStreamName(typeof(T), aggregateId)}", nextSliceStart, nextReadCount, false).Result;
+                currentSlice = connection.ReadStreamEventsForwardAsync($"{AggregateIdToStreamName(aggregateType, aggregateId)}", nextSliceStart, nextReadCount, false).Result;
                 nextSliceStart = currentSlice.NextEventNumber;
 
                 streamEvents.AddRange(currentSlice.Events);
@@ -66,7 +66,27 @@ namespace NEventLite_Storage_Providers.EventStore
             return events;
         }
 
-        public void CommitChanges<T>(T aggregate) where T : AggregateRoot
+        public Event GetLastEvent(Type aggregateType, Guid aggregateId)
+        {
+            var connection = GetEventStoreConnection();
+            connection.ConnectAsync().Wait();
+
+            var results = connection.ReadStreamEventsBackwardAsync(
+                $"{AggregateIdToStreamName(aggregateType, aggregateId)}", StreamPosition.End, 1, false).Result;
+
+            connection.Close();
+
+            if (results.Status == SliceReadStatus.Success && results.Events.Count() > 0)
+            {
+                return DeserializeEvent(results.Events.First());
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public void CommitChanges(Type aggregateType, AggregateRoot aggregate)
         {
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();

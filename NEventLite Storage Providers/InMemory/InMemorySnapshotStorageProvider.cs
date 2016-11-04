@@ -9,7 +9,7 @@ namespace NEventLite_Storage_Providers.InMemory
 
         private readonly Dictionary<Guid,NEventLite.Snapshot.Snapshot> _items = new Dictionary<Guid,NEventLite.Snapshot.Snapshot>();
 
-        public NEventLite.Snapshot.Snapshot GetSnapshot<T>(Guid aggregateId) where T : AggregateRoot
+        public NEventLite.Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {
             if (_items.ContainsKey(aggregateId))
             {
@@ -21,7 +21,7 @@ namespace NEventLite_Storage_Providers.InMemory
             }
         }
 
-        public void SaveSnapshot<T>(NEventLite.Snapshot.Snapshot snapshot) where T : AggregateRoot
+        public void SaveSnapshot(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot) 
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {

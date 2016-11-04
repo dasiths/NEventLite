@@ -11,7 +11,7 @@ namespace NEventLite_Storage_Providers.EventStore
 {
     public abstract class EventstoreSnapshotStorageProvider : EventstoreStorageProviderBase, IEventSnapshotStorageProvider
     {
-        public Snapshot GetSnapshot<T>(Guid aggregateId) where T : AggregateRoot
+        public Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {
 
             Snapshot snapshot = null;
@@ -20,7 +20,7 @@ namespace NEventLite_Storage_Providers.EventStore
             connection.ConnectAsync().Wait();
 
             var streamEvents = connection.ReadStreamEventsBackwardAsync(
-                $"{AggregateIdToStreamName(typeof(T), aggregateId)}", StreamPosition.End, 1, false).Result;
+                $"{AggregateIdToStreamName(aggregateType, aggregateId)}", StreamPosition.End, 1, false).Result;
 
             if (streamEvents.Events.Any())
             {
@@ -34,7 +34,7 @@ namespace NEventLite_Storage_Providers.EventStore
             return snapshot;
         }
 
-        public void SaveSnapshot<T>(Snapshot snapshot) where T : AggregateRoot
+        public void SaveSnapshot(Type aggregateType, Snapshot snapshot)
         {
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
@@ -46,13 +46,13 @@ namespace NEventLite_Storage_Providers.EventStore
 
             var snapshotyEvent = SerializeSnapshotEvent(snapshot,snapshot.Version);
 
-            connection.AppendToStreamAsync($"{AggregateIdToStreamName(typeof(T), snapshot.AggregateId)}",
+            connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregateType, snapshot.AggregateId)}",
                                                 ExpectedVersion.Any, snapshotyEvent).Wait();
 
             connection.Close();
         }
         
-        public Snapshot GetSnapshot<T>(Guid aggregateId, int version) where T : AggregateRoot
+        public Snapshot GetSnapshot(Type aggregateType, Guid aggregateId, int version)
         {
             Snapshot snapshot = null;
 
@@ -65,7 +65,7 @@ namespace NEventLite_Storage_Providers.EventStore
             };
 
             var streamEvents = connection.ReadStreamEventsBackwardAsync(
-                $"{AggregateIdToStreamName(typeof(T),aggregateId)}", version, 1, false).Result;
+                $"{AggregateIdToStreamName(aggregateType,aggregateId)}", version, 1, false).Result;
 
             if (streamEvents.Events.Any())
             {

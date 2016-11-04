@@ -17,7 +17,7 @@ namespace NEventLite_Storage_Providers.Redis
 
         public abstract BasicRedisClientManager GetClientsManager();
 
-        public NEventLite.Snapshot.Snapshot GetSnapshot<T>(Guid aggregateId) where T : AggregateRoot
+        public NEventLite.Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {
 
             NEventLite.Snapshot.Snapshot snapshot = null;
@@ -42,7 +42,7 @@ namespace NEventLite_Storage_Providers.Redis
 
         }
 
-        public void SaveSnapshot<T>(NEventLite.Snapshot.Snapshot snapshot) where T : AggregateRoot
+        public void SaveSnapshot(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot)
         {
             using (IRedisClient redis = clientsManager.GetClient())
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using NEventLite.Repository;
 using NEventLite_Example.Domain;
+using NEventLite_Example.Unit_Of_Work;
 using NEventLite_Example.Util;
 
 namespace NEventLite_Example
@@ -12,8 +13,7 @@ namespace NEventLite_Example
 
             //Load dependency resolver
             var Resolver = new DependencyResolver();
-            var rep = Resolver.ResolveDependecy<IRepository<Note>>();
-            rep.SnapshotFrequency = 5;
+            var UnitWork = Resolver.ResolveDependecy<MyUnitOfWork>();
 
             #region "Create / Load Note"
 
@@ -26,7 +26,7 @@ namespace NEventLite_Example
 
             if ((string.IsNullOrEmpty(strGUID)==false) && (Guid.TryParse(strGUID, out LoadID)))
             {
-                tmpNote = LoadNote(LoadID, rep);
+                tmpNote = LoadNote(LoadID, UnitWork);
 
                 if (tmpNote == null)
                 {
@@ -38,7 +38,7 @@ namespace NEventLite_Example
             else
             {
                 //Create new note
-                tmpNote = CreateNewNote();
+                tmpNote = CreateNewNote(UnitWork);
 
                 Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
@@ -54,7 +54,7 @@ namespace NEventLite_Example
             Console.WriteLine("");
 
             //Do some changes
-            DoChanges(tmpNote, rep);
+            DoChanges(tmpNote, UnitWork);
 
             Console.WriteLine("");
             Console.WriteLine("After Committing Events:");
@@ -66,7 +66,7 @@ namespace NEventLite_Example
 
             //Load same note using the aggregate id
             //This will replay the saved events and construct a new note
-            var tmpNoteToLoad = LoadNote(tmpNote.Id, rep);
+            var tmpNoteToLoad = LoadNote(tmpNote.Id, UnitWork);
 
             Console.WriteLine("");
             Console.WriteLine("After Replaying:");
@@ -81,19 +81,20 @@ namespace NEventLite_Example
 
         }
 
-        private static Note CreateNewNote()
+        private static Note CreateNewNote(MyUnitOfWork rep)
         {
             Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
+            rep.NoteRepository.Add(tmpNote);
             return tmpNote;
         }
 
-        private static Note LoadNote(Guid NoteID, IRepository<Note> rep)
+        private static Note LoadNote(Guid NoteID, MyUnitOfWork rep)
         {
-            var tmpNoteToLoad = rep.GetById(NoteID);
+            var tmpNoteToLoad = rep.NoteRepository.GetById(NoteID);
             return tmpNoteToLoad;
         }
 
-        private static void DoChanges(Note tmpNote, IRepository<Note> rep)
+        private static void DoChanges(Note tmpNote, MyUnitOfWork rep)
         {
             //Do 3 x 5 events cycle to check snapshots too.
             for (int i = 0; i < 3; i++)
@@ -107,14 +108,14 @@ namespace NEventLite_Example
                 Console.WriteLine($"Committing Changes Now For Cycle {i}");
 
                 //Commit changes to the repository
-                rep.Save(tmpNote);
+                rep.Commit();
             }
 
             //Do some changes that don't get caught in the snapshot
             tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
             tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event ({tmpNote.CurrentVersion + 1})");
             //Commit changes to the repository
-            rep.Save(tmpNote);
+            rep.Commit();
         }
 
     }

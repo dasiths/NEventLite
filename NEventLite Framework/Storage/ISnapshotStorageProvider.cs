@@ -5,7 +5,7 @@ namespace NEventLite.Storage
 {
     public interface ISnapshotStorageProvider
     {
-        Snapshot.Snapshot GetSnapshot<T>(Guid aggregateId) where T : AggregateRoot;
-        void SaveSnapshot<T>(Snapshot.Snapshot snapshot) where T : AggregateRoot;
+        Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId);
+        void SaveSnapshot(Type aggregateType, Snapshot.Snapshot snapshot);
     }
 }
