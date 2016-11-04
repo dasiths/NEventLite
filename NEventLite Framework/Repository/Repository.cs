@@ -44,7 +44,7 @@ namespace NEventLite.Repository
 
             T item = GetById(aggregate.Id);
 
-            if ((item != null) && (item.StreamState==AggregateRoot.State.NoStream))
+            if ((item != null) && (expectedVersion == (int)AggregateRoot.State.NoStream))
             {
                 throw new AggregateCreationException($"Aggregate {item.Id} can't be created as it already exists with version {item.CurrentVersion}");
             }
