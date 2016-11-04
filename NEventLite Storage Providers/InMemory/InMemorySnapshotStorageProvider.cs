@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NEventLite.Domain;
 using NEventLite.Storage;
 
 namespace NEventLite_Storage_Providers.InMemory
@@ -8,7 +9,7 @@ namespace NEventLite_Storage_Providers.InMemory
 
         private readonly Dictionary<Guid,NEventLite.Snapshot.Snapshot> _items = new Dictionary<Guid,NEventLite.Snapshot.Snapshot>();
 
-        public NEventLite.Snapshot.Snapshot GetSnapshot(Guid aggregateId)
+        public NEventLite.Snapshot.Snapshot GetSnapshot<T>(Guid aggregateId) where T : AggregateRoot
         {
             if (_items.ContainsKey(aggregateId))
             {
@@ -20,7 +21,7 @@ namespace NEventLite_Storage_Providers.InMemory
             }
         }
 
-        public void SaveSnapshot(NEventLite.Snapshot.Snapshot snapshot)
+        public void SaveSnapshot<T>(NEventLite.Snapshot.Snapshot snapshot) where T : AggregateRoot
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {

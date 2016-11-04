@@ -26,30 +26,31 @@ namespace NEventLite.Repository
             SnapshotFrequency = defaultSnapshotFrequency;
         }
 
-        public void Save(AggregateRoot aggregate)
+        public void Save(T aggregate)
         {
             if (aggregate.GetUncommittedChanges().Any())
             {
                 if (_EventStorageProvider.HasConcurrencyCheck)
-                    this.DoSave(aggregate);
+                    this.SaveAggregate(aggregate);
                 else
                     lock (syncLockObject)
-                        this.DoSave(aggregate);
+                        this.SaveAggregate(aggregate);
             }
         }
 
-        private void DoSave(AggregateRoot aggregate)
+        private void SaveAggregate(AggregateRoot aggregate)
         {
-            var item = new T();
             var expectedVersion = aggregate.LastCommittedVersion;
 
-            if (expectedVersion != 0)
+            T item = GetById(aggregate.Id);
+
+            if ((item != null) && (item.StreamState==AggregateRoot.State.NoStream))
             {
-                item = GetById(aggregate.Id);
-                if ((item != null) && (item.CurrentVersion != expectedVersion))
-                {
-                    throw new ConcurrencyException($"Aggregate {item.Id} has been modified externally and has an updated state. Can't commit changes.");
-                }
+                throw new AggregateCreationException($"Aggregate {item.Id} can't be created as it already exists with version {item.CurrentVersion}");
+            }
+            else if ((item != null) && (item.CurrentVersion != expectedVersion))
+            {
+                throw new ConcurrencyException($"Aggregate {item.Id} has been modified externally and has an updated state. Can't commit changes.");
             }
 
             _EventStorageProvider.CommitChanges(aggregate);
@@ -61,10 +62,10 @@ namespace NEventLite.Repository
             if (snapshottable != null)
             {
                 //Every N events we save a snapshot
-                if ((aggregate.CurrentVersion > (SnapshotFrequency - 1)) &&
+                if ((aggregate.CurrentVersion >= SnapshotFrequency) &&
                     (aggregate.CurrentVersion - aggregate.LastCommittedVersion > SnapshotFrequency) || (aggregate.CurrentVersion % SnapshotFrequency == 0))
                 {
-                    _SnapshotStorageProvider.SaveSnapshot(snapshottable.GetSnapshot());
+                    _SnapshotStorageProvider.SaveSnapshot<T>(snapshottable.GetSnapshot());
                 }
             }
 
@@ -76,18 +77,18 @@ namespace NEventLite.Repository
         {
 
             T item = null;
-            var snapshot = _SnapshotStorageProvider.GetSnapshot(id);
+            var snapshot = _SnapshotStorageProvider.GetSnapshot<T>(id);
 
             if (snapshot != null)
             {
                 item = new T();
                 ((ISnapshottable)item).SetSnapshot(snapshot);
-                var events = _EventStorageProvider.GetEvents(id, snapshot.Version + 1, int.MaxValue);
+                var events = _EventStorageProvider.GetEvents<T>(id, snapshot.Version + 1, int.MaxValue);
                 item.LoadsFromHistory(events);
             }
             else
             {
-                var events = _EventStorageProvider.GetEvents(id, 0, int.MaxValue);
+                var events = _EventStorageProvider.GetEvents<T>(id, 0, int.MaxValue);
 
                 if (events.Any())
                 {

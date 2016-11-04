@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using NEventLite.Domain;
 using NEventLite.Storage;
 using ServiceStack.Redis;
 
@@ -16,7 +17,7 @@ namespace NEventLite_Storage_Providers.Redis
 
         public abstract BasicRedisClientManager GetClientsManager();
 
-        public NEventLite.Snapshot.Snapshot GetSnapshot(Guid aggregateId)
+        public NEventLite.Snapshot.Snapshot GetSnapshot<T>(Guid aggregateId) where T : AggregateRoot
         {
 
             NEventLite.Snapshot.Snapshot snapshot = null;
@@ -41,7 +42,7 @@ namespace NEventLite_Storage_Providers.Redis
 
         }
 
-        public void SaveSnapshot(NEventLite.Snapshot.Snapshot snapshot)
+        public void SaveSnapshot<T>(NEventLite.Snapshot.Snapshot snapshot) where T : AggregateRoot
         {
             using (IRedisClient redis = clientsManager.GetClient())
             {

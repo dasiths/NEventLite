@@ -14,7 +14,7 @@ namespace NEventLite_Storage_Providers.InMemory
 
         public bool HasConcurrencyCheck => false;
 
-        public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int count)
+        public IEnumerable<Event> GetEvents<T>(Guid aggregateId, int start, int count) where T : AggregateRoot
         {
             try
             {
@@ -47,7 +47,7 @@ namespace NEventLite_Storage_Providers.InMemory
 
         }
 
-        public void CommitChanges(AggregateRoot aggregate)
+        public void CommitChanges<T>(T aggregate) where T : AggregateRoot
         {
             var events = aggregate.GetUncommittedChanges();
 

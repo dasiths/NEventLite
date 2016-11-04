@@ -10,27 +10,27 @@ using NEventLite.Storage;
 
 namespace NEventLite_Storage_Providers.EventStore
 {
-    public abstract class EventstoreEventStorageProvider : IEventStorageProvider
+    public abstract class EventstoreEventStorageProvider : EventstoreStorageProviderBase, IEventStorageProvider
     {
         //There is a max limit of 4096 messages per read in eventstore so use paging
         private const int eventStorePageSize = 200;
 
         public bool HasConcurrencyCheck => true;
 
-        public IEnumerable<Event> GetEvents(Guid aggregateId, int start, int count)
+        public IEnumerable<Event> GetEvents<T>(Guid aggregateId, int start, int count) where T : AggregateRoot
         {
 
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
 
-            var events = ReadEvents(connection, aggregateId, start, count);
+            var events = ReadEvents<T>(connection, aggregateId, start, count);
 
             connection.Close();
 
             return events;
         }
 
-        public IEnumerable<Event> ReadEvents(IEventStoreConnection connection, Guid aggregateId, int start, int count)
+        protected IEnumerable<Event> ReadEvents<T>(IEventStoreConnection connection, Guid aggregateId, int start, int count) where T : AggregateRoot
         {
 
             var events = new List<Event>();
@@ -55,7 +55,7 @@ namespace NEventLite_Storage_Providers.EventStore
                     nextReadCount = eventStorePageSize;
                 }
 
-                currentSlice = connection.ReadStreamEventsForwardAsync($"{GetStreamNamePrefix()}{aggregateId}", nextSliceStart, nextReadCount, false).Result;
+                currentSlice = connection.ReadStreamEventsForwardAsync($"{AggregateIdToStreamName(typeof(T),aggregateId)}", nextSliceStart, nextReadCount, false).Result;
                 nextSliceStart = currentSlice.NextEventNumber;
 
                 streamEvents.AddRange(currentSlice.Events);
@@ -72,7 +72,7 @@ namespace NEventLite_Storage_Providers.EventStore
             return events;
         }
 
-        public void CommitChanges(AggregateRoot aggregate)
+        public void CommitChanges<T>(T aggregate) where T : AggregateRoot
         {
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
@@ -96,15 +96,14 @@ namespace NEventLite_Storage_Providers.EventStore
                             Encoding.UTF8.GetBytes(@event.GetType().ToString())));
                 }
 
-                connection.AppendToStreamAsync($"{GetStreamNamePrefix()}{aggregate.Id}",
+                connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregate.GetType(),aggregate.Id)}",
                                                 (LastVersion < 0 ? ExpectedVersion.Any : LastVersion), lstEventData).Wait();
             }
 
             connection.Close();
         }
 
-        public abstract IEventStoreConnection GetEventStoreConnection();
+        protected abstract IEventStoreConnection GetEventStoreConnection();
 
-        public abstract string GetStreamNamePrefix();
     }
 }

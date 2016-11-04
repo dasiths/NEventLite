@@ -12,6 +12,7 @@ This way we can contruct the state for the aggregate to any point in time by rep
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using NEventLite.Events;
 using NEventLite.Exceptions;
@@ -23,6 +24,12 @@ namespace NEventLite.Domain
     /// </summary>
     public abstract class AggregateRoot
     {
+        public enum State
+        {
+            NoStream = -1,
+            HasStream = 1
+        }
+
         private const string ApplyMethodNameInEventHandler = "Apply";
         private readonly List<Events.Event> _uncommittedChanges;
 
@@ -30,10 +37,21 @@ namespace NEventLite.Domain
         public int CurrentVersion { get; protected set; } //This will store the current version of the aggregate
         public int LastCommittedVersion { get; protected set; } //We use this for implement optimistic concurrency
 
+        public State StreamState
+        {
+            get
+            {
+                if (CurrentVersion == -1)
+                    return State.NoStream;
+                else
+                    return State.HasStream;
+            }
+        }
+
         protected AggregateRoot()
         {
-            CurrentVersion = -1;
-            LastCommittedVersion = -1;
+            CurrentVersion = (int)State.NoStream;
+            LastCommittedVersion = (int)State.NoStream;
             _uncommittedChanges = new List<Events.Event>();
         }
 
@@ -64,7 +82,7 @@ namespace NEventLite.Domain
             foreach (var e in history)
             {
                 //We call HandleEvent with isNew parameter set to false as we are replaying a historical event
-                HandleEvent(e, false); 
+                HandleEvent(e, false);
             }
             LastCommittedVersion = CurrentVersion;
         }

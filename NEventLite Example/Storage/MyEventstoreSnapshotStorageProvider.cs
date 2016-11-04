@@ -9,7 +9,7 @@ namespace NEventLite_Example.Storage
             return Util.EventstoreConnection.GetEventstoreConnection();
         }
 
-        public override string GetStreamNamePrefix()
+        protected override string GetStreamNamePrefix()
         {
             return Util.EventstoreConnection.GetSnapshotStreamPrefix();
         }

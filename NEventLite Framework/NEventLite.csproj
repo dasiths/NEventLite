@@ -45,6 +45,7 @@
     <Compile Include="Events\Event.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
+    <Compile Include="Exceptions\AggregateCreationException.cs" />
     <Compile Include="Exceptions\AggregateStateMismatchException.cs" />
     <Compile Include="Exceptions\ConcurrencyException.cs" />
     <Compile Include="Exceptions\EventHandlerApplyMethodMissingException.cs" />

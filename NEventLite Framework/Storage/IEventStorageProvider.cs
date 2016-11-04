@@ -7,8 +7,8 @@ namespace NEventLite.Storage
 {
     public interface IEventStorageProvider
     {
-        IEnumerable<Event> GetEvents(Guid aggregateId, int start, int count);
-        void CommitChanges(AggregateRoot aggregate);
+        IEnumerable<Event> GetEvents<T>(Guid aggregateId, int start, int count) where T : AggregateRoot;
+        void CommitChanges<T>(T aggregate) where T : AggregateRoot;
         bool HasConcurrencyCheck { get; }
     }
 }
