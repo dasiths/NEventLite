@@ -37,14 +37,15 @@ namespace NEventLite.Domain
         public int CurrentVersion { get; protected set; } //This will store the current version of the aggregate
         public int LastCommittedVersion { get; protected set; } //We use this for implement optimistic concurrency
 
-        public State StreamState
+        public State GetStreamState()
         {
-            get
+            if (CurrentVersion == -1)
             {
-                if (CurrentVersion == -1)
-                    return State.NoStream;
-                else
-                    return State.HasStream;
+                return State.NoStream;
+            }
+            else
+            {
+                return State.HasStream;
             }
         }
 
