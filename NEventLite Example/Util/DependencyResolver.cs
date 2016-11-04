@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using NEventLite.Repository;
 using NEventLite.Storage;
+using NEventLite_Example.Storage;
 using NEventLite_Storage_Providers.InMemory;
 
 namespace NEventLite_Example.Util
