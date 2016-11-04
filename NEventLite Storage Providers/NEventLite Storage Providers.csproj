@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventStore\EventstoreEventStorageProvider.cs" />
+    <Compile Include="EventStore\EventstoreMetaDataHeader.cs" />
     <Compile Include="EventStore\EventstoreSnapshotStorageProvider.cs" />
     <Compile Include="EventStore\EventstoreStorageProviderBase.cs" />
     <Compile Include="InMemory\InMemoryEventStorageProvider.cs" />

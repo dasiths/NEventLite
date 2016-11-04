@@ -19,11 +19,6 @@ namespace NEventLite_Storage_Providers.EventStore
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();
 
-            JsonSerializerSettings serializerSettings = new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.All
-            };
-
             var streamEvents = connection.ReadStreamEventsBackwardAsync(
                 $"{AggregateIdToStreamName(typeof(T), aggregateId)}", StreamPosition.End, 1, false).Result;
 
@@ -31,8 +26,7 @@ namespace NEventLite_Storage_Providers.EventStore
             {
                 var result = streamEvents.Events.FirstOrDefault();
 
-                snapshot = JsonConvert.DeserializeObject<Snapshot>(
-                    Encoding.UTF8.GetString(result.Event.Data), serializerSettings);
+                snapshot = DeserializeSnapshotEvent(result);
             }
 
             connection.Close();
@@ -50,17 +44,14 @@ namespace NEventLite_Storage_Providers.EventStore
                 TypeNameHandling = TypeNameHandling.All
             };
 
-            var snapshotyEvent = new EventData(snapshot.Id, @snapshot.GetType().ToString(), false,
-                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(snapshot, serializerSettings)),
-                Encoding.UTF8.GetBytes(snapshot.GetType().ToString()));
+            var snapshotyEvent = SerializeSnapshotEvent(snapshot,snapshot.Version);
 
             connection.AppendToStreamAsync($"{AggregateIdToStreamName(typeof(T), snapshot.AggregateId)}",
                                                 ExpectedVersion.Any, snapshotyEvent).Wait();
 
             connection.Close();
         }
-
-
+        
         public Snapshot GetSnapshot<T>(Guid aggregateId, int version) where T : AggregateRoot
         {
             Snapshot snapshot = null;
@@ -80,8 +71,7 @@ namespace NEventLite_Storage_Providers.EventStore
             {
                 var result = streamEvents.Events.FirstOrDefault();
 
-                snapshot = JsonConvert.DeserializeObject<Snapshot>(
-                    Encoding.UTF8.GetString(result.Event.Data), serializerSettings);
+                snapshot = DeserializeSnapshotEvent(result);
             }
 
             connection.Close();
@@ -89,7 +79,7 @@ namespace NEventLite_Storage_Providers.EventStore
             return snapshot;
         }
 
-        public abstract IEventStoreConnection GetEventStoreConnection();
+        protected abstract IEventStoreConnection GetEventStoreConnection();
 
     }
 }

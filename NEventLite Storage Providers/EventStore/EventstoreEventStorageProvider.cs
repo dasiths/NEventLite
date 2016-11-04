@@ -36,12 +36,7 @@ namespace NEventLite_Storage_Providers.EventStore
             var events = new List<Event>();
             var streamEvents = new List<ResolvedEvent>();
             StreamEventsSlice currentSlice;
-            var nextSliceStart = start < 0 ? StreamPosition.Start: start;
-
-            JsonSerializerSettings serializerSettings = new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.All
-            };
+            var nextSliceStart = start < 0 ? StreamPosition.Start : start;
 
             //Read the stream using pagesize which was set before.
             //We only need to read the full page ahead if expected results are larger than the page size
@@ -55,18 +50,17 @@ namespace NEventLite_Storage_Providers.EventStore
                     nextReadCount = eventStorePageSize;
                 }
 
-                currentSlice = connection.ReadStreamEventsForwardAsync($"{AggregateIdToStreamName(typeof(T),aggregateId)}", nextSliceStart, nextReadCount, false).Result;
+                currentSlice = connection.ReadStreamEventsForwardAsync($"{AggregateIdToStreamName(typeof(T), aggregateId)}", nextSliceStart, nextReadCount, false).Result;
                 nextSliceStart = currentSlice.NextEventNumber;
 
                 streamEvents.AddRange(currentSlice.Events);
 
             } while (!currentSlice.IsEndOfStream);
 
+            //Deserialize and add to events list
             foreach (var returnedEvent in streamEvents)
             {
-                var strObjectType = Encoding.UTF8.GetString(returnedEvent.Event.Metadata);
-                events.Add(JsonConvert.DeserializeObject<Event>(
-                    Encoding.UTF8.GetString(returnedEvent.Event.Data), serializerSettings));
+                events.Add(DeserializeEvent(returnedEvent));
             }
 
             return events;
@@ -86,17 +80,10 @@ namespace NEventLite_Storage_Providers.EventStore
 
                 foreach (var @event in events)
                 {
-                    JsonSerializerSettings serializerSettings = new JsonSerializerSettings
-                    {
-                        TypeNameHandling = TypeNameHandling.All
-                    };
-
-                    lstEventData.Add(new EventData(@event.Id, @event.GetType().ToString(), false,
-                            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, serializerSettings)),
-                            Encoding.UTF8.GetBytes(@event.GetType().ToString())));
+                    lstEventData.Add(SerializeEvent(@event, aggregate.LastCommittedVersion + 1));
                 }
 
-                connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregate.GetType(),aggregate.Id)}",
+                connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregate.GetType(), aggregate.Id)}",
                                                 (LastVersion < 0 ? ExpectedVersion.Any : LastVersion), lstEventData).Wait();
             }
 
