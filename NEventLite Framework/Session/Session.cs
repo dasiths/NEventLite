@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NEventLite.Domain;
 using NEventLite.Events;
@@ -15,6 +16,7 @@ namespace NEventLite.Session
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
 
         private readonly Dictionary<Guid, AggregateRoot> _trackedItems;
+        private DateTime CommitStartTime;
 
         public Session(IEventStorageProvider eventProvider, ISnapshotStorageProvider snapshotProvider)
         {
@@ -41,20 +43,38 @@ namespace NEventLite.Session
         {
             return _trackedItems.ContainsKey(id);
         }
-        
+
+        public void HandlePreCommited()
+        {
+            CommitStartTime = DateTime.Now;
+            Console.WriteLine($"Trying to commit {_trackedItems.Sum(o => o.Value.GetUncommittedChanges().Count())} events to storage.");
+        }
+
         public void CommitChanges()
         {
+
+            HandlePreCommited();
+
+            List<IEvent> AllChanges = new List<IEvent>();
+
             foreach (var item in _trackedItems.Values)
             {
                 if (item.GetUncommittedChanges().Any())
                 {
-                    CommitToStorage(item);
+                    AllChanges.AddRange(CommitToStorage(item));
                 }
-
             }
+
+            HandlePostCommited(AllChanges);
         }
 
-        private void CommitToStorage(AggregateRoot aggregate)
+        public void HandlePostCommited(IEnumerable<IEvent> events)
+        {
+            //Todo: Publish to EventBus
+            Console.WriteLine($"Committed {events.Count()} events to storage in {DateTime.Now.Subtract(CommitStartTime).TotalMilliseconds} ms.");
+        }
+
+        private IEnumerable<IEvent> CommitToStorage(AggregateRoot aggregate)
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 
@@ -69,6 +89,7 @@ namespace NEventLite.Session
                 throw new ConcurrencyException($"Aggregate {item.Id} has been modified externally and has an updated state. Can't commit changes.");
             }
 
+            var ChangesToCommit = aggregate.GetUncommittedChanges();
             EventStorageProvider.CommitChanges(aggregate.GetType(), aggregate);
 
             //If the Aggregate implements snaphottable
@@ -85,6 +106,10 @@ namespace NEventLite.Session
             }
 
             aggregate.MarkChangesAsCommitted();
+
+            return ChangesToCommit;
         }
+
+
     }
 }
