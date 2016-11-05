@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using NEventLite.Domain;
 using NEventLite.Storage;
 
 namespace NEventLite_Storage_Providers.InMemory
@@ -8,6 +7,8 @@ namespace NEventLite_Storage_Providers.InMemory
     public class InMemorySnapshotStorageProvider:ISnapshotStorageProvider{
 
         private readonly Dictionary<Guid,NEventLite.Snapshot.Snapshot> _items = new Dictionary<Guid,NEventLite.Snapshot.Snapshot>();
+
+        public int SnapshotFrequency { get; set; }
 
         public NEventLite.Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {

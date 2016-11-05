@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using EventStore.ClientAPI;
-using Newtonsoft.Json;
 using NEventLite.Domain;
 using NEventLite.Events;
 using NEventLite.Storage;
@@ -17,7 +15,7 @@ namespace NEventLite_Storage_Providers.EventStore
 
         public bool HasConcurrencyCheck => true;
 
-        public IEnumerable<Event> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
+        public IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
         {
 
             var connection = GetEventStoreConnection();
@@ -30,10 +28,10 @@ namespace NEventLite_Storage_Providers.EventStore
             return events;
         }
 
-        protected IEnumerable<Event> ReadEvents(Type aggregateType, IEventStoreConnection connection, Guid aggregateId, int start, int count)
+        protected IEnumerable<IEvent> ReadEvents(Type aggregateType, IEventStoreConnection connection, Guid aggregateId, int start, int count)
         {
 
-            var events = new List<Event>();
+            var events = new List<IEvent>();
             var streamEvents = new List<ResolvedEvent>();
             StreamEventsSlice currentSlice;
             var nextSliceStart = start < 0 ? StreamPosition.Start : start;
@@ -66,7 +64,7 @@ namespace NEventLite_Storage_Providers.EventStore
             return events;
         }
 
-        public Event GetLastEvent(Type aggregateType, Guid aggregateId)
+        public IEvent GetLastEvent(Type aggregateType, Guid aggregateId)
         {
             var connection = GetEventStoreConnection();
             connection.ConnectAsync().Wait();

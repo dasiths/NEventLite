@@ -12,11 +12,9 @@ This way we can contruct the state for the aggregate to any point in time by rep
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using NEventLite.Events;
 using NEventLite.Exceptions;
-using NEventLite.Repository;
 
 namespace NEventLite.Domain
 {
@@ -32,12 +30,11 @@ namespace NEventLite.Domain
         }
 
         private const string ApplyMethodNameInEventHandler = "Apply";
-        private readonly List<Events.Event> _uncommittedChanges;
+        private readonly List<IEvent> _uncommittedChanges;
 
         public Guid Id { get; protected set; } //The AggregateID must be unique
         public int CurrentVersion { get; protected set; } //This will store the current version of the aggregate
         public int LastCommittedVersion { get; protected set; } //We use this for implement optimistic concurrency
-        private ChangeTrackingContext _context;
 
         public StreamState GetStreamState()
         {
@@ -55,24 +52,14 @@ namespace NEventLite.Domain
         {
             CurrentVersion = (int)StreamState.NoStream;
             LastCommittedVersion = (int)StreamState.NoStream;
-            _uncommittedChanges = new List<Events.Event>();
-        }
-
-        public void SetTracker(ChangeTrackingContext context)
-        {
-            if (context != null)
-            {
-                            context.AddTrackedAggregate(this);
-            }
-
-            _context = context;
+            _uncommittedChanges = new List<IEvent>();
         }
 
         /// <summary>
         /// Get the events that have been applied but not commited to storage
         /// </summary>
         /// <returns>The uncommited events</returns>
-        public IEnumerable<Events.Event> GetUncommittedChanges()
+        public IEnumerable<IEvent> GetUncommittedChanges()
         {
             return _uncommittedChanges.ToList();
         }
@@ -90,7 +77,7 @@ namespace NEventLite.Domain
         /// This will reapply all the events
         /// </summary>
         /// <param name="history">The events to replay</param>
-        public void LoadsFromHistory(IEnumerable<Events.Event> history)
+        public void LoadsFromHistory(IEnumerable<IEvent> history)
         {
             foreach (var e in history)
             {
@@ -104,7 +91,7 @@ namespace NEventLite.Domain
         /// This is used to handle new events
         /// </summary>
         /// <param name="event"></param>
-        protected void HandleEvent(Events.Event @event)
+        protected void HandleEvent(IEvent @event)
         {
             HandleEvent(@event, true);
         }
@@ -114,7 +101,7 @@ namespace NEventLite.Domain
         /// </summary>
         /// <param name="event">The event to handle</param>
         /// <param name="isNew">Is this a new Event</param>
-        private void HandleEvent(Events.Event @event, bool isNew)
+        private void HandleEvent(IEvent @event, bool isNew)
         {
             //All state changes to AggregateRoot must happen via the Apply method
             //Make sure the right Apply method is called with the right type.
@@ -148,11 +135,11 @@ namespace NEventLite.Domain
         /// <param name="event">Event to apply</param>
         /// <param name="isCreationEvent">Is this the first event for the aggregate</param>
         /// <returns></returns>
-        private bool CanApply(Event @event, bool isCreationEvent)
+        private bool CanApply(IEvent @event, bool isCreationEvent)
         {
 
             //Check to see if event is applying against the right Aggregate and matches the target version
-            if (((isCreationEvent) || (this.Id == @event.AggregateId)) && (this.CurrentVersion == @event.TargetVersion))
+            if (((isCreationEvent) || (Id == @event.AggregateId)) && (CurrentVersion == @event.TargetVersion))
             {
                 return true;
             }
@@ -167,16 +154,16 @@ namespace NEventLite.Domain
         /// </summary>
         /// <param name="event">Event to apply</param>
         /// <param name="isCreationEvent">Is this the event as a result of construction of the Aggregate</param>
-        protected void ApplyGenericEvent(Event @event, bool isCreationEvent)
+        protected void ApplyGenericEvent(IEvent @event, bool isCreationEvent)
         {
-            if (this.CanApply(@event, isCreationEvent))
+            if (CanApply(@event, isCreationEvent))
             {
-                this.Id = @event.AggregateId; //This is only needed for the very first event as every other event CAN ONLY apply to matching ID
-                this.CurrentVersion++;
+                Id = @event.AggregateId; //This is only needed for the very first event as every other event CAN ONLY apply to matching ID
+                CurrentVersion++;
             }
             else
             {
-                throw new AggregateStateMismatchException($"The event target version is {@event.TargetVersion} and AggregateRoot version is {this.CurrentVersion}");
+                throw new AggregateStateMismatchException($"The event target version is {@event.TargetVersion} and AggregateRoot version is {CurrentVersion}");
             }
         }
     }

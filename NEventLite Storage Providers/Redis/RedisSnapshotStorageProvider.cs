@@ -1,6 +1,5 @@
 ﻿using System;
 using Newtonsoft.Json;
-using NEventLite.Domain;
 using NEventLite.Storage;
 using ServiceStack.Redis;
 
@@ -16,6 +15,8 @@ namespace NEventLite_Storage_Providers.Redis
         }
 
         public abstract BasicRedisClientManager GetClientsManager();
+
+        public int SnapshotFrequency { get; set; }
 
         public NEventLite.Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {

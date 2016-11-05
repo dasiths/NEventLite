@@ -1,25 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using NEventLite.Domain;
-using NEventLite.Exceptions;
+using NEventLite.Session;
 using NEventLite.Snapshot;
-using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
     public class Repository<T> : IRepository<T> where T : AggregateRoot, new()
     {
-        private ChangeTrackingContext _context;
-       
-        public Repository(ChangeTrackingContext changeTrackingContext)
+
+        public ISession Session { get; }
+
+        public Repository(Session.ISession context)
         {
-            _context = changeTrackingContext;
+            Session = context;
         }
 
         public void Add(T aggregate)
         {
-            aggregate.SetTracker(_context);
+            Session.Add(aggregate);
         }
 
         public void Delete(T aggregate)
@@ -31,25 +30,25 @@ namespace NEventLite.Repository
         {
 
             T item = null;
-            var snapshot = _context.SnapshotStorageProvider.GetSnapshot(typeof(T), id);
+            var snapshot = Session.SnapshotStorageProvider.GetSnapshot(typeof(T), id);
 
             if (snapshot != null)
             {
                 item = new T();
                 ((ISnapshottable)item).SetSnapshot(snapshot);
-                var events = _context.EventStorageProvider.GetEvents(typeof(T),id, snapshot.Version + 1, int.MaxValue);
+                var events = Session.EventStorageProvider.GetEvents(typeof(T),id, snapshot.Version + 1, int.MaxValue);
                 item.LoadsFromHistory(events);
-                item.SetTracker(_context);
+                Session.Add(item);
             }
             else
             {
-                var events = _context.EventStorageProvider.GetEvents(typeof(T),id, 0, int.MaxValue);
+                var events = Session.EventStorageProvider.GetEvents(typeof(T),id, 0, int.MaxValue);
 
                 if (events.Any())
                 {
                     item = new T();
                     item.LoadsFromHistory(events);
-                    item.SetTracker(_context);
+                    Session.Add(item);
                 }
             }
 

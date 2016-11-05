@@ -19,18 +19,9 @@ namespace NEventLite.Events
     [Serializable]
     public class Event : IEvent
     {
-        /// <summary>
-        /// Target version of the Aggregate this event will be applied against
-        /// </summary>
         public int TargetVersion { get; set; }
-        /// <summary>
-        /// The aggregateID of the aggregate
-        /// </summary>
         public Guid AggregateId { get;  set; }
-        /// <summary>
-        /// The Unique Event ID
-        /// </summary>
-        public Guid Id { get; set; }
+        public Guid Id { get; }
 
         public Event()
         {

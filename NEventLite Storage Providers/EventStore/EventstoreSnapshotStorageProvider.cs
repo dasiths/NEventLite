@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
-using NEventLite.Domain;
 using NEventLite.Snapshot;
 using NEventLite.Storage;
 
@@ -11,6 +9,8 @@ namespace NEventLite_Storage_Providers.EventStore
 {
     public abstract class EventstoreSnapshotStorageProvider : EventstoreStorageProviderBase, IEventSnapshotStorageProvider
     {
+        public int SnapshotFrequency { get; set; }
+
         public Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {
 

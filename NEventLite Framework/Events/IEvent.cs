@@ -16,6 +16,16 @@ namespace NEventLite.Events
     public interface IEvent
     {
         /// <summary>
+        /// Target version of the Aggregate this event will be applied against
+        /// </summary>
+        int TargetVersion { get; set; }
+
+        /// <summary>
+        /// The aggregateID of the aggregate
+        /// </summary>
+        Guid AggregateId { get; set; }
+
+        /// <summary>
         /// Unique event ID
         /// </summary>
         Guid Id { get; }

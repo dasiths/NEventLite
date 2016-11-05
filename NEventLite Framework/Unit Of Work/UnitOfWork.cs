@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NEventLite.Domain;
-using NEventLite.Repository;
-using NEventLite.Storage;
-
-namespace NEventLite.Unit_Of_Work
+﻿namespace NEventLite.Unit_Of_Work
 {
     public abstract class UnitOfWork:IUnitOfWork
     {
-        protected ChangeTrackingContext _context;
+        protected Session.ISession _context;
 
-        protected UnitOfWork(ChangeTrackingContext changeTrackingContext)
+        protected UnitOfWork(Session.ISession session)
         {
-            _context = changeTrackingContext;
+            _context = session;
         }
 
         public void Commit()

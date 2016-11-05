@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NEventLite.Domain;
-using NEventLite.Repository;
-using NEventLite.Storage;
+﻿using NEventLite.Repository;
+using NEventLite.Session;
 using NEventLite.Unit_Of_Work;
 using NEventLite_Example.Domain;
-using NEventLite_Example.Util;
 
 namespace NEventLite_Example.Unit_Of_Work
 {
@@ -16,10 +9,9 @@ namespace NEventLite_Example.Unit_Of_Work
     {
         readonly public Repository<Note> NoteRepository;
 
-        public MyUnitOfWork(ChangeTrackingContext changeTrackingContext) : base(changeTrackingContext)
+        public MyUnitOfWork(Session session) : base(session)
         {
-            NoteRepository = new Repository<Note>(changeTrackingContext);
-            changeTrackingContext.SnapshotFrequency = 5;
+            NoteRepository = new Repository<Note>(session);
         }
 
     }

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
-using NEventLite.Domain;
 using NEventLite.Events;
 using NEventLite.Snapshot;
 
@@ -34,7 +30,7 @@ namespace NEventLite_Storage_Providers.EventStore
             return _serializerSetting;
         }
 
-        protected static Event DeserializeEvent(ResolvedEvent returnedEvent)
+        protected static IEvent DeserializeEvent(ResolvedEvent returnedEvent)
         {
 
             var header = JsonConvert.DeserializeObject<EventstoreMetaDataHeader>(
@@ -46,7 +42,7 @@ namespace NEventLite_Storage_Providers.EventStore
                 (Event)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(returnedEvent.Event.Data), returnType,
                         GetSerializerSettings());
         }
-        protected static EventData SerializeEvent(Event @event, int CommitNumber)
+        protected static EventData SerializeEvent(IEvent @event, int CommitNumber)
         {
             var header = new EventstoreMetaDataHeader()
             {

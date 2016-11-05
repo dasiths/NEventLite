@@ -10,11 +10,11 @@ namespace NEventLite_Storage_Providers.InMemory
 {
     public class InMemoryEventStorageProvider : IEventStorageProvider
     {
-        private Dictionary<Guid, List<Event>> eventStream = new Dictionary<Guid, List<Event>>();
+        private Dictionary<Guid, List<IEvent>> eventStream = new Dictionary<Guid, List<IEvent>>();
 
         public bool HasConcurrencyCheck => false;
 
-        public IEnumerable<Event> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
+        public IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace NEventLite_Storage_Providers.InMemory
                 }
                 else
                 {
-                    return new List<Event>();
+                    return new List<IEvent>();
                 }
                 
             }
@@ -47,7 +47,7 @@ namespace NEventLite_Storage_Providers.InMemory
 
         }
 
-        public Event GetLastEvent(Type aggregateType, Guid aggregateId)
+        public IEvent GetLastEvent(Type aggregateType, Guid aggregateId)
         {
             if (eventStream.ContainsKey(aggregateId))
             {

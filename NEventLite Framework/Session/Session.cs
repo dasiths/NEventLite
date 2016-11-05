@@ -1,55 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NEventLite.Domain;
+using NEventLite.Events;
 using NEventLite.Exceptions;
 using NEventLite.Snapshot;
 using NEventLite.Storage;
 
-namespace NEventLite.Repository
+namespace NEventLite.Session
 {
-    public class ChangeTrackingContext
+    public class Session:ISession
     {
-        public readonly IEventStorageProvider EventStorageProvider;
-        public readonly ISnapshotStorageProvider SnapshotStorageProvider;
+        public IEventStorageProvider EventStorageProvider { get; }
+        public ISnapshotStorageProvider SnapshotStorageProvider { get; }
 
-        public int SnapshotFrequency { get; set; }
-        private static readonly int defaultSnapshotFrequency = 5;
+        private readonly Dictionary<Guid, AggregateRoot> _trackedItems;
 
-        private readonly List<AggregateRoot> TrackedItems;
-
-        public ChangeTrackingContext(IEventStorageProvider eventProvider, ISnapshotStorageProvider snapshotProvider)
+        public Session(IEventStorageProvider eventProvider, ISnapshotStorageProvider snapshotProvider)
         {
             EventStorageProvider = eventProvider;
             SnapshotStorageProvider = snapshotProvider;
-            TrackedItems = new List<AggregateRoot>();
-            SnapshotFrequency = defaultSnapshotFrequency;
+            _trackedItems = new Dictionary<Guid, AggregateRoot>();
         }
 
-        public void AddTrackedAggregate(AggregateRoot aggregate)
+        public void Add(AggregateRoot aggregate)
         {
-            var item = TrackedItems.SingleOrDefault(o => o.Id == aggregate.Id);
 
-            if (item != null)
+            if (IsTracked(aggregate.Id))
             {
-                item.SetTracker(null);
-                TrackedItems.Remove(item);
+                throw new ConcurrencyException($"Aggregate {aggregate.Id} is already being tracked.");
+            }
+            else
+            {
+                _trackedItems.Add(aggregate.Id, aggregate);
             }
 
-            TrackedItems.Add(aggregate);
         }
 
+        public bool IsTracked(Guid id)
+        {
+            return _trackedItems.ContainsKey(id);
+        }
+        
         public void CommitChanges()
         {
-            foreach (var item in TrackedItems)
+            foreach (var item in _trackedItems.Values)
             {
                 if (item.GetUncommittedChanges().Any())
                 {
                     SaveAggregateAndPublish(item);
                 }
-                
+
             }
         }
 
@@ -57,7 +58,7 @@ namespace NEventLite.Repository
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 
-            Events.Event item = EventStorageProvider.GetLastEvent(aggregate.GetType(), aggregate.Id);
+            IEvent item = EventStorageProvider.GetLastEvent(aggregate.GetType(), aggregate.Id);
 
             if ((item != null) && (expectedVersion == (int)AggregateRoot.StreamState.NoStream))
             {
@@ -76,8 +77,8 @@ namespace NEventLite.Repository
             if (snapshottable != null)
             {
                 //Every N events we save a snapshot
-                if ((aggregate.CurrentVersion >= SnapshotFrequency) &&
-                    (aggregate.CurrentVersion - aggregate.LastCommittedVersion > SnapshotFrequency) || (aggregate.CurrentVersion % SnapshotFrequency == 0))
+                if ((aggregate.CurrentVersion >= SnapshotStorageProvider.SnapshotFrequency) &&
+                    (aggregate.CurrentVersion - aggregate.LastCommittedVersion > SnapshotStorageProvider.SnapshotFrequency) || (aggregate.CurrentVersion % SnapshotStorageProvider.SnapshotFrequency == 0))
                 {
                     SnapshotStorageProvider.SaveSnapshot(aggregate.GetType(), snapshottable.GetSnapshot());
                 }

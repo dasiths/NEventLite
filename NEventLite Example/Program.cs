@@ -1,5 +1,7 @@
 ﻿using System;
-using NEventLite.Repository;
+using System.Runtime.InteropServices;
+using NEventLite.Session;
+using NEventLite.Storage;
 using NEventLite_Example.Domain;
 using NEventLite_Example.Unit_Of_Work;
 using NEventLite_Example.Util;
@@ -8,14 +10,33 @@ namespace NEventLite_Example
 {
     class Program
     {
+
+        //We keep a static variable for storage incase we decide to use the InMemoeryEventStorageProvider
+        private static IEventStorageProvider EventStorage = null;
+        private static ISnapshotStorageProvider SnapshotStorage = null;
+
         static void Main(string[] args)
         {
 
-            //Load dependency resolver
-            var Resolver = new DependencyResolver();
-            var UnitWork = Resolver.ResolveDependecy<MyUnitOfWork>();
+            Note tmpNote = CreateAndDoSomeChanges();
 
-            #region "Create / Load Note"
+            if (tmpNote != null)
+            {
+                LoadAndDisplayPreviouslySaved(tmpNote.Id);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Press enter key to exit.");
+
+            Console.ReadLine();
+
+        }
+
+        #region Create And Change
+
+        public static Note CreateAndDoSomeChanges()
+        {
+            var UnitWork = GetSession(new DependencyResolver());
 
             Note tmpNote = null;
 
@@ -24,15 +45,14 @@ namespace NEventLite_Example
             string strGUID = Console.ReadLine();
             Guid LoadID;
 
-            if ((string.IsNullOrEmpty(strGUID)==false) && (Guid.TryParse(strGUID, out LoadID)))
+            if ((string.IsNullOrEmpty(strGUID) == false) && (Guid.TryParse(strGUID, out LoadID)))
             {
                 tmpNote = LoadNote(LoadID, UnitWork);
 
                 if (tmpNote == null)
                 {
                     Console.WriteLine($"No Note found with provided Guid of {LoadID.ToString()}. Press enter key to exit.");
-                    Console.ReadLine();
-                    return;
+                    return null;
                 }
             }
             else
@@ -45,11 +65,6 @@ namespace NEventLite_Example
                 Console.WriteLine();
             }
 
-
-            #endregion
-
-            #region "Edit Note"
-
             Console.WriteLine("Doing some changes now...");
             Console.WriteLine("");
 
@@ -60,24 +75,7 @@ namespace NEventLite_Example
             Console.WriteLine("After Committing Events:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
 
-            #endregion
-
-            #region "Reload Note From Storage"
-
-            //Load same note using the aggregate id
-            //This will replay the saved events and construct a new note
-            var tmpNoteToLoad = LoadNote(tmpNote.Id, UnitWork);
-
-            Console.WriteLine("");
-            Console.WriteLine("After Replaying:");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
-
-            Console.WriteLine();
-            Console.WriteLine("Press enter key to exit.");
-
-            Console.ReadLine();
-
-            #endregion
+            return tmpNote;
 
         }
 
@@ -86,12 +84,6 @@ namespace NEventLite_Example
             Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
             rep.NoteRepository.Add(tmpNote);
             return tmpNote;
-        }
-
-        private static Note LoadNote(Guid NoteID, MyUnitOfWork rep)
-        {
-            var tmpNoteToLoad = rep.NoteRepository.GetById(NoteID);
-            return tmpNoteToLoad;
         }
 
         private static void DoChanges(Note tmpNote, MyUnitOfWork rep)
@@ -117,6 +109,43 @@ namespace NEventLite_Example
             //Commit changes to the repository
             rep.Commit();
         }
+
+        #endregion
+
+        #region Load Aggregate
+
+        public static void LoadAndDisplayPreviouslySaved(Guid AggregateID)
+        {
+            //Load same note using the aggregate id
+            //This will replay the saved events and construct a new note
+            var tmpNoteToLoad = LoadNote(AggregateID, GetSession(new DependencyResolver()));
+
+            Console.WriteLine("");
+            Console.WriteLine("After Replaying:");
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
+        }
+
+        private static Note LoadNote(Guid NoteID, MyUnitOfWork rep)
+        {
+            var tmpNoteToLoad = rep.NoteRepository.GetById(NoteID);
+            return tmpNoteToLoad;
+        }
+
+        #endregion
+
+        private static MyUnitOfWork GetSession(DependencyResolver Resolver)
+        {
+            //Load dependency resolver
+            var resolver = new DependencyResolver();
+            EventStorage =  EventStorage ?? resolver.Resolve<IEventStorageProvider>();
+            SnapshotStorage =  SnapshotStorage ?? resolver.Resolve<ISnapshotStorageProvider>();
+
+            //Set snapshot frequency
+            SnapshotStorage.SnapshotFrequency = 5;
+
+            return new MyUnitOfWork(new Session(EventStorage, SnapshotStorage));
+        }
+
 
     }
 }
