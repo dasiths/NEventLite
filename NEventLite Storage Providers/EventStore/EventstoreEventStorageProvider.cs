@@ -13,8 +13,6 @@ namespace NEventLite_Storage_Providers.EventStore
         //There is a max limit of 4096 messages per read in eventstore so use paging
         private const int eventStorePageSize = 200;
 
-        public bool HasConcurrencyCheck => true;
-
         public IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
         {
 

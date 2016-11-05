@@ -40,7 +40,7 @@ namespace NEventLite_Example.Util
 
             //----------------------------------
 
-            //builder.RegisterType<Session>().AsSelf().SingleInstance(); //InstancePerOwned(typeof(IRepository<>))
+            //builder.RegisterType<Session>().As<ISession>().SingleInstance(); //InstancePerOwned(typeof(IRepository<>))
             //builder.RegisterType<MyUnitOfWork>().AsSelf().SingleInstance(); //InstancePerOwned(typeof(IRepository<>))
             //This will resolve and bind storage types to a concrete repository of <T> as needed
             //builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();

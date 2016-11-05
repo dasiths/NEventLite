@@ -48,13 +48,13 @@ namespace NEventLite.Session
             {
                 if (item.GetUncommittedChanges().Any())
                 {
-                    SaveAggregateAndPublish(item);
+                    CommitToStorage(item);
                 }
 
             }
         }
 
-        private void SaveAggregateAndPublish(AggregateRoot aggregate)
+        private void CommitToStorage(AggregateRoot aggregate)
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 

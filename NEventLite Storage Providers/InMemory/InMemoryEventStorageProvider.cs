@@ -12,8 +12,6 @@ namespace NEventLite_Storage_Providers.InMemory
     {
         private Dictionary<Guid, List<IEvent>> eventStream = new Dictionary<Guid, List<IEvent>>();
 
-        public bool HasConcurrencyCheck => false;
-
         public IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
         {
             try
