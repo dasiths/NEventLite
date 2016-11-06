@@ -60,8 +60,6 @@
     <Compile Include="Storage\IEventSnapshotStorageProvider.cs" />
     <Compile Include="Storage\IEventStorageProvider.cs" />
     <Compile Include="Storage\ISnapshotStorageProvider.cs" />
-    <Compile Include="Util\SerializableAttribute.cs" />
-    <Compile Include="Util\TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
