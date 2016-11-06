@@ -16,6 +16,33 @@ Start with : https://www.youtube.com/watch?v=JHGkaShoyNs
 •	Installation of EventStore (Optional, There is a built in InMemoryStorageProvider too)
 "Event Store stores your data as a series of immutable events over time, making it easy to build event-sourced applications" - https://geteventstore.com/)
 
+Usage
+------------------------------------
+//EventStorageProvider and SnapshotStorage provider can be injected. Can be created per command or once per lifetime.
+
+//In the command handler
+ 
+Handle(CreateCommand command) { //Create 
+  var UnitWork =  new MyUnitOfWork(EventStorage, SnapshotStorage);
+ 
+  Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
+  UnitWork.NoteRepository.Add(tmpNote);
+   
+  tmpNote.ChangeTitle("Test Note 123 Event");
+  tmpNote.ChangeCategory("Event Sourcing in .NET Example.");
+ 
+  UnitWork.Commit();
+}
+
+Handle(EditTitleCommand command) { //Edit 
+  var UnitWork =  new MyUnitOfWork(EventStorage, SnapshotStorage);
+ 
+  Note tmpNote = UnitWork.NoteRepository.GetById(command.NoteID);
+  tmpNote.ChangeTitle(command.ChangedTitle);
+ 
+  UnitWork.Commit();
+}
+
 Notes
 ------------------------------------
 Please feel free to contribute and improve the code as you see fit.
