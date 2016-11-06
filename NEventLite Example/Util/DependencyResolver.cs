@@ -20,7 +20,7 @@ namespace NEventLite_Example.Util
 
             //Event store connection settings are in EventstoreEventStorageProvider class
             //If you don't have eventstore installed comment our the line below
-            builder.RegisterType<MyEventstoreEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
+            //builder.RegisterType<MyEventstoreEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
 
             builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().PreserveExistingDefaults().SingleInstance();
 
@@ -30,7 +30,7 @@ namespace NEventLite_Example.Util
 
             //Event store connection settings are in EventstoreConnection class
             //If you don't have eventstore installed comment out the line below
-            builder.RegisterType<MyEventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
+            //builder.RegisterType<MyEventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
 
             //Redis connection settings are in RedisConnection class
             //builder.RegisterType<MyRedisSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
