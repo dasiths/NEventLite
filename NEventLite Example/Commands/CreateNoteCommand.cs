@@ -12,14 +12,12 @@ namespace NEventLite_Example.Commands
         public string title { get; set; }
         public string desc { get; set; }
         public string cat { get; set; }
-        public DateTime createdTime { get; set; }
-
-        public CreateNoteCommand(Guid id, int targetVersion, string title, string desc, string cat, DateTime createdTime) : base(id, targetVersion)
+        
+        public CreateNoteCommand(Guid id, int targetVersion, string title, string desc, string cat) : base(id, Guid.Empty, targetVersion)
         {
             this.title = title;
             this.desc = desc;
             this.cat = cat;
-            this.createdTime = createdTime;
         }
 
     }

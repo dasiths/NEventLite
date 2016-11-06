@@ -72,7 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command Handlers\CreateItemCommandHandler.cs" />
+    <Compile Include="Command Handlers\NoteCommandHandler.cs" />
     <Compile Include="Commands\CreateNoteCommand.cs" />
     <Compile Include="Commands\EditNoteCommand.cs" />
     <Compile Include="Domain\Note.cs" />
