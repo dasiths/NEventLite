@@ -16,10 +16,14 @@ Start with : https://www.youtube.com/watch?v=JHGkaShoyNs
 •	Installation of EventStore (Optional, There is a built in InMemoryStorageProvider too)
 "Event Store stores your data as a series of immutable events over time, making it easy to build event-sourced applications" - https://geteventstore.com/)
 
-Usage
+Example Usage once the AggregateRoots, Events and StorageProviders has been setup. See Example project.
 ------------------------------------
 ```C#
-//EventStorageProvider and SnapshotStorage provider can be injected. Can be created per command or once per lifetime.
+//EventStorageProvider and SnapshotStorage provider can be injected.
+//Can be created per command or once per lifetime.
+
+EventStorage = IocContainer.Resolve<IEventStorageProvider>();
+SnapshotStorage = IocContainer.Resolve<ISnapshotStorageProvider>();
 
 //In the command handler
  
