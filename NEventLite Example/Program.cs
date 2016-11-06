@@ -2,6 +2,8 @@
 using System.Runtime.InteropServices;
 using NEventLite.Repository;
 using NEventLite.Storage;
+using NEventLite_Example.Commands;
+using NEventLite_Example.Command_Handlers;
 using NEventLite_Example.Domain;
 using NEventLite_Example.Util;
 
@@ -20,13 +22,9 @@ namespace NEventLite_Example
 
             //Get ioc conatainer to create our repository
             IRepository<Note> rep = resolver.Resolve<IRepository<Note>>();
+            NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
 
-            Guid SavedItemID = CreateAndDoSomeChanges(rep);
-
-            if (SavedItemID != Guid.Empty)
-            {
-                LoadAndDisplayPreviouslySaved(SavedItemID, rep);
-            }
+            DoMockRun(rep,commandHandler);
 
             Console.WriteLine();
             Console.WriteLine("Press enter key to exit.");
@@ -35,20 +33,19 @@ namespace NEventLite_Example
 
         }
 
-        #region Create And Change
-
-        public static Guid CreateAndDoSomeChanges(IRepository<Note> rep)
+        private static Guid DoMockRun(IRepository<Note> rep, NoteCommandHandler commandHandler)
         {
             Note tmpNote = null;
+            Guid LoadID = Guid.Empty;
 
-            //Try to load a given guid. Example: 76bc9edb-9857-4e2a-9fa0-762b90844119
+            //Try to load a given guid.
             Console.WriteLine("Enter a GUID to try to load or leave blank and press enter:");
             string strGUID = Console.ReadLine();
-            Guid LoadID;
+
 
             if ((string.IsNullOrEmpty(strGUID) == false) && (Guid.TryParse(strGUID, out LoadID)))
             {
-                tmpNote = LoadNote(LoadID, rep);
+                tmpNote = rep.GetById(LoadID);
 
                 if (tmpNote == null)
                 {
@@ -59,7 +56,8 @@ namespace NEventLite_Example
             else
             {
                 //Create new note
-                tmpNote = CreateNewNote(rep);
+                CreateNewNote(rep, commandHandler);
+                tmpNote = rep.GetById(commandHandler.LastCreatedNoteGuid);
 
                 Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
@@ -70,69 +68,44 @@ namespace NEventLite_Example
             Console.WriteLine("");
 
             //Do some changes
-            DoChanges(tmpNote, rep);
+            DoChanges(tmpNote.Id, rep,commandHandler);
+
+            //Load to display
+            var noteToLoad = rep.GetById(tmpNote.Id);
 
             Console.WriteLine("");
             Console.WriteLine("After Committing Events:");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(noteToLoad));
 
             return tmpNote.Id;
 
         }
 
-        private static Note CreateNewNote(IRepository<Note> rep)
+        private static void CreateNewNote(IRepository<Note> rep, NoteCommandHandler commandHandler)
         {
-            Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
-            rep.Save(tmpNote);
-            return tmpNote;
+            commandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(),-1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
         }
 
-        private static void DoChanges(Note tmpNote, IRepository<Note> rep)
+        private static void DoChanges(Guid NoteID, IRepository<Note> rep, NoteCommandHandler commandHandler)
         {
-            //Do 3 x 5 events cycle to check snapshots too.
-            for (int i = 0; i < 3; i++)
+            var tmpNote = rep.GetById(NoteID);
+            int LastVersion = tmpNote.CurrentVersion;
+
+            //Do 12 events cycle to check snapshots too.
+            for (int i = 1; i <= 12; i++)
             {
-                for (int x = 0; x < 5; x++)
-                {
-                    tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
-                    tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event ({tmpNote.CurrentVersion + 1})");
-                }
+                Console.WriteLine($"Applying Changes For Cycle {i}");
 
-                Console.WriteLine($"Committing Changes Now For Cycle {i}");
-
-                //Commit changes to the repository
-                rep.Save(tmpNote);
+                LastVersion = commandHandler.Handle(
+                                    new EditNoteCommand(
+                                        Guid.NewGuid(), 
+                                        tmpNote.Id,
+                                        LastVersion,
+                                        $"Test Note 123 Event ({LastVersion + 1})",
+                                        $"Event Sourcing in .NET Example. Event ({LastVersion + 2})"));
             }
 
-            //Do some changes that don't get caught in the snapshot
-            tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
-            tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event ({tmpNote.CurrentVersion + 1})");
-            //Commit changes to the repository
-            rep.Save(tmpNote);
         }
-
-        #endregion
-
-        #region Load Aggregate
-
-        public static void LoadAndDisplayPreviouslySaved(Guid AggregateID, IRepository<Note> rep )
-        {
-            //Load same note using the aggregate id
-            //This will replay the saved events and construct a new note
-            var tmpNoteToLoad = LoadNote(AggregateID, rep);
-
-            Console.WriteLine("");
-            Console.WriteLine("After Replaying:");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
-        }
-
-        private static Note LoadNote(Guid NoteID, IRepository<Note> rep)
-        {
-            var tmpNoteToLoad = rep.GetById(NoteID);
-            return tmpNoteToLoad;
-        }
-
-        #endregion
 
     }
 }

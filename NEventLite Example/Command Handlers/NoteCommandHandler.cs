@@ -16,19 +16,22 @@ namespace NEventLite_Example.Command_Handlers
         ICommandHandler<EditNoteCommand>
     {
         private readonly IRepository<Note> _repository;
+        public Guid LastCreatedNoteGuid { get; private set; }
 
         public NoteCommandHandler(IRepository<Note> repository)
         {
             _repository = repository;
         }
 
-        public void Handle(CreateNoteCommand command)
+        public int Handle(CreateNoteCommand command)
         {
             var newNote = new Note(command.title, command.desc, command.cat);
             _repository.Save(newNote);
+            LastCreatedNoteGuid = newNote.Id;
+            return 0;
         }
 
-        public void Handle(EditNoteCommand command)
+        public int Handle(EditNoteCommand command)
         {
             var LoadedNote = _repository.GetById(command.AggregateId);
 
@@ -41,6 +44,10 @@ namespace NEventLite_Example.Command_Handlers
 
                     if (LoadedNote.Category != command.cat)
                         LoadedNote.ChangeCategory(command.cat);
+
+                    _repository.Save(LoadedNote);
+
+                    return LoadedNote.CurrentVersion;
                 }
                 else
                 {
