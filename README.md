@@ -21,7 +21,7 @@ It's very easy to use once setup. Ideal for implementing the CQRS pattern.
 ```C#
 //See how AggregateRoots, Events and StorageProviders have been setup in the Example project.
 //EventStorageProvider and SnapshotStorageProvider can be injected to the Repository.
-//Can be created per command or once per lifetime as follows.
+//Can be created per command or once per life time as follows.
 
 IRepository<Note> rep = Container.Resolve<IRepository<Note>>();
 
@@ -31,19 +31,22 @@ IRepository<Note> rep = Container.Resolve<IRepository<Note>>();
         ICommandHandler<EditNoteCommand>
     {
         private readonly IRepository<Note> _repository;
+        public Guid LastCreatedNoteGuid { get; private set; }
 
         public NoteCommandHandler(IRepository<Note> repository)
         {
             _repository = repository;
         }
 
-        public void Handle(CreateNoteCommand command)
+        public int Handle(CreateNoteCommand command)
         {
             var newNote = new Note(command.title, command.desc, command.cat);
             _repository.Save(newNote);
+            LastCreatedNoteGuid = newNote.Id;
+            return 0;
         }
 
-        public void Handle(EditNoteCommand command)
+        public int Handle(EditNoteCommand command)
         {
             var LoadedNote = _repository.GetById(command.AggregateId);
 
@@ -56,6 +59,10 @@ IRepository<Note> rep = Container.Resolve<IRepository<Note>>();
 
                     if (LoadedNote.Category != command.cat)
                         LoadedNote.ChangeCategory(command.cat);
+
+                    _repository.Save(LoadedNote);
+
+                    return LoadedNote.CurrentVersion;
                 }
                 else
                 {
