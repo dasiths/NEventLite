@@ -20,31 +20,54 @@ It's very easy to use once setup. Ideal for implementing the CQRS pattern.
 ------------------------------------
 ```C#
 //See how AggregateRoots, Events and StorageProviders have been setup in the Example project.
-//EventStorageProvider and SnapshotStorageProvider can be injected.
-//Can be created per command or once per lifetime.
+//EventStorageProvider and SnapshotStorageProvider can be injected to the Repository.
+//Can be created per command or once per lifetime as follows.
 
-EventStorage = IocContainer.Resolve<IEventStorageProvider>();
-SnapshotStorage = IocContainer.Resolve<ISnapshotStorageProvider>();
+IRepository<Note> rep = Container.Resolve<IRepository<Note>>();
 
-//In the command handler
- 
-Handle(CreateCommand command) { //Create 
-  var UnitWork =  new MyUnitOfWork(EventStorage, SnapshotStorage);
- 
-  Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
-  UnitWork.NoteRepository.Add(tmpNote);
- 
-  UnitWork.Commit();
-}
+//Example of a Command Handler
+    public class NoteCommandHandler :
+        ICommandHandler<CreateNoteCommand>, 
+        ICommandHandler<EditNoteCommand>
+    {
+        private readonly IRepository<Note> _repository;
 
-Handle(EditTitleCommand command) { //Edit 
-  var UnitWork =  new MyUnitOfWork(EventStorage, SnapshotStorage);
- 
-  Note tmpNote = UnitWork.NoteRepository.GetById(command.NoteID);
-  tmpNote.ChangeTitle(command.ChangedTitle);
- 
-  UnitWork.Commit();
-}
+        public NoteCommandHandler(IRepository<Note> repository)
+        {
+            _repository = repository;
+        }
+
+        public void Handle(CreateNoteCommand command)
+        {
+            var newNote = new Note(command.title, command.desc, command.cat);
+            _repository.Save(newNote);
+        }
+
+        public void Handle(EditNoteCommand command)
+        {
+            var LoadedNote = _repository.GetById(command.AggregateId);
+
+            if (LoadedNote != null)
+            {
+                if (LoadedNote.CurrentVersion == command.TargetVersion)
+                {
+                    if (LoadedNote.Title != command.title)
+                        LoadedNote.ChangeTitle(command.title);
+
+                    if (LoadedNote.Category != command.cat)
+                        LoadedNote.ChangeCategory(command.cat);
+                }
+                else
+                {
+                    throw new ConcurrencyException($"The version of the Note ({LoadedNote.CurrentVersion}) and Command ({command.TargetVersion}) didn't match.");
+                }
+            }
+            else
+            {
+                throw new AggregateNotFoundException($"Note with ID {command.AggregateId} was not found.");
+            }
+        }
+    }
 ```
 
 Notes
