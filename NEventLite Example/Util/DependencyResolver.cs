@@ -1,9 +1,8 @@
 ﻿using Autofac;
 using NEventLite.Events;
-using NEventLite.Session;
+using NEventLite.Repository;
 using NEventLite.Storage;
 using NEventLite_Example.Storage;
-using NEventLite_Example.Unit_Of_Work;
 using NEventLite_Storage_Providers.InMemory;
 
 namespace NEventLite_Example.Util
@@ -40,10 +39,8 @@ namespace NEventLite_Example.Util
 
             //----------------------------------
 
-            //builder.RegisterType<Session>().As<ISession>().SingleInstance(); //InstancePerOwned(typeof(IRepository<>))
-            //builder.RegisterType<MyUnitOfWork>().AsSelf().SingleInstance(); //InstancePerOwned(typeof(IRepository<>))
             //This will resolve and bind storage types to a concrete repository of <T> as needed
-            //builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
+            builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
 
             Container = builder.Build();
         }

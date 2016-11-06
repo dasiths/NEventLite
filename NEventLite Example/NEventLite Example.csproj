@@ -72,6 +72,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command Handlers\CreateItemCommandHandler.cs" />
+    <Compile Include="Commands\CreateNoteCommand.cs" />
+    <Compile Include="Commands\EditNoteCommand.cs" />
     <Compile Include="Domain\Note.cs" />
     <Compile Include="Events\NoteCategoryChangedEvent.cs" />
     <Compile Include="Events\NoteTitleChangedEvent.cs" />
@@ -82,7 +85,6 @@
     <Compile Include="Storage\MyEventstoreEventStorageProvider.cs" />
     <Compile Include="Storage\MyEventstoreSnapshotStorageProvider.cs" />
     <Compile Include="Storage\MyRedisSnapshotStorageProvider.cs" />
-    <Compile Include="Unit Of Work\MyUnitOfWork.cs" />
     <Compile Include="Util\DependencyResolver.cs" />
     <Compile Include="Util\EventstoreConnection.cs" />
     <Compile Include="Util\RedisConnection.cs" />

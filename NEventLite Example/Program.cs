@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using NEventLite.Session;
+using NEventLite.Repository;
 using NEventLite.Storage;
 using NEventLite_Example.Domain;
-using NEventLite_Example.Unit_Of_Work;
 using NEventLite_Example.Util;
 
 namespace NEventLite_Example
@@ -11,28 +10,22 @@ namespace NEventLite_Example
     class Program
     {
 
-        //We keep a static variable for storage incase we decide to use the InMemoeryEventStorageProvider
-        private static IEventStorageProvider EventStorage = null;
-        private static ISnapshotStorageProvider SnapshotStorage = null;
-
         static void Main(string[] args)
         {
             //Load dependency resolver
             var resolver = new DependencyResolver();
-
-            //We are reusing static data stores here because of InMemoryStorage example requires it. Don't use same storage instance in production.
-            //You can create a new instance of Storage for other providers.
-            EventStorage = resolver.Resolve<IEventStorageProvider>();
-            SnapshotStorage = resolver.Resolve<ISnapshotStorageProvider>();
-
+            
             //Set snapshot frequency
-            SnapshotStorage.SnapshotFrequency = 5;
+            resolver.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
 
-            Guid SavedItemID = CreateAndDoSomeChanges();
+            //Get ioc conatainer to create our repository
+            IRepository<Note> rep = resolver.Resolve<IRepository<Note>>();
+
+            Guid SavedItemID = CreateAndDoSomeChanges(rep);
 
             if (SavedItemID != Guid.Empty)
             {
-                LoadAndDisplayPreviouslySaved(SavedItemID);
+                LoadAndDisplayPreviouslySaved(SavedItemID, rep);
             }
 
             Console.WriteLine();
@@ -44,10 +37,8 @@ namespace NEventLite_Example
 
         #region Create And Change
 
-        public static Guid CreateAndDoSomeChanges()
+        public static Guid CreateAndDoSomeChanges(IRepository<Note> rep)
         {
-            var UnitWork = GetUnitOfWork();
-
             Note tmpNote = null;
 
             //Try to load a given guid. Example: 76bc9edb-9857-4e2a-9fa0-762b90844119
@@ -57,7 +48,7 @@ namespace NEventLite_Example
 
             if ((string.IsNullOrEmpty(strGUID) == false) && (Guid.TryParse(strGUID, out LoadID)))
             {
-                tmpNote = LoadNote(LoadID, UnitWork);
+                tmpNote = LoadNote(LoadID, rep);
 
                 if (tmpNote == null)
                 {
@@ -68,7 +59,7 @@ namespace NEventLite_Example
             else
             {
                 //Create new note
-                tmpNote = CreateNewNote(UnitWork);
+                tmpNote = CreateNewNote(rep);
 
                 Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
@@ -79,7 +70,7 @@ namespace NEventLite_Example
             Console.WriteLine("");
 
             //Do some changes
-            DoChanges(tmpNote, UnitWork);
+            DoChanges(tmpNote, rep);
 
             Console.WriteLine("");
             Console.WriteLine("After Committing Events:");
@@ -89,14 +80,14 @@ namespace NEventLite_Example
 
         }
 
-        private static Note CreateNewNote(MyUnitOfWork unitOfWork)
+        private static Note CreateNewNote(IRepository<Note> rep)
         {
             Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
-            unitOfWork.NoteRepository.Add(tmpNote);
+            rep.Save(tmpNote);
             return tmpNote;
         }
 
-        private static void DoChanges(Note tmpNote, MyUnitOfWork unitOfWork)
+        private static void DoChanges(Note tmpNote, IRepository<Note> rep)
         {
             //Do 3 x 5 events cycle to check snapshots too.
             for (int i = 0; i < 3; i++)
@@ -110,44 +101,38 @@ namespace NEventLite_Example
                 Console.WriteLine($"Committing Changes Now For Cycle {i}");
 
                 //Commit changes to the repository
-                unitOfWork.Commit();
+                rep.Save(tmpNote);
             }
 
             //Do some changes that don't get caught in the snapshot
             tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
             tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event ({tmpNote.CurrentVersion + 1})");
             //Commit changes to the repository
-            unitOfWork.Commit();
+            rep.Save(tmpNote);
         }
 
         #endregion
 
         #region Load Aggregate
 
-        public static void LoadAndDisplayPreviouslySaved(Guid AggregateID)
+        public static void LoadAndDisplayPreviouslySaved(Guid AggregateID, IRepository<Note> rep )
         {
             //Load same note using the aggregate id
             //This will replay the saved events and construct a new note
-            var tmpNoteToLoad = LoadNote(AggregateID, GetUnitOfWork());
+            var tmpNoteToLoad = LoadNote(AggregateID, rep);
 
             Console.WriteLine("");
             Console.WriteLine("After Replaying:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
         }
 
-        private static Note LoadNote(Guid NoteID, MyUnitOfWork unitOfWork)
+        private static Note LoadNote(Guid NoteID, IRepository<Note> rep)
         {
-            var tmpNoteToLoad = unitOfWork.NoteRepository.GetById(NoteID);
+            var tmpNoteToLoad = rep.GetById(NoteID);
             return tmpNoteToLoad;
         }
 
         #endregion
-
-        private static MyUnitOfWork GetUnitOfWork()
-        {
-            return new MyUnitOfWork(EventStorage, SnapshotStorage);
-        }
-
 
     }
 }
