@@ -18,6 +18,7 @@ Start with : https://www.youtube.com/watch?v=JHGkaShoyNs
 
 Usage
 ------------------------------------
+```C#
 //EventStorageProvider and SnapshotStorage provider can be injected. Can be created per command or once per lifetime.
 
 //In the command handler
@@ -42,6 +43,7 @@ Handle(EditTitleCommand command) { //Edit
  
   UnitWork.Commit();
 }
+```
 
 Notes
 ------------------------------------
