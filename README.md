@@ -16,10 +16,11 @@ Start with : https://www.youtube.com/watch?v=JHGkaShoyNs
 •	Installation of EventStore (Optional, There is a built in InMemoryStorageProvider too)
 "Event Store stores your data as a series of immutable events over time, making it easy to build event-sourced applications" - https://geteventstore.com/)
 
-Usage once the AggregateRoots, Events and StorageProviders has been setup. See Example project.
+It's very easy to use once setup. Ideal for implementing the CQRS pattern.
 ------------------------------------
 ```C#
-//EventStorageProvider and SnapshotStorage provider can be injected.
+//See how AggregateRoots, Events and StorageProviders have been setup in the Example project.
+//EventStorageProvider and SnapshotStorageProvider can be injected.
 //Can be created per command or once per lifetime.
 
 EventStorage = IocContainer.Resolve<IEventStorageProvider>();
@@ -32,9 +33,6 @@ Handle(CreateCommand command) { //Create
  
   Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
   UnitWork.NoteRepository.Add(tmpNote);
-   
-  tmpNote.ChangeTitle("Test Note 123 Event");
-  tmpNote.ChangeCategory("Event Sourcing in .NET Example.");
  
   UnitWork.Commit();
 }
