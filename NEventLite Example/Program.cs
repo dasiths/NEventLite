@@ -17,12 +17,22 @@ namespace NEventLite_Example
 
         static void Main(string[] args)
         {
+            //Load dependency resolver
+            var resolver = new DependencyResolver();
 
-            Note tmpNote = CreateAndDoSomeChanges();
+            //We are reusing static data stores here because of InMemoryStorage example requires it. Don't use same storage instance in production.
+            //You can create a new instance of Storage for other providers.
+            EventStorage = resolver.Resolve<IEventStorageProvider>();
+            SnapshotStorage = resolver.Resolve<ISnapshotStorageProvider>();
 
-            if (tmpNote != null)
+            //Set snapshot frequency
+            SnapshotStorage.SnapshotFrequency = 5;
+
+            Guid SavedItemID = CreateAndDoSomeChanges();
+
+            if (SavedItemID != Guid.Empty)
             {
-                LoadAndDisplayPreviouslySaved(tmpNote.Id);
+                LoadAndDisplayPreviouslySaved(SavedItemID);
             }
 
             Console.WriteLine();
@@ -34,9 +44,9 @@ namespace NEventLite_Example
 
         #region Create And Change
 
-        public static Note CreateAndDoSomeChanges()
+        public static Guid CreateAndDoSomeChanges()
         {
-            var UnitWork = GetSession(new DependencyResolver());
+            var UnitWork = GetUnitOfWork();
 
             Note tmpNote = null;
 
@@ -52,7 +62,7 @@ namespace NEventLite_Example
                 if (tmpNote == null)
                 {
                     Console.WriteLine($"No Note found with provided Guid of {LoadID.ToString()}. Press enter key to exit.");
-                    return null;
+                    return Guid.Empty;
                 }
             }
             else
@@ -75,7 +85,7 @@ namespace NEventLite_Example
             Console.WriteLine("After Committing Events:");
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
 
-            return tmpNote;
+            return tmpNote.Id;
 
         }
 
@@ -118,7 +128,7 @@ namespace NEventLite_Example
         {
             //Load same note using the aggregate id
             //This will replay the saved events and construct a new note
-            var tmpNoteToLoad = LoadNote(AggregateID, GetSession(new DependencyResolver()));
+            var tmpNoteToLoad = LoadNote(AggregateID, GetUnitOfWork());
 
             Console.WriteLine("");
             Console.WriteLine("After Replaying:");
@@ -133,17 +143,9 @@ namespace NEventLite_Example
 
         #endregion
 
-        private static MyUnitOfWork GetSession(DependencyResolver Resolver)
+        private static MyUnitOfWork GetUnitOfWork()
         {
-            //Load dependency resolver
-            var resolver = new DependencyResolver();
-            EventStorage =  EventStorage ?? resolver.Resolve<IEventStorageProvider>();
-            SnapshotStorage =  SnapshotStorage ?? resolver.Resolve<ISnapshotStorageProvider>();
-
-            //Set snapshot frequency
-            SnapshotStorage.SnapshotFrequency = 5;
-
-            return new MyUnitOfWork(new Session(EventStorage, SnapshotStorage));
+            return new MyUnitOfWork(EventStorage, SnapshotStorage);
         }
 
 

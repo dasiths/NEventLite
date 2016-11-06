@@ -14,7 +14,7 @@ namespace NEventLite.Event_Handlers
     /// Interface to expose the Apply() of event T in an AggregateRoot
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IEventHandler<T> where T: Event
+    public interface IEventHandler<T> where T: IEvent
     {
         /// <summary>
         /// Apply the event

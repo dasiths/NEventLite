@@ -1,17 +1,20 @@
-﻿namespace NEventLite.Unit_Of_Work
+﻿using System.Linq.Expressions;
+using NEventLite.Storage;
+
+namespace NEventLite.Unit_Of_Work
 {
     public abstract class UnitOfWork:IUnitOfWork
     {
-        protected Session.ISession _context;
+        protected Session.ISession Context;
 
-        protected UnitOfWork(Session.ISession session)
+        protected UnitOfWork(IEventStorageProvider eventProvider, ISnapshotStorageProvider snapshotProvider)
         {
-            _context = session;
+            Context = new Session.Session(eventProvider,snapshotProvider);
         }
 
         public void Commit()
         {
-            _context.CommitChanges();
+            Context.CommitChanges();
         }
     }
 }
