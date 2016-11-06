@@ -89,14 +89,14 @@ namespace NEventLite_Example
 
         }
 
-        private static Note CreateNewNote(MyUnitOfWork rep)
+        private static Note CreateNewNote(MyUnitOfWork unitOfWork)
         {
             Note tmpNote = new Note("Test Note", "Event Sourcing System Demo", "Event Sourcing");
-            rep.NoteRepository.Add(tmpNote);
+            unitOfWork.NoteRepository.Add(tmpNote);
             return tmpNote;
         }
 
-        private static void DoChanges(Note tmpNote, MyUnitOfWork rep)
+        private static void DoChanges(Note tmpNote, MyUnitOfWork unitOfWork)
         {
             //Do 3 x 5 events cycle to check snapshots too.
             for (int i = 0; i < 3; i++)
@@ -110,14 +110,14 @@ namespace NEventLite_Example
                 Console.WriteLine($"Committing Changes Now For Cycle {i}");
 
                 //Commit changes to the repository
-                rep.Commit();
+                unitOfWork.Commit();
             }
 
             //Do some changes that don't get caught in the snapshot
             tmpNote.ChangeTitle($"Test Note 123 Event ({tmpNote.CurrentVersion + 1})");
             tmpNote.ChangeCategory($"Event Sourcing in .NET Example. Event ({tmpNote.CurrentVersion + 1})");
             //Commit changes to the repository
-            rep.Commit();
+            unitOfWork.Commit();
         }
 
         #endregion
@@ -135,9 +135,9 @@ namespace NEventLite_Example
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNoteToLoad));
         }
 
-        private static Note LoadNote(Guid NoteID, MyUnitOfWork rep)
+        private static Note LoadNote(Guid NoteID, MyUnitOfWork unitOfWork)
         {
-            var tmpNoteToLoad = rep.NoteRepository.GetById(NoteID);
+            var tmpNoteToLoad = unitOfWork.NoteRepository.GetById(NoteID);
             return tmpNoteToLoad;
         }
 
