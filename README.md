@@ -27,7 +27,9 @@ var rep = new NoteRepository(resolver.Resolve<IRepositoryBase<Note>>());
 var commandHandler = new NoteCommandHandler(rep);
 
 //Create new note
-commandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(), -1, "Test Note","Event Sourcing System Demo", "Event Sourcing"));
+commandHandler.Handle(
+    new CreateNoteCommand(
+        Guid.NewGuid(), -1, "Test Note","Event Sourcing System Demo", "Event Sourcing"));
 
 //Example of a Command Handler
     public class NoteCommandHandler :
@@ -70,12 +72,14 @@ commandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(), -1, "Test Note","Eve
                 }
                 else
                 {
-                    throw new ConcurrencyException($"The version of the Note ({LoadedNote.CurrentVersion}) and Command ({command.TargetVersion}) didn't match.");
+                    throw new ConcurrencyException(
+                    $"The version of the Note ({LoadedNote.CurrentVersion}) and Command ({command.TargetVersion}) didn't match.");
                 }
             }
             else
             {
-                throw new AggregateNotFoundException($"Note with ID {command.AggregateId} was not found.");
+                throw new AggregateNotFoundException(
+                $"Note with ID {command.AggregateId} was not found.");
             }
         }
     }
