@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NEventLite.Domain;
 using NEventLite.Events;
+using NEventLite.Event_Bus;
 using NEventLite.Exceptions;
 using NEventLite.Extensions;
 using NEventLite.Snapshot;
@@ -20,10 +21,14 @@ namespace NEventLite.Repository
         public IEventStorageProvider EventStorageProvider { get; }
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
 
-        public RepositoryBase(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider)
+        public IEventBus EventBus { get; }
+
+        public RepositoryBase(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider, IEventBus eventBus)
         {
             EventStorageProvider = eventStorageProvider;
             SnapshotStorageProvider = snapshotStorageProvider;
+            EventBus = eventBus;
+
             PreLoadActions = new List<Action<Guid>>();
             PostLoadActions = new List<Action<T>>();
             PreCommitActions = new List<Action<T>>();
@@ -63,10 +68,10 @@ namespace NEventLite.Repository
         public void Save(T aggregate)
         {
             aggregate.ApplyActions(PreCommitActions);
-            aggregate.ApplyActionsWithArgument(PostCommitActions, CommitToStorage(aggregate));
+            aggregate.ApplyActionsWithArgument(PostCommitActions, CommitChanges(aggregate));
         }
 
-        private IEnumerable<IEvent> CommitToStorage(AggregateRoot aggregate)
+        private IEnumerable<IEvent> CommitChanges(AggregateRoot aggregate)
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 
@@ -81,7 +86,8 @@ namespace NEventLite.Repository
                 throw new ConcurrencyException($"Aggregate {item.Id} has been modified externally and has an updated state. Can't commit changes.");
             }
 
-            var ChangesToCommit = aggregate.GetUncommittedChanges();
+            var changesToCommit = aggregate.GetUncommittedChanges().ToList();
+
             EventStorageProvider.CommitChanges(aggregate.GetType(), aggregate);
 
             //If the Aggregate implements snaphottable
@@ -97,9 +103,17 @@ namespace NEventLite.Repository
                 }
             }
 
+            //Publish to event bus
+            PublishToEventBus(changesToCommit);
+
             aggregate.MarkChangesAsCommitted();
 
-            return ChangesToCommit;
+            return changesToCommit;
+        }
+
+        private void PublishToEventBus(List<IEvent> changesToCommit)
+        {
+            EventBus.Publish(changesToCommit);
         }
     }
 }

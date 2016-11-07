@@ -1,7 +1,9 @@
 ﻿using Autofac;
 using NEventLite.Events;
+using NEventLite.Event_Bus;
 using NEventLite.Repository;
 using NEventLite.Storage;
+using NEventLite_Example.Event_Bus;
 using NEventLite_Example.Storage;
 using NEventLite_Storage_Providers.InMemory;
 
@@ -38,6 +40,9 @@ namespace NEventLite_Example.Util
             builder.RegisterType<InMemorySnapshotStorageProvider>().As<ISnapshotStorageProvider>().PreserveExistingDefaults().SingleInstance();
 
             //----------------------------------
+
+            //Event Bus
+            builder.RegisterType<InMemoryEventBus>().As<IEventBus>().SingleInstance();
 
             //This will resolve and bind storage types to a concrete repositoryBase of <T> as needed
             builder.RegisterGeneric(typeof(RepositoryBase<>)).As(typeof(IRepositoryBase<>)).SingleInstance();

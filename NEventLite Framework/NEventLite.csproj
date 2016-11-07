@@ -44,6 +44,7 @@
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Domain\AggregateRoot.cs" />
+    <Compile Include="Event Bus\IEventBus.cs" />
     <Compile Include="Event Handlers\IEventHandler.cs" />
     <Compile Include="Events\Event.cs" />
     <Compile Include="Events\IEvent.cs" />
