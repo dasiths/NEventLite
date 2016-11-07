@@ -26,5 +26,12 @@ namespace NEventLite_Example.Repository
                 Console.WriteLine($"Committed {events.Count()} events to storage in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.");
             });
         }
-   }
+
+        public override void Save(Note aggregate)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            base.Save(aggregate);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+    }
 }
