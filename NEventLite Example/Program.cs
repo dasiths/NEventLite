@@ -33,31 +33,32 @@ namespace NEventLite_Example
 
         }
 
-        private static Guid DoMockRun(IRepository<Note> rep, NoteCommandHandler commandHandler)
+        private static void DoMockRun(IRepository<Note> rep, NoteCommandHandler commandHandler)
         {
-            Note tmpNote = null;
-            Guid LoadID = Guid.Empty;
+            Guid SavedItemID = Guid.Empty;
 
             //Try to load a given guid.
             Console.WriteLine("Enter a GUID to try to load or leave blank and press enter:");
             string strGUID = Console.ReadLine();
 
 
-            if ((string.IsNullOrEmpty(strGUID) == false) && (Guid.TryParse(strGUID, out LoadID)))
+            if ((string.IsNullOrEmpty(strGUID) == false) && (Guid.TryParse(strGUID, out SavedItemID)))
             {
-                tmpNote = rep.GetById(LoadID);
+                Note tmpNote = rep.GetById(SavedItemID);
 
                 if (tmpNote == null)
                 {
-                    Console.WriteLine($"No Note found with provided Guid of {LoadID.ToString()}. Press enter key to exit.");
-                    return Guid.Empty;
+                    Console.WriteLine($"No Note found with provided Guid of {SavedItemID.ToString()}. Press enter key to exit.");
+                    return;
                 }
             }
             else
             {
                 //Create new note
-                CreateNewNote(rep, commandHandler);
-                tmpNote = rep.GetById(commandHandler.LastCreatedNoteGuid);
+                commandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(), -1, "Test Note","Event Sourcing System Demo", "Event Sourcing"));
+
+                SavedItemID = commandHandler.LastCreatedNoteGuid;
+                Note tmpNote = rep.GetById(SavedItemID);
 
                 Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
@@ -67,29 +68,8 @@ namespace NEventLite_Example
             Console.WriteLine("Doing some changes now...");
             Console.WriteLine("");
 
-            //Do some changes
-            DoChanges(tmpNote.Id, rep,commandHandler);
-
-            //Load to display
-            var noteToLoad = rep.GetById(tmpNote.Id);
-
-            Console.WriteLine("");
-            Console.WriteLine("After Committing Events:");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(noteToLoad));
-
-            return tmpNote.Id;
-
-        }
-
-        private static void CreateNewNote(IRepository<Note> rep, NoteCommandHandler commandHandler)
-        {
-            commandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(),-1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
-        }
-
-        private static void DoChanges(Guid NoteID, IRepository<Note> rep, NoteCommandHandler commandHandler)
-        {
-            var tmpNote = rep.GetById(NoteID);
-            int LastVersion = tmpNote.CurrentVersion;
+            //Reload and do some changes
+            int LastVersion = rep.GetById(SavedItemID).CurrentVersion;
 
             //Do 12 events cycle to check snapshots too.
             for (int i = 1; i <= 12; i++)
@@ -98,14 +78,20 @@ namespace NEventLite_Example
 
                 LastVersion = commandHandler.Handle(
                                     new EditNoteCommand(
-                                        Guid.NewGuid(), 
-                                        tmpNote.Id,
+                                        Guid.NewGuid(),
+                                        SavedItemID,
                                         LastVersion,
                                         $"Test Note 123 Event ({LastVersion + 1})",
                                         $"Event Sourcing in .NET Example. Event ({LastVersion + 2})"));
             }
 
-        }
+            //Load to display
+            var noteToLoad = rep.GetById(SavedItemID);
 
+            Console.WriteLine("");
+            Console.WriteLine("After Committing Events:");
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(noteToLoad));
+
+        }
     }
 }
