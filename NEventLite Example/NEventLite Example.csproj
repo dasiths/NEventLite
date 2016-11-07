@@ -81,6 +81,7 @@
     <Compile Include="Events\NoteCreatedEvent.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\NoteRepository.cs" />
     <Compile Include="Snapshot\NoteSnapshot.cs" />
     <Compile Include="Storage\MyEventstoreEventStorageProvider.cs" />
     <Compile Include="Storage\MyEventstoreSnapshotStorageProvider.cs" />

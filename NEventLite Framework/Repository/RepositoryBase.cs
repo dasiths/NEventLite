@@ -4,26 +4,35 @@ using System.Linq;
 using NEventLite.Domain;
 using NEventLite.Events;
 using NEventLite.Exceptions;
+using NEventLite.Extensions;
 using NEventLite.Snapshot;
 using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class Repository<T> : IRepository<T> where T : AggregateRoot, new()
+    public class RepositoryBase<T> : IRepositoryBase<T> where T : AggregateRoot, new()
     {
+        public List<Action<Guid>> PreLoadActions { get; private set; }
+        public List<Action<T>> PostLoadActions { get; private set; }
+        public List<Action<T>> PreCommitActions { get; private set; }
+        public List<Action<T, IEnumerable<IEvent>>> PostCommitActions { get; private set; }
+
         public IEventStorageProvider EventStorageProvider { get; }
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
 
-        private DateTime CommitStartTime;
-
-        public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider)
+        public RepositoryBase(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider)
         {
             EventStorageProvider = eventStorageProvider;
             SnapshotStorageProvider = snapshotStorageProvider;
+            PreLoadActions = new List<Action<Guid>>();
+            PostLoadActions = new List<Action<T>>();
+            PreCommitActions = new List<Action<T>>();
+            PostCommitActions = new List<Action<T, IEnumerable<IEvent>>>();
         }
 
         public T GetById(Guid id)
         {
+            id.ApplyActions(PreLoadActions);
 
             T item = null;
             var snapshot = SnapshotStorageProvider.GetSnapshot(typeof(T), id);
@@ -32,12 +41,12 @@ namespace NEventLite.Repository
             {
                 item = new T();
                 ((ISnapshottable)item).SetSnapshot(snapshot);
-                var events = EventStorageProvider.GetEvents(typeof(T),id, snapshot.Version + 1, int.MaxValue);
+                var events = EventStorageProvider.GetEvents(typeof(T), id, snapshot.Version + 1, int.MaxValue);
                 item.LoadsFromHistory(events);
             }
             else
             {
-                var events = EventStorageProvider.GetEvents(typeof(T),id, 0, int.MaxValue);
+                var events = EventStorageProvider.GetEvents(typeof(T), id, 0, int.MaxValue);
 
                 if (events.Any())
                 {
@@ -46,25 +55,15 @@ namespace NEventLite.Repository
                 }
             }
 
+            item?.ApplyActions(PostLoadActions);
+
             return item;
         }
 
         public void Save(T aggregate)
         {
-            HandlePreCommited(aggregate);
-            HandlePostCommited(CommitToStorage(aggregate));
-        }
-
-        public void HandlePreCommited(T aggregate)
-        {
-            CommitStartTime = DateTime.Now;
-            Console.WriteLine($"Trying to commit {aggregate.GetUncommittedChanges().Count()} events to storage.");
-        }
-
-        public void HandlePostCommited(IEnumerable<IEvent> events)
-        {
-            //Todo: Publish to EventBus
-            Console.WriteLine($"Committed {events.Count()} events to storage in {DateTime.Now.Subtract(CommitStartTime).TotalMilliseconds} ms.");
+            aggregate.ApplyActions(PreCommitActions);
+            aggregate.ApplyActionsWithArgument(PostCommitActions, CommitToStorage(aggregate));
         }
 
         private IEnumerable<IEvent> CommitToStorage(AggregateRoot aggregate)
@@ -102,7 +101,5 @@ namespace NEventLite.Repository
 
             return ChangesToCommit;
         }
-
-
     }
 }

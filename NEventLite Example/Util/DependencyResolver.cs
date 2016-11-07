@@ -39,8 +39,8 @@ namespace NEventLite_Example.Util
 
             //----------------------------------
 
-            //This will resolve and bind storage types to a concrete repository of <T> as needed
-            builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
+            //This will resolve and bind storage types to a concrete repositoryBase of <T> as needed
+            builder.RegisterGeneric(typeof(RepositoryBase<>)).As(typeof(IRepositoryBase<>)).SingleInstance();
 
             Container = builder.Build();
         }

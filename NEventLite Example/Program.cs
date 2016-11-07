@@ -5,6 +5,7 @@ using NEventLite.Storage;
 using NEventLite_Example.Commands;
 using NEventLite_Example.Command_Handlers;
 using NEventLite_Example.Domain;
+using NEventLite_Example.Repository;
 using NEventLite_Example.Util;
 
 namespace NEventLite_Example
@@ -20,8 +21,8 @@ namespace NEventLite_Example
             //Set snapshot frequency
             resolver.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
 
-            //Get ioc conatainer to create our repository
-            IRepository<Note> rep = resolver.Resolve<IRepository<Note>>();
+            //Get ioc conatainer to create our repositoryBase
+            NoteRepository rep = new NoteRepository(resolver.Resolve<IRepositoryBase<Note>>());
             NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
 
             DoMockRun(rep,commandHandler);
@@ -33,7 +34,7 @@ namespace NEventLite_Example
 
         }
 
-        private static void DoMockRun(IRepository<Note> rep, NoteCommandHandler commandHandler)
+        private static void DoMockRun(NoteRepository rep, NoteCommandHandler commandHandler)
         {
             Guid SavedItemID = Guid.Empty;
 
