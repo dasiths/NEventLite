@@ -3,7 +3,9 @@ using NEventLite.Events;
 using NEventLite.Event_Bus;
 using NEventLite.Repository;
 using NEventLite.Storage;
+using NEventLite_Example.Domain;
 using NEventLite_Example.Event_Bus;
+using NEventLite_Example.Repository;
 using NEventLite_Example.Storage;
 using NEventLite_Storage_Providers.InMemory;
 

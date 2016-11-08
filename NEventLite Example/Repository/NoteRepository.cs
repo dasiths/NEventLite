@@ -15,16 +15,7 @@ namespace NEventLite_Example.Repository
 
         public NoteRepository(IRepositoryBase<Note> repositoryBase) : base(repositoryBase)
         {
-            repositoryBase.PreCommitActions.Add(o =>
-            {
-                _commitStartTime = DateTime.Now;
-                Console.WriteLine($"Trying to commit {o.GetUncommittedChanges().Count()} events to storage.");
-            });
-
-            repositoryBase.PostCommitActions.Add((aggregate,events) =>
-            {
-                Console.WriteLine($"Committed {events.Count()} events to storage in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.");
-            });
+            
         }
 
         public override void Save(Note aggregate)
@@ -32,6 +23,27 @@ namespace NEventLite_Example.Repository
             Console.ForegroundColor = ConsoleColor.Green;
             base.Save(aggregate);
             Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public override void BeforeLoadAggregate(Guid id)
+        {
+            
+        }
+
+        public override void AfterLoadingAggregate(Note aggregate)
+        {
+            
+        }
+
+        public override void BeforeSaveAggregate(Note aggregate)
+        {
+            _commitStartTime = DateTime.Now;
+            Console.WriteLine($"Trying to commit {aggregate.GetUncommittedChanges().Count()} events to storage.");
+        }
+
+        public override void AfterSavingAggregate(Note aggregate)
+        {
+            Console.WriteLine($"Committed in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.");
         }
     }
 }

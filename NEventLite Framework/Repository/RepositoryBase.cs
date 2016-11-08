@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using NEventLite.Domain;
 using NEventLite.Events;
 using NEventLite.Event_Bus;
@@ -13,11 +14,6 @@ namespace NEventLite.Repository
 {
     public class RepositoryBase<T> : IRepositoryBase<T> where T : AggregateRoot, new()
     {
-        public List<Action<Guid>> PreLoadActions { get; private set; }
-        public List<Action<T>> PostLoadActions { get; private set; }
-        public List<Action<T>> PreCommitActions { get; private set; }
-        public List<Action<T, IEnumerable<IEvent>>> PostCommitActions { get; private set; }
-
         public IEventStorageProvider EventStorageProvider { get; }
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
 
@@ -28,17 +24,10 @@ namespace NEventLite.Repository
             EventStorageProvider = eventStorageProvider;
             SnapshotStorageProvider = snapshotStorageProvider;
             EventBus = eventBus;
-
-            PreLoadActions = new List<Action<Guid>>();
-            PostLoadActions = new List<Action<T>>();
-            PreCommitActions = new List<Action<T>>();
-            PostCommitActions = new List<Action<T, IEnumerable<IEvent>>>();
         }
 
-        public T GetById(Guid id)
+        public virtual T GetById(Guid id)
         {
-            id.ApplyActions(PreLoadActions);
-
             T item = null;
             var snapshot = SnapshotStorageProvider.GetSnapshot(typeof(T), id);
 
@@ -60,15 +49,12 @@ namespace NEventLite.Repository
                 }
             }
 
-            item?.ApplyActions(PostLoadActions);
-
             return item;
         }
 
-        public void Save(T aggregate)
+        public virtual void Save(T aggregate)
         {
-            aggregate.ApplyActions(PreCommitActions);
-            aggregate.ApplyActionsWithArgument(PostCommitActions, CommitChanges(aggregate));
+            CommitChanges(aggregate);
         }
 
         private IEnumerable<IEvent> CommitChanges(AggregateRoot aggregate)

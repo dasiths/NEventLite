@@ -34,7 +34,7 @@ namespace NEventLite_Example
 
         }
 
-        private static void DoMockRun(NoteRepository rep, NoteCommandHandler commandHandler)
+        private static void DoMockRun(RepositoryDecorator<Note> rep, NoteCommandHandler commandHandler)
         {
             Guid SavedItemID = Guid.Empty;
 
