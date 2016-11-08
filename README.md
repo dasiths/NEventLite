@@ -36,25 +36,25 @@ commandHandler.Handle(
         ICommandHandler<CreateNoteCommand>, 
         ICommandHandler<EditNoteCommand>
     {
-        private readonly RepositoryDecorator<Note> _repositoryBase;
+        private readonly NoteRepository _repository;
         public Guid LastCreatedNoteGuid { get; private set; }
 
-        public NoteCommandHandler(RepositoryDecorator<Note> repositoryBase)
+        public NoteCommandHandler(NoteRepository repository)
         {
-            _repositoryBase = repositoryBase;
+            _repository = repository;
         }
 
         public int Handle(CreateNoteCommand command)
         {
             var newNote = new Note(command.title, command.desc, command.cat);
-            _repositoryBase.Save(newNote);
+            _repository.Save(newNote);
             LastCreatedNoteGuid = newNote.Id;
             return 0;
         }
 
         public int Handle(EditNoteCommand command)
         {
-            var LoadedNote = _repositoryBase.GetById(command.AggregateId);
+            var LoadedNote = _repository.GetById(command.AggregateId);
 
             if (LoadedNote != null)
             {
@@ -66,20 +66,21 @@ commandHandler.Handle(
                     if (LoadedNote.Category != command.cat)
                         LoadedNote.ChangeCategory(command.cat);
 
-                    _repositoryBase.Save(LoadedNote);
+                    _repository.Save(LoadedNote);
 
                     return LoadedNote.CurrentVersion;
                 }
                 else
                 {
                     throw new ConcurrencyException(
-                    $"The version of the Note ({LoadedNote.CurrentVersion}) and Command ({command.TargetVersion}) didn't match.");
+                        $"The version of the Note ({LoadedNote.CurrentVersion})" +
+                        $" and Command ({command.TargetVersion}) didn't match.");
                 }
             }
             else
             {
                 throw new AggregateNotFoundException(
-                $"Note with ID {command.AggregateId} was not found.");
+                    $"Note with ID {command.AggregateId} was not found.");
             }
         }
     }
