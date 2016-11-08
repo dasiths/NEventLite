@@ -53,7 +53,9 @@ namespace NEventLite_Example.Repository
 
         protected void AfterSavingAggregate(T aggregate)
         {
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Committed in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
