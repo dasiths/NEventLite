@@ -19,14 +19,14 @@ namespace NEventLite_Example.Repository
         
         public override void BeforeSaveAggregate(Note aggregate)
         {
-            LogManager.Logger.Log("Saving Note...",LogSeverity.Information);
+            LogManager.Log("Saving Note...",LogSeverity.Information);
             base.BeforeSaveAggregate(aggregate);
         }
 
         public override void AfterSavingAggregate(Note aggregate)
         {
             base.AfterSavingAggregate(aggregate);
-            LogManager.Logger.Log("Note Saved...", LogSeverity.Information);
+            LogManager.Log("Note Saved...", LogSeverity.Information);
         }
     }
 }

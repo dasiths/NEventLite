@@ -23,7 +23,7 @@ namespace NEventLite_Example
             resolver.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
 
             //Set logger
-            LogManager.Logger = resolver.Resolve<ILogger>();
+            LogManager.AddLogger(resolver.Resolve<ILogger>());
 
             //Get ioc container to create our repository
             NoteRepository rep = new NoteRepository(resolver.Resolve<IRepository<Note>>());
