@@ -26,7 +26,7 @@ namespace NEventLite_Example
             LogManager.AddLogger(resolver.Resolve<ILogger>());
 
             //Get ioc container to create our repository
-            NoteRepository rep = new NoteRepository(resolver.Resolve<IRepository<Note>>());
+            NoteRepository rep = resolver.Resolve<NoteRepository>();
             NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
 
             DoMockRun(rep,commandHandler);
