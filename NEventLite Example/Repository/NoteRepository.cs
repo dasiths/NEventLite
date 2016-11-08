@@ -10,7 +10,7 @@ using NEventLite_Example.Domain;
 
 namespace NEventLite_Example.Repository
 {
-    public class NoteRepository:MyRepositoryDecorator<Note>
+    public class NoteRepository:RepositoryDecorator<Note>
     {
         public NoteRepository(IRepository<Note> repository) : base(repository)
         {

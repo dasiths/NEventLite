@@ -59,7 +59,7 @@ namespace NEventLite_Example.Util
             builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
 
             //Register Note Repository
-            builder.RegisterType<NoteRepository>().AsSelf();
+            //builder.RegisterType<NoteRepository>().AsSelf();
 
             Container = builder.Build();
         }
