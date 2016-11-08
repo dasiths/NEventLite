@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using NEventLite.Logger;
 using NEventLite.Repository;
 using NEventLite.Storage;
 using NEventLite_Example.Commands;
@@ -20,6 +21,9 @@ namespace NEventLite_Example
             
             //Set snapshot frequency
             resolver.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
+
+            //Set logger
+            LogManager.Logger = resolver.Resolve<ILogger>();
 
             //Get ioc container to create our repository
             NoteRepository rep = new NoteRepository(resolver.Resolve<IRepository<Note>>());

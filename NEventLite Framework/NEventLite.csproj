@@ -54,6 +54,8 @@
     <Compile Include="Exceptions\ConcurrencyException.cs" />
     <Compile Include="Exceptions\EventHandlerApplyMethodMissingException.cs" />
     <Compile Include="Extensions\ActionExtension.cs" />
+    <Compile Include="Logger\ILogger.cs" />
+    <Compile Include="Logger\LogManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\IRepository.cs" />
     <Compile Include="Repository\RepositoryDecorator.cs" />

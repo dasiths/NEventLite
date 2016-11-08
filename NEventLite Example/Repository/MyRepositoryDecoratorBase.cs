@@ -8,9 +8,11 @@ using NEventLite.Repository;
 
 namespace NEventLite_Example.Repository
 {
-    public class MyRepositoryDecorator<T>:RepositoryDecorator<T> where T : AggregateRoot, new()
+    public class MyRepositoryDecoratorBase<T>:RepositoryDecorator<T> where T : AggregateRoot, new()
     {
-        public MyRepositoryDecorator(IRepository<T> repository) : base(repository)
+        private DateTime _commitStartTime;
+
+        public MyRepositoryDecoratorBase(IRepository<T> repository) : base(repository)
         {
         }
 
@@ -30,17 +32,20 @@ namespace NEventLite_Example.Repository
 
         public override void AfterLoadingAggregate(T aggregate)
         {
-           
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Loaded {aggregate.GetType()} ...");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public override void BeforeSaveAggregate(T aggregate)
         {
-            
+            _commitStartTime = DateTime.Now;
+            Console.WriteLine($"Trying to commit {aggregate.GetUncommittedChanges().Count()} events to storage.");
         }
 
         public override void AfterSavingAggregate(T aggregate)
         {
-            
+            Console.WriteLine($"Committed in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.");
         }
     }
 }

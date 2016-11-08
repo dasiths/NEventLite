@@ -5,10 +5,12 @@ using Autofac;
 using Autofac.Core;
 using NEventLite.Events;
 using NEventLite.Event_Bus;
+using NEventLite.Logger;
 using NEventLite.Repository;
 using NEventLite.Storage;
 using NEventLite_Example.Domain;
 using NEventLite_Example.Event_Bus;
+using NEventLite_Example.Logging;
 using NEventLite_Example.Repository;
 using NEventLite_Example.Storage;
 using NEventLite_Storage_Providers.InMemory;
@@ -49,6 +51,9 @@ namespace NEventLite_Example.Util
 
             //Event Bus
             builder.RegisterType<InMemoryEventBus>().As<IEventBus>().SingleInstance();
+
+            //Logging
+            builder.RegisterType<ConsoleLogger>().As<ILogger>();
 
             //This will resolve and bind storage types to a concrete repository of <T> as needed
             builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
