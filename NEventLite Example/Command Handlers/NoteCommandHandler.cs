@@ -8,6 +8,7 @@ using NEventLite.Exceptions;
 using NEventLite.Repository;
 using NEventLite_Example.Commands;
 using NEventLite_Example.Domain;
+using NEventLite_Example.Repository;
 
 namespace NEventLite_Example.Command_Handlers
 {
@@ -15,10 +16,10 @@ namespace NEventLite_Example.Command_Handlers
         ICommandHandler<CreateNoteCommand>, 
         ICommandHandler<EditNoteCommand>
     {
-        private readonly RepositoryDecorator<Note> _repository;
+        private readonly NoteRepository _repository;
         public Guid LastCreatedNoteGuid { get; private set; }
 
-        public NoteCommandHandler(RepositoryDecorator<Note> repository)
+        public NoteCommandHandler(NoteRepository repository)
         {
             _repository = repository;
         }

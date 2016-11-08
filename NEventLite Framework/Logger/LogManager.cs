@@ -15,6 +15,7 @@ namespace NEventLite.Logger
             if (_loggers.Contains(logger) == false)
             {
                 logger.Log($"Logging started at: {DateTime.Now}", LogSeverity.Information);
+                _loggers.Add(logger);
             }
         }
 
@@ -23,6 +24,7 @@ namespace NEventLite.Logger
             if (_loggers.Contains(logger) == true)
             {
                 logger.Log($"Logging stopped at: {DateTime.Now}", LogSeverity.Information);
+                _loggers.Remove(logger);
             }
         }
 

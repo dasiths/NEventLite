@@ -20,25 +20,13 @@ namespace NEventLite.Repository
 
         public virtual TAggregate GetById(Guid Id)
         {
-            BeforeLoadAggregate(Id);
-            var result =  Repository.GetById(Id);
-            AfterLoadingAggregate(result);
-            return result;
+            return Repository.GetById(Id);
         }
 
         public virtual void Save(TAggregate aggregate)
         {
-            BeforeSaveAggregate(aggregate);
             Repository.Save(aggregate);
-            AfterSavingAggregate(aggregate);
         }
 
-        public abstract void BeforeLoadAggregate(Guid id);
-
-        public abstract void AfterLoadingAggregate(TAggregate aggregate);
-
-        public abstract void BeforeSaveAggregate(TAggregate aggregate);
-
-        public abstract void AfterSavingAggregate(TAggregate aggregate);
     }
 }

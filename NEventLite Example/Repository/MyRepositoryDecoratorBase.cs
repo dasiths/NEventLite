@@ -16,34 +16,42 @@ namespace NEventLite_Example.Repository
         {
         }
 
-        public override void Save(T aggregate)
+        public override T GetById(Guid Id)
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            base.Save(aggregate);
-            Console.ForegroundColor = ConsoleColor.White;
+            BeforeLoadAggregate(Id);
+            var result =  base.GetById(Id);
+            AfterLoadingAggregate(result);
+            return result;
         }
 
-        public override void BeforeLoadAggregate(Guid id)
+        public override void Save(T aggregate)
+        {
+            BeforeSaveAggregate(aggregate);
+            base.Save(aggregate);
+            AfterSavingAggregate(aggregate);
+        }
+
+        protected void BeforeLoadAggregate(Guid id)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Loading {id} ...");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public override void AfterLoadingAggregate(T aggregate)
+        protected void AfterLoadingAggregate(T aggregate)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Loaded {aggregate.GetType()} ...");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public override void BeforeSaveAggregate(T aggregate)
+        protected void BeforeSaveAggregate(T aggregate)
         {
             _commitStartTime = DateTime.Now;
             Console.WriteLine($"Trying to commit {aggregate.GetUncommittedChanges().Count()} events to storage.");
         }
 
-        public override void AfterSavingAggregate(T aggregate)
+        protected void AfterSavingAggregate(T aggregate)
         {
             Console.WriteLine($"Committed in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.");
         }
