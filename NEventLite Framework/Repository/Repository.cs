@@ -12,14 +12,14 @@ using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class RepositoryBase<T> : IRepositoryBase<T> where T : AggregateRoot, new()
+    public class Repository<T> : IRepository<T> where T : AggregateRoot, new()
     {
         public IEventStorageProvider EventStorageProvider { get; }
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
 
         public IEventBus EventBus { get; }
 
-        public RepositoryBase(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider, IEventBus eventBus)
+        public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider, IEventBus eventBus)
         {
             EventStorageProvider = eventStorageProvider;
             SnapshotStorageProvider = snapshotStorageProvider;

@@ -1,4 +1,8 @@
-﻿using Autofac;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using Autofac;
+using Autofac.Core;
 using NEventLite.Events;
 using NEventLite.Event_Bus;
 using NEventLite.Repository;
@@ -46,15 +50,17 @@ namespace NEventLite_Example.Util
             //Event Bus
             builder.RegisterType<InMemoryEventBus>().As<IEventBus>().SingleInstance();
 
-            //This will resolve and bind storage types to a concrete repositoryBase of <T> as needed
-            builder.RegisterGeneric(typeof(RepositoryBase<>)).As(typeof(IRepositoryBase<>)).SingleInstance();
+            //This will resolve and bind storage types to a concrete repository of <T> as needed
+            builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
 
             Container = builder.Build();
         }
 
         public T Resolve<T>()
         {
+
             return Container.Resolve<T>();
         }
+
     }
 }

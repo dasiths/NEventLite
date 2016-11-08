@@ -21,8 +21,8 @@ namespace NEventLite_Example
             //Set snapshot frequency
             resolver.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
 
-            //Get ioc conatainer to create our repositoryBase
-            NoteRepository rep = new NoteRepository(resolver.Resolve<IRepositoryBase<Note>>());
+            //Get ioc container to create our repository
+            NoteRepository rep = new NoteRepository(resolver.Resolve<IRepository<Note>>());
             NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
 
             DoMockRun(rep,commandHandler);
@@ -34,7 +34,7 @@ namespace NEventLite_Example
 
         }
 
-        private static void DoMockRun(RepositoryDecorator<Note> rep, NoteCommandHandler commandHandler)
+        private static void DoMockRun(NoteRepository rep, NoteCommandHandler commandHandler)
         {
             Guid SavedItemID = Guid.Empty;
 
