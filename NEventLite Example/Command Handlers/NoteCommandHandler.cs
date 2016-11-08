@@ -52,12 +52,15 @@ namespace NEventLite_Example.Command_Handlers
                 }
                 else
                 {
-                    throw new ConcurrencyException($"The version of the Note ({LoadedNote.CurrentVersion}) and Command ({command.TargetVersion}) didn't match.");
+                    throw new ConcurrencyException(
+                        $"The version of the Note ({LoadedNote.CurrentVersion})" +
+                        $" and Command ({command.TargetVersion}) didn't match.");
                 }
             }
             else
             {
-                throw new AggregateNotFoundException($"Note with ID {command.AggregateId} was not found.");
+                throw new AggregateNotFoundException(
+                    $"Note with ID {command.AggregateId} was not found.");
             }
         }
     }
