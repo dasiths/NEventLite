@@ -8,11 +8,11 @@ using NEventLite.Repository;
 
 namespace NEventLite_Example.Repository
 {
-    public class MyRepositoryDecoratorBase<T>:RepositoryDecorator<T> where T : AggregateRoot, new()
+    public class MyRepositoryDecorator<T>:RepositoryDecorator<T> where T : AggregateRoot, new()
     {
         private DateTime _commitStartTime;
 
-        public MyRepositoryDecoratorBase(IRepository<T> repository) : base(repository)
+        public MyRepositoryDecorator(IRepository<T> repository) : base(repository)
         {
         }
 

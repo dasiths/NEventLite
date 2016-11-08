@@ -26,6 +26,7 @@ namespace NEventLite_Example
             LogManager.AddLogger(resolver.Resolve<ILogger>());
 
             //Get ioc container to create our repository
+
             NoteRepository rep = resolver.Resolve<NoteRepository>();
             NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
 
@@ -38,7 +39,7 @@ namespace NEventLite_Example
 
         }
 
-        private static void DoMockRun(NoteRepository rep, NoteCommandHandler commandHandler)
+        private static void DoMockRun(IRepository<Note> rep , NoteCommandHandler commandHandler)
         {
             Guid SavedItemID = Guid.Empty;
 

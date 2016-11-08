@@ -66,7 +66,6 @@ namespace NEventLite_Example.Util
 
         public T Resolve<T>()
         {
-
             return Container.Resolve<T>();
         }
 
