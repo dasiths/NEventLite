@@ -41,7 +41,7 @@ namespace NEventLite.Repository
             if (snapshot != null)
             {
                 item = new T();
-                ((ISnapshottable)item).SetSnapshot(snapshot);
+                ((ISnapshottable)item).ApplySnapshot(snapshot);
                 var events = EventStorageProvider.GetEvents(typeof(T), id, snapshot.Version + 1, int.MaxValue);
                 item.LoadsFromHistory(events);
             }
@@ -97,7 +97,7 @@ namespace NEventLite.Repository
                         )
                     )
                 {
-                    SnapshotStorageProvider.SaveSnapshot(aggregate.GetType(), snapshottable.GetSnapshot());
+                    SnapshotStorageProvider.SaveSnapshot(aggregate.GetType(), snapshottable.TakeSnapshot());
                 }
             }
 

@@ -84,11 +84,6 @@ namespace NEventLite_Example.Domain
         /// <param name="event">Event to apply</param>
         public void Apply(NoteCreatedEvent @event)
         {
-            //Important: State change done here
-            //Pattern: Apply the generic event details first
-            ApplyGenericEvent(@event, true);
-
-            // Then apply specific event details
             this.CreatedDate = @event.createdTime;
             this.Title = @event.title;
             this.Description = @event.desc;
@@ -101,11 +96,6 @@ namespace NEventLite_Example.Domain
         /// <param name="event">Event to apply</param>
         public void Apply(NoteTitleChangedEvent @event)
         {
-            //Important: State change done here
-            //Pattern: Apply the generic event details first
-            ApplyGenericEvent(@event, false);
-
-            // Then apply specific event details
             this.Title = @event.title;
         }
 
@@ -115,11 +105,6 @@ namespace NEventLite_Example.Domain
         /// <param name="event">Event to apply</param>
         public void Apply(NoteCategoryChangedEvent @event)
         {
-            //Important: State change done here
-            //Pattern: Apply the generic event details first
-            ApplyGenericEvent(@event, false);
-
-            // Then apply specific event details
             this.Category = @event.cat;
         }
 
@@ -131,7 +116,7 @@ namespace NEventLite_Example.Domain
         /// Get new snapshot of the current state of the Aggregate
         /// </summary>
         /// <returns>A snapshot of the Aggregate</returns>
-        public NEventLite.Snapshot.Snapshot GetSnapshot()
+        public NEventLite.Snapshot.Snapshot TakeSnapshot()
         {
             return new NoteSnapshot(Guid.NewGuid(),
                                     this.Id,
@@ -146,7 +131,7 @@ namespace NEventLite_Example.Domain
         /// Applies the snapshot and updates state of the Aggregate
         /// </summary>
         /// <param name="snapshot"></param>
-        public void SetSnapshot(NEventLite.Snapshot.Snapshot snapshot)
+        public void ApplySnapshot(NEventLite.Snapshot.Snapshot snapshot)
         {
             //Important: State changes are done here.
             //Make sure you set the CurrentVersion and LastCommittedVersions here too

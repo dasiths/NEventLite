@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NEventLite.Events;
 using NEventLite.Exceptions;
+using NEventLite.Extensions;
 
 namespace NEventLite.Domain
 {
@@ -107,24 +108,20 @@ namespace NEventLite.Domain
             //Make sure the right Apply method is called with the right type.
             //We can you use dynamic objects or reflection for this.
 
-            try
+            if (CanApply(@event))
             {
-                var method = ((object)this).GetType().GetMethod(ApplyMethodNameInEventHandler, new Type[] { @event.GetType() }); //Find the right method
-                method.Invoke(this, new object[] { @event }); //invoke with the event as argument
-
-                // or we can use dynamics
-                //dynamic d = this;
-                //dynamic e = @event;
-                //d.Apply(e);
+                ApplyGenericEvent(@event);
 
                 if (isNew)
                 {
                     _uncommittedChanges.Add(@event); //only add to the events collection if it's a new event
                 }
             }
-            catch (Exception ex)
+            else
             {
-                throw new EventHandlerApplyMethodMissingException(ex.Message);
+                throw new AggregateStateMismatchException(
+                    $"The event target version is {@event.AggregateId}.(Version {@event.TargetVersion}) and " +
+                    $"AggregateRoot version is {this.Id}.(Version {CurrentVersion})");
             }
 
         }
@@ -133,13 +130,11 @@ namespace NEventLite.Domain
         /// Determine if the current event can be applied
         /// </summary>
         /// <param name="event">Event to apply</param>
-        /// <param name="isCreationEvent">Is this the first event for the aggregate</param>
         /// <returns></returns>
-        private bool CanApply(IEvent @event, bool isCreationEvent)
+        private bool CanApply(IEvent @event)
         {
-
             //Check to see if event is applying against the right Aggregate and matches the target version
-            if (((isCreationEvent) || (Id == @event.AggregateId)) && (CurrentVersion == @event.TargetVersion))
+            if (((CurrentVersion == -1) || (Id == @event.AggregateId)) && (CurrentVersion == @event.TargetVersion))
             {
                 return true;
             }
@@ -154,17 +149,16 @@ namespace NEventLite.Domain
         /// </summary>
         /// <param name="event">Event to apply</param>
         /// <param name="isCreationEvent">Is this the event as a result of construction of the Aggregate</param>
-        protected void ApplyGenericEvent(IEvent @event, bool isCreationEvent)
+        private void ApplyGenericEvent(IEvent @event)
         {
-            if (CanApply(@event, isCreationEvent))
+            if (CurrentVersion == -1)
             {
                 Id = @event.AggregateId; //This is only needed for the very first event as every other event CAN ONLY apply to matching ID
-                CurrentVersion++;
             }
-            else
-            {
-                throw new AggregateStateMismatchException($"The event target version is {@event.TargetVersion} and AggregateRoot version is {CurrentVersion}");
-            }
+
+            CurrentVersion++;
+
+            @event.InvokeOnAggregate(this, ApplyMethodNameInEventHandler);
         }
     }
 }

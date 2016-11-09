@@ -53,7 +53,7 @@
     <Compile Include="Exceptions\AggregateStateMismatchException.cs" />
     <Compile Include="Exceptions\ConcurrencyException.cs" />
     <Compile Include="Exceptions\EventHandlerApplyMethodMissingException.cs" />
-    <Compile Include="Extensions\ActionExtension.cs" />
+    <Compile Include="Extensions\EventExtension.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\LogManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
