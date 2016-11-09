@@ -21,7 +21,7 @@ using NEventLite_Storage_Providers.InMemory;
 
 namespace NEventLite_Example.Util
 {
-    public class DependencyResolver:IDisposable
+    public class DependencyResolver : IDisposable
     {
         private IContainer Container { get; }
 
@@ -74,12 +74,12 @@ namespace NEventLite_Example.Util
 
             //This will resolve and bind storage types to a concrete repository of <T> as needed
             builder.RegisterGeneric(typeof(Repository<>))
-                .Named("Repository",typeof(IRepository<>))
+                .Named("Repository", typeof(IRepository<>))
                 .InstancePerDependency();
 
             //This will bind the decorator
             //This way you can link multiple decorators for cross cutting concerns
-            builder.RegisterGenericDecorator(typeof(MyRepositoryDecorator<>),typeof(IRepository<>),fromKey: "Repository")
+            builder.RegisterGenericDecorator(typeof(MyRepositoryDecorator<>), typeof(IRepository<>), fromKey: "Repository")
                 .InstancePerDependency();
 
             //Register NoteRepository
