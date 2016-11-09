@@ -41,17 +41,10 @@ void CreateNote() {
     }
 }
 
-//Example of a Command Handler
-    public class NoteCommandHandler :
-        ICommandHandler<CreateNoteCommand>,
-        ICommandHandler<EditNoteCommand>
-    {
-        private readonly NoteRepository _repository;
-        public NoteCommandHandler(NoteRepository repository)
-        {
-            _repository = repository;
-        }
+```
+Command Handler (NoteCommandHandler.cs)
 
+```C#
         public int Handle(CreateNoteCommand command)
         {
             var LoadedNote = _repository.GetById(command.AggregateId);
@@ -101,7 +94,43 @@ void CreateNote() {
                     $"Note with ID {command.AggregateId} was not found.");
             }
         }
-    }
+```
+Aggregate (Note.cs in example)
+
+```C#
+        public Note(Guid id, string title, string desc, string cat):this()
+        {
+            //Pattern: Create the event and call HandleEvent(Event)
+            HandleEvent(new NoteCreatedEvent(id, this.CurrentVersion, title, desc, cat, DateTime.Now));
+        }
+        
+        //Commands call the methods. Which create an event and applies it to the Aggregate.
+
+        public void ChangeTitle(string newTitle)
+        {
+            HandleEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
+        }
+        
+        //Applying Events
+        
+        public void Apply(NoteCreatedEvent @event)
+        {
+            //Important: State change done here
+            //Pattern: Apply the generic event details first
+            ApplyGenericEvent(@event, true);
+
+            // Then apply specific event details
+            this.CreatedDate = @event.createdTime;
+            this.Title = @event.title;
+            this.Description = @event.desc;
+            this.Category = @event.cat;
+        }
+
+        public void Apply(NoteTitleChangedEvent @event)
+        {
+            ApplyGenericEvent(@event, false);
+            this.Title = @event.title;
+        }
 ```
 
 Notes
