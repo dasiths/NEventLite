@@ -82,8 +82,8 @@ namespace NEventLite.Domain
         {
             foreach (var e in history)
             {
-                //We call HandleEvent with isNew parameter set to false as we are replaying a historical event
-                HandleEvent(e, false);
+                //We call ApplyEvent with isNew parameter set to false as we are replaying a historical event
+                ApplyEvent(e, false);
             }
             LastCommittedVersion = CurrentVersion;
         }
@@ -92,9 +92,9 @@ namespace NEventLite.Domain
         /// This is used to handle new events
         /// </summary>
         /// <param name="event"></param>
-        protected void HandleEvent(IEvent @event)
+        protected void ApplyEvent(IEvent @event)
         {
-            HandleEvent(@event, true);
+            ApplyEvent(@event, true);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace NEventLite.Domain
         /// </summary>
         /// <param name="event">The event to handle</param>
         /// <param name="isNew">Is this a new Event</param>
-        private void HandleEvent(IEvent @event, bool isNew)
+        private void ApplyEvent(IEvent @event, bool isNew)
         {
             //All state changes to AggregateRoot must happen via the Apply method
             //Make sure the right Apply method is called with the right type.
@@ -110,7 +110,7 @@ namespace NEventLite.Domain
 
             if (CanApply(@event))
             {
-                ApplyGenericEvent(@event);
+                DoApply(@event);
 
                 if (isNew)
                 {
@@ -149,7 +149,7 @@ namespace NEventLite.Domain
         /// </summary>
         /// <param name="event">Event to apply</param>
         /// <param name="isCreationEvent">Is this the event as a result of construction of the Aggregate</param>
-        private void ApplyGenericEvent(IEvent @event)
+        private void DoApply(IEvent @event)
         {
             if (CurrentVersion == -1)
             {

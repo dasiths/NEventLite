@@ -50,8 +50,8 @@ namespace NEventLite_Example.Domain
         /// <param name="cat">Category</param>
         public Note(Guid id, string title, string desc, string cat):this()
         {
-            //Pattern: Create the event and call HandleEvent(Event)
-            HandleEvent(new NoteCreatedEvent(id, this.CurrentVersion, title, desc, cat, DateTime.Now));
+            //Pattern: Create the event and call ApplyEvent(Event)
+            ApplyEvent(new NoteCreatedEvent(id, this.CurrentVersion, title, desc, cat, DateTime.Now));
         }
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace NEventLite_Example.Domain
         /// <param name="newTitle">New Title</param>
         public void ChangeTitle(string newTitle)
         {
-            //Pattern: Create the event and call HandleEvent(Event)
-            HandleEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
+            //Pattern: Create the event and call ApplyEvent(Event)
+            ApplyEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
         }
 
         /// <summary>
@@ -70,8 +70,8 @@ namespace NEventLite_Example.Domain
         /// <param name="newCategory">New Category</param>
         public void ChangeCategory(string newCategory)
         {
-            //Pattern: Create the event and call HandleEvent(Event)
-            HandleEvent(new NoteCategoryChangedEvent(this.Id, this.CurrentVersion, newCategory));
+            //Pattern: Create the event and call ApplyEvent(Event)
+            ApplyEvent(new NoteCategoryChangedEvent(this.Id, this.CurrentVersion, newCategory));
         }
 
         #endregion
