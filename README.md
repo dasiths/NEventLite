@@ -24,9 +24,9 @@ It's very easy to use once setup. Ideal for implementing the CQRS pattern.
 //Can be created per command or once per life time as follows.
 
 //Get ioc container to create our repository
-    NoteRepository rep = container.Resolve<NoteRepository>();
-    var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>();
-    var editCommandHandler = container.Resolve<ICommandHandler<EditNoteCommand>>();
+NoteRepository rep = container.Resolve<NoteRepository>();
+var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>();
+var editCommandHandler = container.Resolve<ICommandHandler<EditNoteCommand>>();
 
 //Create new note
 createCommandHandler.Handle(
