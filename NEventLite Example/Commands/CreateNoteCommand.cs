@@ -13,7 +13,7 @@ namespace NEventLite_Example.Commands
         public string desc { get; set; }
         public string cat { get; set; }
         
-        public CreateNoteCommand(Guid id, int targetVersion, string title, string desc, string cat) : base(id, Guid.Empty, targetVersion)
+        public CreateNoteCommand(Guid id, Guid aggregateID, int targetVersion, string title, string desc, string cat) : base(id, aggregateID , targetVersion)
         {
             this.title = title;
             this.desc = desc;

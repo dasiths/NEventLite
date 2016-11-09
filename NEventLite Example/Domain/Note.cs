@@ -44,13 +44,14 @@ namespace NEventLite_Example.Domain
         /// <summary>
         /// Constructor with some parameters
         /// </summary>
+        /// <param name="id">ID of new Note</param>
         /// <param name="title">Title</param>
         /// <param name="desc">Description</param>
         /// <param name="cat">Category</param>
-        public Note(string title, string desc, string cat):this()
+        public Note(Guid id, string title, string desc, string cat):this()
         {
             //Pattern: Create the event and call HandleEvent(Event)
-            HandleEvent(new NoteCreatedEvent(Guid.NewGuid(), this.CurrentVersion, title, desc, cat, DateTime.Now));
+            HandleEvent(new NoteCreatedEvent(id, this.CurrentVersion, title, desc, cat, DateTime.Now));
         }
 
         /// <summary>

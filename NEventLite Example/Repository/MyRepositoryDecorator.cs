@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NEventLite.Domain;
+using NEventLite.Events;
 using NEventLite.Logger;
 using NEventLite.Repository;
 
@@ -21,15 +22,17 @@ namespace NEventLite_Example.Repository
         {
             BeforeLoadAggregate(Id);
             var result = base.GetById(Id);
-            AfterLoadingAggregate(result);
+            AfterLoadingAggregate(Id, result);
             return result;
         }
 
         public override void Save(T aggregate)
         {
-            BeforeSaveAggregate(aggregate);
+            var events = aggregate.GetUncommittedChanges().ToList();
+
+            BeforeSaveAggregate(aggregate, events);
             base.Save(aggregate);
-            AfterSavingAggregate(aggregate);
+            AfterSavingAggregate(aggregate, events);
         }
 
         protected void BeforeLoadAggregate(Guid id)
@@ -37,20 +40,28 @@ namespace NEventLite_Example.Repository
             LogManager.Log($"Loading {id} ...", LogSeverity.Debug);
         }
 
-        protected void AfterLoadingAggregate(T aggregate)
+        protected void AfterLoadingAggregate(Guid id, T aggregate)
         {
-            LogManager.Log($"Loaded {aggregate.GetType()} ...", LogSeverity.Debug);
+            if (aggregate != null)
+            {
+                LogManager.Log($"Loaded {aggregate.GetType()}", LogSeverity.Debug);
+            }
+            else
+            {
+                LogManager.Log($"Aggregate {id} not found.", LogSeverity.Warning);
+            }
+            
         }
 
-        protected void BeforeSaveAggregate(T aggregate)
+        protected void BeforeSaveAggregate(T aggregate, IEnumerable<IEvent> events)
         {
             _commitStartTime = DateTime.Now;
-            LogManager.Log($"Trying to commit {aggregate.GetUncommittedChanges().Count()} events to storage.", LogSeverity.Debug);
+            LogManager.Log($"Trying to commit {events.Count()} event(s) to storage.", LogSeverity.Debug);
         }
 
-        protected void AfterSavingAggregate(T aggregate)
+        protected void AfterSavingAggregate(T aggregate, IEnumerable<IEvent> events)
         {
-            LogManager.Log($"Committed in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.", LogSeverity.Debug);
+            LogManager.Log($"Committed {events.Count()} event(s) in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.", LogSeverity.Debug);
         }
     }
 }

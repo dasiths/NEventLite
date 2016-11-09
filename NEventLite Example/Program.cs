@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using NEventLite.Command_Handlers;
 using NEventLite.Logger;
 using NEventLite.Repository;
 using NEventLite.Storage;
@@ -17,19 +18,15 @@ namespace NEventLite_Example
         static void Main(string[] args)
         {
             //Load dependency resolver
-            using (var resolver = new DependencyResolver())
+            using (var container = new DependencyResolver())
             {
                 //Set snapshot frequency
-                resolver.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
+                container.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
 
                 //Set logger
-                LogManager.AddLogger(resolver.Resolve<ILogger>());
+                LogManager.AddLogger(container.Resolve<ILogger>());
 
-                //Get ioc container to create our repository
-                NoteRepository rep = resolver.Resolve<NoteRepository>();
-                NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
-
-                DoMockRun(rep, commandHandler);
+                DoMockRun(container);
 
                 Console.WriteLine();
                 Console.WriteLine("Press enter key to exit.");
@@ -39,8 +36,13 @@ namespace NEventLite_Example
 
         }
 
-        private static void DoMockRun(IRepository<Note> rep, NoteCommandHandler commandHandler)
+        private static void DoMockRun(DependencyResolver container)
         {
+            //Get ioc container to create our repository
+            NoteRepository rep = container.Resolve<NoteRepository>();
+            var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>();
+            var editCommandHandler = container.Resolve<ICommandHandler<EditNoteCommand>>();
+
             Guid SavedItemID = Guid.Empty;
 
             //Try to load a given guid.
@@ -61,14 +63,16 @@ namespace NEventLite_Example
             else
             {
                 //Create new note
-                commandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(), -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
+                Guid newItemID = Guid.NewGuid();
+                createCommandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(), newItemID, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
 
-                SavedItemID = commandHandler.LastCreatedNoteGuid;
-                Note tmpNote = rep.GetById(SavedItemID);
+                Note tmpNote = rep.GetById(newItemID);
 
                 Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
                 Console.WriteLine();
+
+                SavedItemID = newItemID;
             }
 
             Console.WriteLine("Doing some changes now...");
@@ -81,7 +85,7 @@ namespace NEventLite_Example
             {
                 Console.WriteLine($"Applying Changes For Cycle {i}");
 
-                LastVersion = commandHandler.Handle(
+                LastVersion = editCommandHandler.Handle(
                                     new EditNoteCommand(
                                         Guid.NewGuid(),
                                         SavedItemID,

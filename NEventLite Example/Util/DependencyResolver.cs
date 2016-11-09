@@ -3,12 +3,16 @@ using System.Linq;
 using System.Reflection;
 using Autofac;
 using Autofac.Core;
+using NEventLite.Command_Handlers;
 using NEventLite.Events;
 using NEventLite.Event_Bus;
 using NEventLite.Logger;
 using NEventLite.Repository;
 using NEventLite.Storage;
+using NEventLite_Example.Commands;
+using NEventLite_Example.Command_Handlers;
 using NEventLite_Example.Domain;
+using NEventLite_Example.Events;
 using NEventLite_Example.Event_Bus;
 using NEventLite_Example.Logging;
 using NEventLite_Example.Repository;
@@ -80,6 +84,12 @@ namespace NEventLite_Example.Util
 
             //Register NoteRepository
             builder.RegisterType<NoteRepository>()
+                .InstancePerLifetimeScope();
+
+            //Register NoteRepository
+            builder.RegisterType<NoteCommandHandler>()
+                .As<ICommandHandler<CreateNoteCommand>>()
+                .As<ICommandHandler<EditNoteCommand>>()
                 .InstancePerLifetimeScope();
 
             Container = builder.Build();

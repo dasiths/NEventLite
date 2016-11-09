@@ -13,12 +13,10 @@ using NEventLite_Example.Repository;
 namespace NEventLite_Example.Command_Handlers
 {
     public class NoteCommandHandler :
-        ICommandHandler<CreateNoteCommand>, 
+        ICommandHandler<CreateNoteCommand>,
         ICommandHandler<EditNoteCommand>
     {
         private readonly NoteRepository _repository;
-        public Guid LastCreatedNoteGuid { get; private set; }
-
         public NoteCommandHandler(NoteRepository repository)
         {
             _repository = repository;
@@ -26,10 +24,20 @@ namespace NEventLite_Example.Command_Handlers
 
         public int Handle(CreateNoteCommand command)
         {
-            var newNote = new Note(command.title, command.desc, command.cat);
-            _repository.Save(newNote);
-            LastCreatedNoteGuid = newNote.Id;
-            return 0;
+            var LoadedNote = _repository.GetById(command.AggregateId);
+
+            if (LoadedNote == null)
+            {
+                var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
+                _repository.Save(newNote);
+                return newNote.CurrentVersion;
+            }
+            else
+            {
+                throw new AggregateNotFoundException(
+                    $"Note with ID {command.AggregateId} already exists.");
+            }
+
         }
 
         public int Handle(EditNoteCommand command)

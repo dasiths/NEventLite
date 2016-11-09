@@ -100,7 +100,7 @@ namespace NEventLite_Storage_Providers.EventStore
                 }
 
                 connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregate.GetType(), aggregate.Id)}",
-                                                (LastVersion < 0 ? ExpectedVersion.Any : LastVersion), lstEventData).Wait();
+                                                (LastVersion < 0 ? ExpectedVersion.NoStream : LastVersion), lstEventData).Wait();
             }
 
             connection.Close();
