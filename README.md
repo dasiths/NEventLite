@@ -29,18 +29,16 @@ var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>
 var editCommandHandler = container.Resolve<ICommandHandler<EditNoteCommand>>();
 
 //Create new note
+Guid newItemID = Guid.NewGuid();
 createCommandHandler.Handle(
-    new CreateNoteCommand(
-        Guid.NewGuid(), -1, "Test Note","Event Sourcing System Demo", "Event Sourcing"));
+    new CreateNoteCommand(Guid.NewGuid(), newItemID, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
 
 //Example of a Command Handler
     public class NoteCommandHandler :
-        ICommandHandler<CreateNoteCommand>, 
+        ICommandHandler<CreateNoteCommand>,
         ICommandHandler<EditNoteCommand>
     {
         private readonly NoteRepository _repository;
-        public Guid LastCreatedNoteGuid { get; private set; }
-
         public NoteCommandHandler(NoteRepository repository)
         {
             _repository = repository;
@@ -48,10 +46,20 @@ createCommandHandler.Handle(
 
         public int Handle(CreateNoteCommand command)
         {
-            var newNote = new Note(command.title, command.desc, command.cat);
-            _repository.Save(newNote);
-            LastCreatedNoteGuid = newNote.Id;
-            return 0;
+            var LoadedNote = _repository.GetById(command.AggregateId);
+
+            if (LoadedNote == null)
+            {
+                var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
+                _repository.Save(newNote);
+                return newNote.CurrentVersion;
+            }
+            else
+            {
+                throw new AggregateNotFoundException(
+                    $"Note with ID {command.AggregateId} already exists.");
+            }
+
         }
 
         public int Handle(EditNoteCommand command)
