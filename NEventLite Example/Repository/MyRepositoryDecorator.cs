@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NEventLite.Domain;
+using NEventLite.Logger;
 using NEventLite.Repository;
 
 namespace NEventLite_Example.Repository
 {
-    public class MyRepositoryDecorator<T>:RepositoryDecorator<T> where T : AggregateRoot, new()
+    public class MyRepositoryDecorator<T> : RepositoryDecorator<T> where T : AggregateRoot, new()
     {
         private DateTime _commitStartTime;
 
@@ -19,7 +20,7 @@ namespace NEventLite_Example.Repository
         public override T GetById(Guid Id)
         {
             BeforeLoadAggregate(Id);
-            var result =  base.GetById(Id);
+            var result = base.GetById(Id);
             AfterLoadingAggregate(result);
             return result;
         }
@@ -33,29 +34,23 @@ namespace NEventLite_Example.Repository
 
         protected void BeforeLoadAggregate(Guid id)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Loading {id} ...");
-            Console.ForegroundColor = ConsoleColor.White;
+            LogManager.Log($"Loading {id} ...", LogSeverity.Debug);
         }
 
         protected void AfterLoadingAggregate(T aggregate)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Loaded {aggregate.GetType()} ...");
-            Console.ForegroundColor = ConsoleColor.White;
+            LogManager.Log($"Loaded {aggregate.GetType()} ...", LogSeverity.Debug);
         }
 
         protected void BeforeSaveAggregate(T aggregate)
         {
             _commitStartTime = DateTime.Now;
-            Console.WriteLine($"Trying to commit {aggregate.GetUncommittedChanges().Count()} events to storage.");
+            LogManager.Log($"Trying to commit {aggregate.GetUncommittedChanges().Count()} events to storage.", LogSeverity.Debug);
         }
 
         protected void AfterSavingAggregate(T aggregate)
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Committed in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.");
-            Console.ForegroundColor = ConsoleColor.White;
+            LogManager.Log($"Committed in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.", LogSeverity.Debug);
         }
     }
 }

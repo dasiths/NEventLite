@@ -19,9 +19,9 @@ namespace NEventLite_Example.Repository
 
         public override void Save(Note aggregate)
         {
-            LogManager.Log("Saving Note...", LogSeverity.Information);
+            LogManager.Log("Saving Note...", LogSeverity.Debug);
             base.Save(aggregate);
-            LogManager.Log("Note Saved...", LogSeverity.Information);
+            LogManager.Log("Note Saved...", LogSeverity.Debug);
         }
     }
 }

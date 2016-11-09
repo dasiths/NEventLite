@@ -11,7 +11,34 @@ namespace NEventLite_Example.Logging
     {
         public void Log(string message, LogSeverity severity)
         {
-            Console.WriteLine(message);
+            switch (severity)
+            {
+                case LogSeverity.Debug:
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+                }
+                case LogSeverity.Information:
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        break;
+                    }
+                case LogSeverity.Warning:
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        break;
+                    }
+
+                case LogSeverity.Critical:
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        break;
+                    }
+            }
+
+            Console.WriteLine("   > " + message);
+
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
     }
 }

@@ -17,28 +17,29 @@ namespace NEventLite_Example
         static void Main(string[] args)
         {
             //Load dependency resolver
-            var resolver = new DependencyResolver();
-            
-            //Set snapshot frequency
-            resolver.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
+            using (var resolver = new DependencyResolver())
+            {
+                //Set snapshot frequency
+                resolver.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
 
-            //Set logger
-            LogManager.AddLogger(resolver.Resolve<ILogger>());
+                //Set logger
+                LogManager.AddLogger(resolver.Resolve<ILogger>());
 
-            //Get ioc container to create our repository
-            NoteRepository rep = resolver.Resolve<NoteRepository>();
-            NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
+                //Get ioc container to create our repository
+                NoteRepository rep = resolver.Resolve<NoteRepository>();
+                NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
 
-            DoMockRun(rep,commandHandler);
+                DoMockRun(rep, commandHandler);
 
-            Console.WriteLine();
-            Console.WriteLine("Press enter key to exit.");
+                Console.WriteLine();
+                Console.WriteLine("Press enter key to exit.");
 
-            Console.ReadLine();
+                Console.ReadLine();
+            }
 
         }
 
-        private static void DoMockRun(IRepository<Note> rep , NoteCommandHandler commandHandler)
+        private static void DoMockRun(IRepository<Note> rep, NoteCommandHandler commandHandler)
         {
             Guid SavedItemID = Guid.Empty;
 
@@ -60,7 +61,7 @@ namespace NEventLite_Example
             else
             {
                 //Create new note
-                commandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(), -1, "Test Note","Event Sourcing System Demo", "Event Sourcing"));
+                commandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(), -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
 
                 SavedItemID = commandHandler.LastCreatedNoteGuid;
                 Note tmpNote = rep.GetById(SavedItemID);
@@ -71,7 +72,6 @@ namespace NEventLite_Example
             }
 
             Console.WriteLine("Doing some changes now...");
-            Console.WriteLine("");
 
             //Reload and do some changes
             int LastVersion = rep.GetById(SavedItemID).CurrentVersion;
@@ -89,6 +89,8 @@ namespace NEventLite_Example
                                         $"Test Note 123 Event ({LastVersion + 1})",
                                         $"Event Sourcing in .NET Example. Event ({LastVersion + 2})"));
             }
+
+            Console.WriteLine("Finished applying changes.");
 
             //Load to display
             var noteToLoad = rep.GetById(SavedItemID);

@@ -17,7 +17,7 @@ using NEventLite_Storage_Providers.InMemory;
 
 namespace NEventLite_Example.Util
 {
-    public class DependencyResolver
+    public class DependencyResolver:IDisposable
     {
         private IContainer Container { get; }
 
@@ -30,39 +30,57 @@ namespace NEventLite_Example.Util
 
             //Event store connection settings are in EventstoreEventStorageProvider class
             //If you don't have eventstore installed comment our the line below
-            //builder.RegisterType<MyEventstoreEventStorageProvider>().As<IEventStorageProvider>().SingleInstance();
+            //builder.RegisterType<MyEventstoreEventStorageProvider>()
+            //    .As<IEventStorageProvider>()
+            //    .InstancePerLifetimeScope();
 
-            builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().PreserveExistingDefaults().SingleInstance();
-
+            builder.RegisterType<InMemoryEventStorageProvider>()
+                .As<IEventStorageProvider>()
+                .PreserveExistingDefaults()
+                .InstancePerLifetimeScope();
             //----------------------------------
 
             //-------- Snapshot Stores ----------
 
             //Event store connection settings are in EventstoreConnection class
             //If you don't have eventstore installed comment out the line below
-            //builder.RegisterType<MyEventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
+            //builder.RegisterType<MyEventstoreSnapshotStorageProvider>()
+            //    .As<ISnapshotStorageProvider>()
+            //    .InstancePerLifetimeScope();
 
             //Redis connection settings are in RedisConnection class
-            //builder.RegisterType<MyRedisSnapshotStorageProvider>().As<ISnapshotStorageProvider>().SingleInstance();
+            //builder.RegisterType<MyRedisSnapshotStorageProvider>()
+            //    .As<ISnapshotStorageProvider>()
+            //    .InstancePerLifetimeScope();
 
-            builder.RegisterType<InMemorySnapshotStorageProvider>().As<ISnapshotStorageProvider>().PreserveExistingDefaults().SingleInstance();
-
+            builder.RegisterType<InMemorySnapshotStorageProvider>()
+                .As<ISnapshotStorageProvider>()
+                .PreserveExistingDefaults()
+                .InstancePerLifetimeScope();
             //----------------------------------
 
             //Event Bus
-            builder.RegisterType<InMemoryEventBus>().As<IEventBus>().SingleInstance();
+            builder.RegisterType<InMemoryEventBus>()
+                .As<IEventBus>()
+                .InstancePerLifetimeScope();
 
             //Logging
-            builder.RegisterType<ConsoleLogger>().As<ILogger>();
+            builder.RegisterType<ConsoleLogger>()
+                .As<ILogger>().SingleInstance();
 
             //This will resolve and bind storage types to a concrete repository of <T> as needed
-            builder.RegisterGeneric(typeof(Repository<>)).Named("handler",typeof(IRepository<>)).SingleInstance();
+            builder.RegisterGeneric(typeof(Repository<>))
+                .Named("Repository",typeof(IRepository<>))
+                .InstancePerDependency();
 
             //This will bind the decorator
-            builder.RegisterGenericDecorator(typeof(MyRepositoryDecorator<>),typeof(IRepository<>),fromKey: "handler");
+            //This way you can link multiple decorators for cross cutting concerns
+            builder.RegisterGenericDecorator(typeof(MyRepositoryDecorator<>),typeof(IRepository<>),fromKey: "Repository")
+                .InstancePerDependency();
 
             //Register NoteRepository
-            builder.RegisterType<NoteRepository>();
+            builder.RegisterType<NoteRepository>()
+                .InstancePerLifetimeScope();
 
             Container = builder.Build();
         }
@@ -72,5 +90,9 @@ namespace NEventLite_Example.Util
             return Container.Resolve<T>();
         }
 
+        public void Dispose()
+        {
+            Container.Dispose();
+        }
     }
 }

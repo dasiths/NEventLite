@@ -83,7 +83,12 @@ namespace NEventLite.Repository
             {
                 //Every N events we save a snapshot
                 if ((aggregate.CurrentVersion >= SnapshotStorageProvider.SnapshotFrequency) &&
-                    (aggregate.CurrentVersion - aggregate.LastCommittedVersion > SnapshotStorageProvider.SnapshotFrequency) || (aggregate.CurrentVersion % SnapshotStorageProvider.SnapshotFrequency == 0))
+                        (
+                            (changesToCommit.Count >= SnapshotStorageProvider.SnapshotFrequency) ||
+                            (aggregate.CurrentVersion % SnapshotStorageProvider.SnapshotFrequency < changesToCommit.Count) ||
+                            (aggregate.CurrentVersion % SnapshotStorageProvider.SnapshotFrequency == 0)
+                        )
+                    )
                 {
                     SnapshotStorageProvider.SaveSnapshot(aggregate.GetType(), snapshottable.GetSnapshot());
                 }
