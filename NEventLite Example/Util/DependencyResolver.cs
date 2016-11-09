@@ -34,7 +34,7 @@ namespace NEventLite_Example.Util
 
             //Event store connection settings are in EventstoreEventStorageProvider class
             //If you don't have eventstore installed comment our the line below
-            builder.RegisterType<MyEventstoreEventStorageProvider>().As<IEventStorageProvider>().InstancePerLifetimeScope();
+            //builder.RegisterType<MyEventstoreEventStorageProvider>().As<IEventStorageProvider>().InstancePerLifetimeScope();
 
             builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
             //----------------------------------
@@ -43,7 +43,7 @@ namespace NEventLite_Example.Util
 
             //Event store connection settings are in EventstoreConnection class
             //If you don't have eventstore installed comment out the line below
-            builder.RegisterType<MyEventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
+            //builder.RegisterType<MyEventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
 
             //Redis connection settings are in RedisConnection class
             //builder.RegisterType<MyRedisSnapshotStorageProvider>().As<ISnapshotStorageProvider>().InstancePerLifetimeScope();

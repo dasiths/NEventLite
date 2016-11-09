@@ -5,9 +5,9 @@ namespace NEventLite_Example.Storage
 {
     class MyRedisSnapshotStorageProvider:NEventLite_Storage_Providers.Redis.RedisSnapshotStorageProvider
     {
-        public override BasicRedisClientManager GetClientsManager()
+        public override IRedisClientsManager GetClientsManager()
         {
-            return new BasicRedisClientManager(RedisConnection.redisConnectionString);
+            return RedisConnection.GetClientManager();
         }
     }
 }

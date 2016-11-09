@@ -7,14 +7,14 @@ namespace NEventLite_Storage_Providers.Redis
 {
     public abstract class RedisSnapshotStorageProvider : ISnapshotStorageProvider
     {
-        private BasicRedisClientManager clientsManager = null;
+        private IRedisClientsManager clientsManager = null;
 
         public RedisSnapshotStorageProvider()
         {
             clientsManager = GetClientsManager();
         }
 
-        public abstract BasicRedisClientManager GetClientsManager();
+        public abstract IRedisClientsManager GetClientsManager();
 
         public int SnapshotFrequency { get; set; }
 
@@ -27,7 +27,7 @@ namespace NEventLite_Storage_Providers.Redis
             {
                 var strSnapshot = redis.GetValue(aggregateId.ToString());
 
-                if (strSnapshot != "")
+                if (string.IsNullOrEmpty(strSnapshot)==false)
                 {
                     JsonSerializerSettings serializerSettings = new JsonSerializerSettings
                     {

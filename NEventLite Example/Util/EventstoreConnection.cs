@@ -24,12 +24,13 @@ namespace NEventLite_Example.Util
 
         public static void CloseConnection()
         {
-            _connection?.Close();
+           if (_connection != null)
+            {
+                 _connection.Close();
+                _connection = null;
 
-            if (_connection!=null)
                 LogManager.Log("Closing Connection to EventStore...", LogSeverity.Information);
-
-            _connection = null;
+            }
         }
 
         public static string GetAggregateStreamPrefix()

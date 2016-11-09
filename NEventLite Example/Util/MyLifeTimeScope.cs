@@ -17,8 +17,9 @@ namespace NEventLite_Example.Util
 
         protected override void OnEnd()
         {
-            LogManager.Log("Scope Ended...", LogSeverity.Information);
             EventstoreConnection.CloseConnection();
+            RedisConnection.CloseClients();
+            LogManager.Log("Scope Ended...", LogSeverity.Information);
         }
     }
 }
