@@ -29,7 +29,14 @@ namespace NEventLite.Repository
         public virtual T GetById(Guid id)
         {
             T item = null;
-            var snapshot = SnapshotStorageProvider.GetSnapshot(typeof(T), id);
+
+            var isSnapshottable = typeof(ISnapshottable).IsAssignableFrom(typeof(T));
+            Snapshot.Snapshot snapshot = null;
+
+            if ((isSnapshottable) && (SnapshotStorageProvider != null))
+            {
+                snapshot = SnapshotStorageProvider.GetSnapshot(typeof(T), id);
+            }
 
             if (snapshot != null)
             {
@@ -79,7 +86,7 @@ namespace NEventLite.Repository
             //If the Aggregate implements snaphottable
             var snapshottable = aggregate as ISnapshottable;
 
-            if (snapshottable != null)
+            if ((snapshottable != null) && (SnapshotStorageProvider != null))
             {
                 //Every N events we save a snapshot
                 if ((aggregate.CurrentVersion >= SnapshotStorageProvider.SnapshotFrequency) &&
