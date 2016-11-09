@@ -65,6 +65,7 @@
     <Compile Include="Storage\IEventSnapshotStorageProvider.cs" />
     <Compile Include="Storage\IEventStorageProvider.cs" />
     <Compile Include="Storage\ISnapshotStorageProvider.cs" />
+    <Compile Include="Scope\ILifeTimeScope.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

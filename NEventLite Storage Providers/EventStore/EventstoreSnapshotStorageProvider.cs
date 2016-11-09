@@ -17,7 +17,6 @@ namespace NEventLite_Storage_Providers.EventStore
             Snapshot snapshot = null;
 
             var connection = GetEventStoreConnection();
-            connection.ConnectAsync().Wait();
 
             var streamEvents = connection.ReadStreamEventsBackwardAsync(
                 $"{AggregateIdToStreamName(aggregateType, aggregateId)}", StreamPosition.End, 1, false).Result;
@@ -29,15 +28,12 @@ namespace NEventLite_Storage_Providers.EventStore
                 snapshot = DeserializeSnapshotEvent(result);
             }
 
-            connection.Close();
-
             return snapshot;
         }
 
         public void SaveSnapshot(Type aggregateType, Snapshot snapshot)
         {
             var connection = GetEventStoreConnection();
-            connection.ConnectAsync().Wait();
 
             JsonSerializerSettings serializerSettings = new JsonSerializerSettings
             {
@@ -48,8 +44,6 @@ namespace NEventLite_Storage_Providers.EventStore
 
             connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregateType, snapshot.AggregateId)}",
                                                 ExpectedVersion.Any, snapshotyEvent).Wait();
-
-            connection.Close();
         }
         
         public Snapshot GetSnapshot(Type aggregateType, Guid aggregateId, int version)
@@ -57,7 +51,6 @@ namespace NEventLite_Storage_Providers.EventStore
             Snapshot snapshot = null;
 
             var connection = GetEventStoreConnection();
-            connection.ConnectAsync().Wait();
 
             JsonSerializerSettings serializerSettings = new JsonSerializerSettings
             {
@@ -73,8 +66,6 @@ namespace NEventLite_Storage_Providers.EventStore
 
                 snapshot = DeserializeSnapshotEvent(result);
             }
-
-            connection.Close();
 
             return snapshot;
         }

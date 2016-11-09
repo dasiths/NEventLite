@@ -17,6 +17,7 @@ namespace NEventLite_Example
 
         static void Main(string[] args)
         {
+
             //Load dependency resolver
             using (var container = new DependencyResolver())
             {
@@ -26,13 +27,16 @@ namespace NEventLite_Example
                 //Set logger
                 LogManager.AddLogger(container.Resolve<ILogger>());
 
-                DoMockRun(container);
-
-                Console.WriteLine();
-                Console.WriteLine("Press enter key to exit.");
-
-                Console.ReadLine();
+                using (new MyLifeTimeScope())
+                {
+                    DoMockRun(container);
+                }
             }
+
+            Console.WriteLine();
+            Console.WriteLine("Press enter key to exit.");
+
+            Console.ReadLine();
 
         }
 
@@ -66,7 +70,7 @@ namespace NEventLite_Example
                 Guid newItemId = Guid.NewGuid();
 
                 createCommandHandler.Handle(
-                    new CreateNoteCommand(Guid.NewGuid(), newItemId, -1, 
+                    new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
 
                 Note tmpNote = rep.GetById(newItemId);

@@ -91,6 +91,7 @@
     <Compile Include="Storage\MyRedisSnapshotStorageProvider.cs" />
     <Compile Include="Util\DependencyResolver.cs" />
     <Compile Include="Util\EventstoreConnection.cs" />
+    <Compile Include="Util\MyLifeTimeScope.cs" />
     <Compile Include="Util\RedisConnection.cs" />
   </ItemGroup>
   <ItemGroup>

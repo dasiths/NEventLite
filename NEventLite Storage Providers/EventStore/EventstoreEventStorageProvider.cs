@@ -17,11 +17,7 @@ namespace NEventLite_Storage_Providers.EventStore
         {
 
             var connection = GetEventStoreConnection();
-            connection.ConnectAsync().Wait();
-
             var events = ReadEvents(aggregateType,connection, aggregateId, start, count);
-
-            connection.Close();
 
             return events;
         }
@@ -65,12 +61,9 @@ namespace NEventLite_Storage_Providers.EventStore
         public IEvent GetLastEvent(Type aggregateType, Guid aggregateId)
         {
             var connection = GetEventStoreConnection();
-            connection.ConnectAsync().Wait();
 
             var results = connection.ReadStreamEventsBackwardAsync(
                 $"{AggregateIdToStreamName(aggregateType, aggregateId)}", StreamPosition.End, 1, false).Result;
-
-            connection.Close();
 
             if (results.Status == SliceReadStatus.Success && results.Events.Count() > 0)
             {
@@ -85,8 +78,6 @@ namespace NEventLite_Storage_Providers.EventStore
         public void CommitChanges(Type aggregateType, AggregateRoot aggregate)
         {
             var connection = GetEventStoreConnection();
-            connection.ConnectAsync().Wait();
-
             var events = aggregate.GetUncommittedChanges();
 
             if (events.Any())
@@ -102,8 +93,6 @@ namespace NEventLite_Storage_Providers.EventStore
                 connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregate.GetType(), aggregate.Id)}",
                                                 (LastVersion < 0 ? ExpectedVersion.NoStream : LastVersion), lstEventData).Wait();
             }
-
-            connection.Close();
         }
 
         protected abstract IEventStoreConnection GetEventStoreConnection();
