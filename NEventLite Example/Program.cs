@@ -21,15 +21,14 @@ namespace NEventLite_Example
             //Load dependency resolver
             using (var container = new DependencyResolver())
             {
-
-                //Set snapshot frequency
-                container.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
-
                 //Set logger
                 LogManager.AddLogger(container.Resolve<ILogger>());
 
                 using (new MyLifeTimeScope())
                 {
+                    //Set snapshot frequency
+                    container.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
+
                     DoMockRun(container);
                 }
             }
