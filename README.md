@@ -39,11 +39,12 @@ void CreateNote() {
         createCommandHandler.Handle(
                     new CreateNoteCommand(Guid.NewGuid(), itemId, -1, 
                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
-                
+        
+        //Now update it
         var LastVersion = editCommandHandler.Handle(
                             new EditNoteCommand(Guid.NewGuid(), itemId, LastVersion,
-                                $"Test Note 123 Event ({LastVersion + 1})",
-                                $"Event Sourcing in .NET Example. Event ({LastVersion + 2})")
+                                $"Test Note Changed",
+                                $"Event Sourcing in .NET Example. Changed.")
     }
 }
 
