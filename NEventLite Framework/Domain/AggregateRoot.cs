@@ -134,7 +134,7 @@ namespace NEventLite.Domain
         private bool CanApply(IEvent @event)
         {
             //Check to see if event is applying against the right Aggregate and matches the target version
-            if (((CurrentVersion == -1) || (Id == @event.AggregateId)) && (CurrentVersion == @event.TargetVersion))
+            if (((GetStreamState()== StreamState.NoStream) || (Id == @event.AggregateId)) && (CurrentVersion == @event.TargetVersion))
             {
                 return true;
             }
@@ -151,7 +151,7 @@ namespace NEventLite.Domain
         /// <param name="isCreationEvent">Is this the event as a result of construction of the Aggregate</param>
         private void DoApply(IEvent @event)
         {
-            if (CurrentVersion == -1)
+            if (GetStreamState() == StreamState.NoStream)
             {
                 Id = @event.AggregateId; //This is only needed for the very first event as every other event CAN ONLY apply to matching ID
             }
