@@ -42,7 +42,7 @@ void CreateNote() {
 }
 
 ```
-Command Handler (NoteCommandHandler.cs)
+Command Handler (NoteCommandHandler.cs in example)
 
 ```C#
         public int Handle(CreateNoteCommand command)
@@ -131,6 +131,17 @@ Aggregate (Note.cs in example)
             ApplyGenericEvent(@event, false);
             this.Title = @event.title;
         }
+```
+
+Implement IEventStorageProvider and ISnapshotStorage provider for storage or use the ones we provide for popular stores. See "Storage Providers" project for ready to use implementations for EventStore and Redis. More will be added.
+
+```C#
+    public interface IEventStorageProvider
+    {
+        IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count);
+        IEvent GetLastEvent(Type aggregateType, Guid aggregateId);
+        void CommitChanges(Type aggregateType, AggregateRoot aggregate);
+    }
 ```
 
 Notes
