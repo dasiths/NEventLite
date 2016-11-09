@@ -98,28 +98,23 @@ Command Handler (NoteCommandHandler.cs in example)
 Aggregate (Note.cs in example)
 
 ```C#
+        //Commands call the constructor or methods. Which creates an event and applies it to the Aggregate.
+        
         public Note(Guid id, string title, string desc, string cat):this()
         {
             //Pattern: Create the event and call HandleEvent(Event)
-            HandleEvent(new NoteCreatedEvent(id, this.CurrentVersion, title, desc, cat, DateTime.Now));
-        }
-        
-        //Commands call the methods. Which create an event and applies it to the Aggregate.
+            ApplyEvent(new NoteCreatedEvent(id, this.CurrentVersion, title, desc, cat, DateTime.Now));
+        }    
 
         public void ChangeTitle(string newTitle)
         {
-            HandleEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
+            ApplyEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
         }
         
         //Applying Events
         
         public void Apply(NoteCreatedEvent @event)
         {
-            //Important: State change done here
-            //Pattern: Apply the generic event details first
-            ApplyGenericEvent(@event, true);
-
-            // Then apply specific event details
             this.CreatedDate = @event.createdTime;
             this.Title = @event.title;
             this.Description = @event.desc;
@@ -128,7 +123,6 @@ Aggregate (Note.cs in example)
 
         public void Apply(NoteTitleChangedEvent @event)
         {
-            ApplyGenericEvent(@event, false);
             this.Title = @event.title;
         }
 ```
