@@ -63,17 +63,19 @@ namespace NEventLite_Example
             else
             {
                 //Create new note
-                Guid newItemID = Guid.NewGuid();
-                createCommandHandler.Handle(
-                    new CreateNoteCommand(Guid.NewGuid(), newItemID, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
+                Guid newItemId = Guid.NewGuid();
 
-                Note tmpNote = rep.GetById(newItemID);
+                createCommandHandler.Handle(
+                    new CreateNoteCommand(Guid.NewGuid(), newItemId, -1, 
+                    "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
+
+                Note tmpNote = rep.GetById(newItemId);
 
                 Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
                 Console.WriteLine();
 
-                SavedItemID = newItemID;
+                SavedItemID = newItemId;
             }
 
             Console.WriteLine("Doing some changes now...");
@@ -87,10 +89,7 @@ namespace NEventLite_Example
                 Console.WriteLine($"Applying Changes For Cycle {i}");
 
                 LastVersion = editCommandHandler.Handle(
-                                    new EditNoteCommand(
-                                        Guid.NewGuid(),
-                                        SavedItemID,
-                                        LastVersion,
+                                    new EditNoteCommand(Guid.NewGuid(), SavedItemID, LastVersion,
                                         $"Test Note 123 Event ({LastVersion + 1})",
                                         $"Event Sourcing in .NET Example. Event ({LastVersion + 2})"));
             }
