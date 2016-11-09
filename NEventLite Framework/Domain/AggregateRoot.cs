@@ -155,10 +155,10 @@ namespace NEventLite.Domain
             {
                 Id = @event.AggregateId; //This is only needed for the very first event as every other event CAN ONLY apply to matching ID
             }
+            
+            @event.InvokeOnAggregate(this, ApplyMethodNameInEventHandler);
 
             CurrentVersion++;
-
-            @event.InvokeOnAggregate(this, ApplyMethodNameInEventHandler);
         }
     }
 }
