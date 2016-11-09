@@ -23,11 +23,13 @@ It's very easy to use once setup. Ideal for implementing the CQRS pattern.
 //EventStorageProvider and SnapshotStorageProvider can be injected to the Repository.
 //Can be created per command or once per life time as follows.
 
-var rep = new NoteRepository(resolver.Resolve<IRepositoryBase<Note>>());
-var commandHandler = new NoteCommandHandler(rep);
+//Get ioc container to create our repository
+    NoteRepository rep = container.Resolve<NoteRepository>();
+    var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>();
+    var editCommandHandler = container.Resolve<ICommandHandler<EditNoteCommand>>();
 
 //Create new note
-commandHandler.Handle(
+createCommandHandler.Handle(
     new CreateNoteCommand(
         Guid.NewGuid(), -1, "Test Note","Event Sourcing System Demo", "Event Sourcing"));
 
