@@ -26,8 +26,7 @@ namespace NEventLite_Example
             LogManager.AddLogger(resolver.Resolve<ILogger>());
 
             //Get ioc container to create our repository
-
-            NoteRepository rep = new NoteRepository(new MyRepositoryDecorator<Note>(resolver.Resolve<IRepository<Note>>())); 
+            NoteRepository rep = resolver.Resolve<NoteRepository>();
             NoteCommandHandler commandHandler = new NoteCommandHandler(rep);
 
             DoMockRun(rep,commandHandler);
@@ -45,16 +44,16 @@ namespace NEventLite_Example
 
             //Try to load a given guid.
             Console.WriteLine("Enter a GUID to try to load or leave blank and press enter:");
-            string strGUID = Console.ReadLine();
+            string strGuid = Console.ReadLine();
 
 
-            if ((string.IsNullOrEmpty(strGUID) == false) && (Guid.TryParse(strGUID, out SavedItemID)))
+            if ((string.IsNullOrEmpty(strGuid) == false) && (Guid.TryParse(strGuid, out SavedItemID)))
             {
                 Note tmpNote = rep.GetById(SavedItemID);
 
                 if (tmpNote == null)
                 {
-                    Console.WriteLine($"No Note found with provided Guid of {SavedItemID.ToString()}. Press enter key to exit.");
+                    Console.WriteLine($"No Note found with provided Guid of {SavedItemID}. Press enter key to exit.");
                     return;
                 }
             }
