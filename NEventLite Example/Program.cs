@@ -64,7 +64,8 @@ namespace NEventLite_Example
             {
                 //Create new note
                 Guid newItemID = Guid.NewGuid();
-                createCommandHandler.Handle(new CreateNoteCommand(Guid.NewGuid(), newItemID, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
+                createCommandHandler.Handle(
+                    new CreateNoteCommand(Guid.NewGuid(), newItemID, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
 
                 Note tmpNote = rep.GetById(newItemID);
 
