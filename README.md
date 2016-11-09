@@ -34,10 +34,16 @@ void CreateNote() {
         var editCommandHandler = container.Resolve<ICommandHandler<EditNoteCommand>>();            
 
         //Create new note
-        Guid newItemID = Guid.NewGuid();
+        Guid itemId = Guid.NewGuid();
+        
         createCommandHandler.Handle(
-            new CreateNoteCommand(Guid.NewGuid(), 
-                newItemID, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
+                    new CreateNoteCommand(Guid.NewGuid(), itemId, -1, 
+                    "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
+                
+        var LastVersion = editCommandHandler.Handle(
+                            new EditNoteCommand(Guid.NewGuid(), itemId, LastVersion,
+                                $"Test Note 123 Event ({LastVersion + 1})",
+                                $"Event Sourcing in .NET Example. Event ({LastVersion + 2})")
     }
 }
 
