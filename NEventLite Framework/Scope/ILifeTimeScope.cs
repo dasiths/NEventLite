@@ -4,7 +4,7 @@ namespace NEventLite.Scope
 {
     public abstract class ILifeTimeScope:IDisposable
     {
-        public ILifeTimeScope()
+        protected ILifeTimeScope()
         {
             OnStart();
         }

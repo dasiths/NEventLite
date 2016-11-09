@@ -21,6 +21,7 @@ namespace NEventLite_Example
             //Load dependency resolver
             using (var container = new DependencyResolver())
             {
+
                 //Set snapshot frequency
                 container.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
 
