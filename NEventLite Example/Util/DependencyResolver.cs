@@ -34,63 +34,41 @@ namespace NEventLite_Example.Util
 
             //Event store connection settings are in EventstoreEventStorageProvider class
             //If you don't have eventstore installed comment our the line below
-            //builder.RegisterType<MyEventstoreEventStorageProvider>()
-            //    .As<IEventStorageProvider>()
-            //    .InstancePerLifetimeScope();
+            //builder.RegisterType<MyEventstoreEventStorageProvider>().As<IEventStorageProvider>().InstancePerLifetimeScope();
 
-            builder.RegisterType<InMemoryEventStorageProvider>()
-                .As<IEventStorageProvider>()
-                .PreserveExistingDefaults()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
             //----------------------------------
 
             //-------- Snapshot Stores ----------
 
             //Event store connection settings are in EventstoreConnection class
             //If you don't have eventstore installed comment out the line below
-            //builder.RegisterType<MyEventstoreSnapshotStorageProvider>()
-            //    .As<ISnapshotStorageProvider>()
-            //    .InstancePerLifetimeScope();
+            //builder.RegisterType<MyEventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
 
             //Redis connection settings are in RedisConnection class
-            //builder.RegisterType<MyRedisSnapshotStorageProvider>()
-            //    .As<ISnapshotStorageProvider>()
-            //    .InstancePerLifetimeScope();
+            //builder.RegisterType<MyRedisSnapshotStorageProvider>().As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
 
-            builder.RegisterType<InMemorySnapshotStorageProvider>()
-                .As<ISnapshotStorageProvider>()
-                .PreserveExistingDefaults()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<InMemorySnapshotStorageProvider>().As<ISnapshotStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
             //----------------------------------
 
             //Event Bus
-            builder.RegisterType<InMemoryEventBus>()
-                .As<IEventBus>()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<InMemoryEventBus>().As<IEventBus>().InstancePerLifetimeScope();
 
             //Logging
-            builder.RegisterType<ConsoleLogger>()
-                .As<ILogger>().SingleInstance();
+            builder.RegisterType<ConsoleLogger>().As<ILogger>().SingleInstance();
 
             //This will resolve and bind storage types to a concrete repository of <T> as needed
-            builder.RegisterGeneric(typeof(Repository<>))
-                .Named("Repository", typeof(IRepository<>))
-                .InstancePerDependency();
+            builder.RegisterGeneric(typeof(Repository<>)).Named("Repository", typeof(IRepository<>)).InstancePerDependency();
 
             //This will bind the decorator
             //This way you can link multiple decorators for cross cutting concerns
-            builder.RegisterGenericDecorator(typeof(MyRepositoryDecorator<>), typeof(IRepository<>), fromKey: "Repository")
-                .InstancePerDependency();
+            builder.RegisterGenericDecorator(typeof(MyRepositoryDecorator<>), typeof(IRepository<>), fromKey: "Repository").InstancePerDependency();
 
             //Register NoteRepository
-            builder.RegisterType<NoteRepository>()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<NoteRepository>().InstancePerLifetimeScope();
 
             //Register NoteRepository
-            builder.RegisterType<NoteCommandHandler>()
-                .As<ICommandHandler<CreateNoteCommand>>()
-                .As<ICommandHandler<EditNoteCommand>>()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<NoteCommandHandler>().AsImplementedInterfaces().InstancePerLifetimeScope();
 
             Container = builder.Build();
         }
