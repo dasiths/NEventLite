@@ -93,7 +93,7 @@ Aggregate (Note.cs in example)
         
         //Applying Events
         
-        [EventHandlingMethod()]
+        [OnApplyEvent()]
         public void OnNoteCreated(NoteCreatedEvent @event)
         {
             CreatedDate = @event.createdTime;
@@ -102,7 +102,7 @@ Aggregate (Note.cs in example)
             Category = @event.cat;
         }
 
-        [EventHandlingMethod()]
+        [OnApplyEvent()]
         public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
             Title = @event.title;
