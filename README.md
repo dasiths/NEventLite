@@ -30,21 +30,14 @@ void CreateNote() {
     {
         //Get ioc container to create our repository
         NoteRepository rep = container.Resolve<NoteRepository>();
-        var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>();
-        var editCommandHandler = container.Resolve<ICommandHandler<EditNoteCommand>>();            
+        var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>();        
 
         //Create new note
         Guid itemId = Guid.NewGuid();
         
         createCommandHandler.Handle(
                     new CreateNoteCommand(Guid.NewGuid(), itemId, -1, 
-                    "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
-        
-        //Now update it
-        var LastVersion = editCommandHandler.Handle(
-                            new EditNoteCommand(Guid.NewGuid(), itemId, LastVersion,
-                                $"Test Note Changed",
-                                $"Event Sourcing in .NET Example. Changed.")
+                    "Test Note", "Event Sourcing System Demo", "Event Sourcing"));        
     }
 }
 
@@ -120,17 +113,19 @@ Aggregate (Note.cs in example)
         
         //Applying Events
         
-        public void Apply(NoteCreatedEvent @event)
+        [EventHandlingMethod()]
+        public void OnNoteCreated(NoteCreatedEvent @event)
         {
-            this.CreatedDate = @event.createdTime;
-            this.Title = @event.title;
-            this.Description = @event.desc;
-            this.Category = @event.cat;
+            CreatedDate = @event.createdTime;
+            Title = @event.title;
+            Description = @event.desc;
+            Category = @event.cat;
         }
 
-        public void Apply(NoteTitleChangedEvent @event)
+        [EventHandlingMethod()]
+        public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
-            this.Title = @event.title;
+            Title = @event.title;
         }
 ```
 
