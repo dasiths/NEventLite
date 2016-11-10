@@ -26,7 +26,6 @@ namespace NEventLite_Example
 
                 using (new MyLifeTimeScope())
                 {
-
                     DoMockRun(container);
                 }
             }
@@ -91,9 +90,9 @@ namespace NEventLite_Example
                 Console.WriteLine($"Applying Changes For Cycle {i}");
 
                 LastVersion = editCommandHandler.Handle(
-                                    new EditNoteCommand(Guid.NewGuid(), SavedItemID, LastVersion,
-                                        $"Test Note 123 Event ({LastVersion + 1})",
-                                        $"Event Sourcing in .NET Example. Event ({LastVersion + 2})"));
+                                new EditNoteCommand(Guid.NewGuid(), SavedItemID, LastVersion,
+                                    $"Test Note 123 Event ({LastVersion + 1})",
+                                    $"Event Sourcing in .NET Example. Event ({LastVersion + 2})")).AggregateVersion;
             }
 
             Console.WriteLine("Finished applying changes.");

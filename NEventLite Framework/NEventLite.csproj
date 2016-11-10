@@ -42,7 +42,9 @@
   <ItemGroup>
     <Compile Include="Command Handlers\ICommandHandler.cs" />
     <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\CommandResult.cs" />
     <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\ICommandResult.cs" />
     <Compile Include="Custom Attributes\OnApplyEvent.cs" />
     <Compile Include="Domain\AggregateRoot.cs" />
     <Compile Include="Event Bus\IEventBus.cs" />

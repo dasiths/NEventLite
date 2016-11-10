@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NEventLite.Commands;
 using NEventLite.Command_Handlers;
 using NEventLite.Exceptions;
 using NEventLite.Extensions;
@@ -22,17 +23,17 @@ namespace NEventLite_Example.Command_Handlers
             _repository = repository;
         }
 
-        public int Handle(CreateNoteCommand command)
+        public ICommandResult Handle(CreateNoteCommand command)
         {
             command.AggregateId.EnsureDoesntExist(_repository);
 
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
             _repository.Save(newNote);
 
-            return newNote.CurrentVersion;
+            return new CommandResult(newNote.CurrentVersion, true, "");
         }
 
-        public int Handle(EditNoteCommand command)
+        public ICommandResult Handle(EditNoteCommand command)
         {
             var LoadedNote = command.AggregateId.EnsureExists(_repository);
             LoadedNote.EnsureVersionMatch(command.TargetVersion);
@@ -49,7 +50,7 @@ namespace NEventLite_Example.Command_Handlers
 
             _repository.Save(LoadedNote);
 
-            return LoadedNote.CurrentVersion;
+            return new CommandResult(LoadedNote.CurrentVersion, true, "");
         }
     }
 }
