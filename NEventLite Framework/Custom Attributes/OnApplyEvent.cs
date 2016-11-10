@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace NEventLite.Custom_Attributes
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = true)]
-    public class EventHandlingMethod : Attribute
+    public class OnApplyEvent : Attribute
     {
     }
 }

@@ -65,10 +65,10 @@ namespace NEventLite_Example.Domain
         #region "Apply Events"
 
         //Important
-        //We mark the EventHandler method with the [EventHandlingMethod()] marker
+        //We mark the EventHandler method with the [OnApplyEvent()] marker
         //This way the framework knows which method to invoke when a event happens
 
-        [EventHandlingMethod()]
+        [OnApplyEvent()]
         public void OnNoteCreated(NoteCreatedEvent @event)
         {
             CreatedDate = @event.createdTime;
@@ -77,13 +77,13 @@ namespace NEventLite_Example.Domain
             Category = @event.cat;
         }
 
-        [EventHandlingMethod()]
+        [OnApplyEvent()]
         public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
             Title = @event.title;
         }
 
-        [EventHandlingMethod()]
+        [OnApplyEvent()]
         public void OnCategoryChanged(NoteCategoryChangedEvent @event)
         {
             Category = @event.cat;

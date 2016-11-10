@@ -43,7 +43,7 @@
     <Compile Include="Command Handlers\ICommandHandler.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\ICommand.cs" />
-    <Compile Include="Custom Attributes\EventHandlingMethod.cs" />
+    <Compile Include="Custom Attributes\OnApplyEvent.cs" />
     <Compile Include="Domain\AggregateRoot.cs" />
     <Compile Include="Event Bus\IEventBus.cs" />
     <Compile Include="Events\Event.cs" />
