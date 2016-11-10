@@ -16,7 +16,6 @@ using System.Linq;
 using NEventLite.Events;
 using NEventLite.Exceptions;
 using NEventLite.Extensions;
-using NEventLite.Util;
 
 namespace NEventLite.Domain
 {

@@ -54,6 +54,7 @@
     <Compile Include="Exceptions\ConcurrencyException.cs" />
     <Compile Include="Exceptions\EventHandlerApplyMethodMissingException.cs" />
     <Compile Include="Extensions\EventExtension.cs" />
+    <Compile Include="Extensions\ReflectionHelper.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\LogManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,7 +67,6 @@
     <Compile Include="Storage\IEventStorageProvider.cs" />
     <Compile Include="Storage\ISnapshotStorageProvider.cs" />
     <Compile Include="Scope\ILifeTimeScope.cs" />
-    <Compile Include="Util\ReflectionHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Event Handlers\" />

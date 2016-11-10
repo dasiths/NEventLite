@@ -19,7 +19,6 @@ namespace NEventLite_Example.Domain
 {
     /// <summary>
     /// Note is an AggregateRoot. 
-    /// Implements IEventHandler for NoteCreatedEvent, NoteTitleChangedEvent, NoteCategoryChangedEvent.
     /// Implements ISnashottable.
     /// </summary>
     public class Note : AggregateRoot, ISnapshottable
@@ -31,41 +30,30 @@ namespace NEventLite_Example.Domain
 
         #region "Constructor and Methods"
 
-        /// <summary>
-        /// Blank constructor as required
-        /// </summary>
         public Note()
         {
-            //Important: Aggregate roots must have a blank constructor
+            //Important: Aggregate roots must have a parameterless constructor
+            //to make it easier to construct from scratch.
+
+            //The very first event in an aggregate is the creation event 
+            //which will be applied to an empty object created via this constructor
         }
 
-        /// <summary>
-        /// Constructor with some parameters
-        /// </summary>
-        /// <param name="id">ID of new Note</param>
-        /// <param name="title">Title</param>
-        /// <param name="desc">Description</param>
-        /// <param name="cat">Category</param>
+        //The following method are how external command interact with our aggregate
+        //A command will result in following methods being executed and resulting events will be fired
+
         public Note(Guid id, string title, string desc, string cat):this()
         {
             //Pattern: Create the event and call ApplyEvent(Event)
             ApplyEvent(new NoteCreatedEvent(id, CurrentVersion, title, desc, cat, DateTime.Now));
         }
 
-        /// <summary>
-        /// Change the title of the note
-        /// </summary>
-        /// <param name="newTitle">New Title</param>
         public void ChangeTitle(string newTitle)
         {
             //Pattern: Create the event and call ApplyEvent(Event)
             ApplyEvent(new NoteTitleChangedEvent(Id, CurrentVersion, newTitle));
         }
 
-        /// <summary>
-        /// Change category of the note
-        /// </summary>
-        /// <param name="newCategory">New Category</param>
         public void ChangeCategory(string newCategory)
         {
             //Pattern: Create the event and call ApplyEvent(Event)
@@ -75,6 +63,10 @@ namespace NEventLite_Example.Domain
         #endregion
 
         #region "Apply Events"
+
+        //Important
+        //We mark the EventHandler method with the [EventHandlingMethod()] marker
+        //This way the framework knows which method to invoke when a event happens
 
         [EventHandlingMethod()]
         public void OnNoteCreated(NoteCreatedEvent @event)
@@ -101,12 +93,10 @@ namespace NEventLite_Example.Domain
 
         #region "Snapshots"
 
-        /// <summary>
-        /// Get new snapshot of the current state of the Aggregate
-        /// </summary>
-        /// <returns>A snapshot of the Aggregate</returns>
         public NEventLite.Snapshot.Snapshot TakeSnapshot()
         {
+            //This method returns a snapshot which will be used to reconstruct the state
+
             return new NoteSnapshot(Guid.NewGuid(),
                                     Id,
                                     CurrentVersion,
@@ -116,10 +106,6 @@ namespace NEventLite_Example.Domain
                                     Category);
         }
 
-        /// <summary>
-        /// Applies the snapshot and updates state of the Aggregate
-        /// </summary>
-        /// <param name="snapshot"></param>
         public void ApplySnapshot(NEventLite.Snapshot.Snapshot snapshot)
         {
             //Important: State changes are done here.
