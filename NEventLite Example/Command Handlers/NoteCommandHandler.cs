@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NEventLite.Command_Handlers;
 using NEventLite.Exceptions;
+using NEventLite.Extensions;
 using NEventLite.Repository;
 using NEventLite_Example.Commands;
 using NEventLite_Example.Domain;
@@ -12,9 +13,8 @@ using NEventLite_Example.Repository;
 
 namespace NEventLite_Example.Command_Handlers
 {
-    public class NoteCommandHandler :
-        ICommandHandler<CreateNoteCommand>,
-        ICommandHandler<EditNoteCommand>
+    public class NoteCommandHandler : ICommandHandler<CreateNoteCommand>,
+                                      ICommandHandler<EditNoteCommand>
     {
         private readonly NoteRepository _repository;
         public NoteCommandHandler(NoteRepository repository)
@@ -24,52 +24,32 @@ namespace NEventLite_Example.Command_Handlers
 
         public int Handle(CreateNoteCommand command)
         {
-            var LoadedNote = _repository.GetById(command.AggregateId);
+            command.AggregateId.EnsureDoesntExist(_repository);
 
-            if (LoadedNote == null)
-            {
-                var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
-                _repository.Save(newNote);
-                return newNote.CurrentVersion;
-            }
-            else
-            {
-                throw new AggregateNotFoundException(
-                    $"Note with ID {command.AggregateId} already exists.");
-            }
+            var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
+            _repository.Save(newNote);
 
+            return newNote.CurrentVersion;
         }
 
         public int Handle(EditNoteCommand command)
         {
-            var LoadedNote = _repository.GetById(command.AggregateId);
+            var LoadedNote = command.AggregateId.EnsureExists(_repository);
+            LoadedNote.EnsureVersionMatch(command.TargetVersion);
 
-            if (LoadedNote != null)
+            if (LoadedNote.Title != command.title)
             {
-                if (LoadedNote.CurrentVersion == command.TargetVersion)
-                {
-                    if (LoadedNote.Title != command.title)
-                        LoadedNote.ChangeTitle(command.title);
-
-                    if (LoadedNote.Category != command.cat)
-                        LoadedNote.ChangeCategory(command.cat);
-
-                    _repository.Save(LoadedNote);
-
-                    return LoadedNote.CurrentVersion;
-                }
-                else
-                {
-                    throw new ConcurrencyException(
-                        $"The version of the Note ({LoadedNote.CurrentVersion})" +
-                        $" and Command ({command.TargetVersion}) didn't match.");
-                }
+                LoadedNote.ChangeTitle(command.title);
             }
-            else
+
+            if (LoadedNote.Category != command.cat)
             {
-                throw new AggregateNotFoundException(
-                    $"Note with ID {command.AggregateId} was not found.");
+                LoadedNote.ChangeCategory(command.cat);
             }
+
+            _repository.Save(LoadedNote);
+
+            return LoadedNote.CurrentVersion;
         }
     }
 }

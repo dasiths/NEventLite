@@ -75,6 +75,15 @@ namespace NEventLite.Domain
         }
 
         /// <summary>
+        /// Checks if there are any uncommitted changes
+        /// </summary>
+        /// <returns></returns>
+        public bool HasUncommittedChanges()
+        {
+            return _uncommittedChanges.Any();
+        }
+
+        /// <summary>
         /// Get the events that have been applied but not commited to storage
         /// </summary>
         /// <returns>The uncommited events</returns>
@@ -143,7 +152,7 @@ namespace NEventLite.Domain
             }
 
         }
-
+        
         /// <summary>
         /// Determine if the current event can be applied
         /// </summary>

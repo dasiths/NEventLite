@@ -58,7 +58,10 @@ namespace NEventLite.Repository
         }
         public virtual void Save(T aggregate)
         {
-            CommitChanges(aggregate);
+            if (aggregate.HasUncommittedChanges())
+            {
+                CommitChanges(aggregate);
+            }
         }
         private IEnumerable<IEvent> CommitChanges(AggregateRoot aggregate)
         {
