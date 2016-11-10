@@ -36,7 +36,7 @@ void CreateNote() {
         Guid itemId = Guid.NewGuid();
         
         createCommandHandler.Handle(
-                    new CreateNoteCommand(Guid.NewGuid(), itemId, -1, 
+                new CreateNoteCommand(Guid.NewGuid(), itemId, -1, 
                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));        
     }
 }
@@ -45,17 +45,17 @@ void CreateNote() {
 Command Handler (NoteCommandHandler.cs in example)
 
 ```C#
-        public int Handle(CreateNoteCommand command)
+        public ICommandResult Handle(CreateNoteCommand command)
         {
             command.AggregateId.EnsureDoesntExist(_repository);
 
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
             _repository.Save(newNote);
 
-            return newNote.CurrentVersion;
+            return new CommandResult(newNote.CurrentVersion, true, "");
         }
 
-        public int Handle(EditNoteCommand command)
+        public ICommandResult Handle(EditNoteCommand command)
         {
             var LoadedNote = command.AggregateId.EnsureExists(_repository);
             LoadedNote.EnsureVersionMatch(command.TargetVersion);
@@ -72,7 +72,7 @@ Command Handler (NoteCommandHandler.cs in example)
 
             _repository.Save(LoadedNote);
 
-            return LoadedNote.CurrentVersion;
+            return new CommandResult(LoadedNote.CurrentVersion, true, "");
         }
 ```
 Aggregate (Note.cs in example)
