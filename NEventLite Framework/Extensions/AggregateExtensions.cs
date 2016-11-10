@@ -11,7 +11,7 @@ namespace NEventLite.Extensions
 {
     public static class AggregateExtensions
     {
-        public static void EnsureDoesntExist<T>(this Guid id, IRepository<T> repository) where T : AggregateRoot, new()
+        public static void EnsureDoesntExist<T>(this IRepository<T> repository, Guid id) where T : AggregateRoot, new()
         {
             var aggregate = repository.GetById(id);
 
@@ -21,7 +21,7 @@ namespace NEventLite.Extensions
             }
         }
 
-        public static T EnsureExists<T>(this Guid id, IRepository<T> repository) where T:AggregateRoot, new()
+        public static T EnsureExists<T>(this IRepository<T> repository, Guid id) where T:AggregateRoot, new()
         {
             var aggregate = repository.GetById(id);
 

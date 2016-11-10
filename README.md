@@ -47,7 +47,7 @@ Command Handler (NoteCommandHandler.cs in example)
 ```C#
         public ICommandResult Handle(CreateNoteCommand command)
         {
-            command.AggregateId.EnsureDoesntExist(_repository);
+            _repository.EnsureDoesntExist(command.AggregateId);
 
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
             _repository.Save(newNote);
@@ -57,7 +57,7 @@ Command Handler (NoteCommandHandler.cs in example)
 
         public ICommandResult Handle(EditNoteCommand command)
         {
-            var LoadedNote = command.AggregateId.EnsureExists(_repository);
+            var LoadedNote = _repository.EnsureExists(command.AggregateId);
             LoadedNote.EnsureVersionMatch(command.TargetVersion);
 
             if (LoadedNote.Title != command.title)
