@@ -9,8 +9,8 @@ The "Note" is an AggregateRoot and implements event handlers and ISnapshottable 
 \***************************************************************************/
 
 using System;
+using NEventLite.Custom_Attributes;
 using NEventLite.Domain;
-using NEventLite.Event_Handlers;
 using NEventLite.Snapshot;
 using NEventLite_Example.Events;
 using NEventLite_Example.Snapshot;
@@ -22,9 +22,7 @@ namespace NEventLite_Example.Domain
     /// Implements IEventHandler for NoteCreatedEvent, NoteTitleChangedEvent, NoteCategoryChangedEvent.
     /// Implements ISnashottable.
     /// </summary>
-    public class Note : AggregateRoot,
-                IEventHandler<NoteCreatedEvent>, IEventHandler<NoteTitleChangedEvent>, IEventHandler<NoteCategoryChangedEvent>,
-                ISnapshottable
+    public class Note : AggregateRoot, ISnapshottable
     {
         public DateTime CreatedDate { get; private set; }
         public string Title { get; private set; }
@@ -36,7 +34,7 @@ namespace NEventLite_Example.Domain
         /// <summary>
         /// Blank constructor as required
         /// </summary>
-        public Note():base()
+        public Note()
         {
             //Important: Aggregate roots must have a blank constructor
         }
@@ -51,7 +49,7 @@ namespace NEventLite_Example.Domain
         public Note(Guid id, string title, string desc, string cat):this()
         {
             //Pattern: Create the event and call ApplyEvent(Event)
-            ApplyEvent(new NoteCreatedEvent(id, this.CurrentVersion, title, desc, cat, DateTime.Now));
+            ApplyEvent(new NoteCreatedEvent(id, CurrentVersion, title, desc, cat, DateTime.Now));
         }
 
         /// <summary>
@@ -61,7 +59,7 @@ namespace NEventLite_Example.Domain
         public void ChangeTitle(string newTitle)
         {
             //Pattern: Create the event and call ApplyEvent(Event)
-            ApplyEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
+            ApplyEvent(new NoteTitleChangedEvent(Id, CurrentVersion, newTitle));
         }
 
         /// <summary>
@@ -71,41 +69,32 @@ namespace NEventLite_Example.Domain
         public void ChangeCategory(string newCategory)
         {
             //Pattern: Create the event and call ApplyEvent(Event)
-            ApplyEvent(new NoteCategoryChangedEvent(this.Id, this.CurrentVersion, newCategory));
+            ApplyEvent(new NoteCategoryChangedEvent(Id, CurrentVersion, newCategory));
         }
 
         #endregion
 
         #region "Apply Events"
 
-        /// <summary>
-        /// Apply the NoteCreatedEvent. Apply() is of IEventHandler(of NoteCreatedEvent)
-        /// </summary>
-        /// <param name="event">Event to apply</param>
-        public void Apply(NoteCreatedEvent @event)
+        [EventHandlingMethod()]
+        public void OnNoteCreated(NoteCreatedEvent @event)
         {
-            this.CreatedDate = @event.createdTime;
-            this.Title = @event.title;
-            this.Description = @event.desc;
-            this.Category = @event.cat;
+            CreatedDate = @event.createdTime;
+            Title = @event.title;
+            Description = @event.desc;
+            Category = @event.cat;
         }
 
-        /// <summary>
-        /// Apply the NoteTitleChanged. Apply() is of IEventHandler(of NoteTitleChangedEvent)
-        /// </summary>
-        /// <param name="event">Event to apply</param>
-        public void Apply(NoteTitleChangedEvent @event)
+        [EventHandlingMethod()]
+        public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
-            this.Title = @event.title;
+            Title = @event.title;
         }
 
-        /// <summary>
-        /// Apply the NoteCategoryChangedEvent. Apply() is of IEventHandler( of NoteCategoryChangedEvent)
-        /// </summary>
-        /// <param name="event">Event to apply</param>
-        public void Apply(NoteCategoryChangedEvent @event)
+        [EventHandlingMethod()]
+        public void OnCategoryChanged(NoteCategoryChangedEvent @event)
         {
-            this.Category = @event.cat;
+            Category = @event.cat;
         }
 
         #endregion
@@ -119,12 +108,12 @@ namespace NEventLite_Example.Domain
         public NEventLite.Snapshot.Snapshot TakeSnapshot()
         {
             return new NoteSnapshot(Guid.NewGuid(),
-                                    this.Id,
-                                    this.CurrentVersion,
-                                    this.CreatedDate,
-                                    this.Title,
-                                    this.Description,
-                                    this.Category);
+                                    Id,
+                                    CurrentVersion,
+                                    CreatedDate,
+                                    Title,
+                                    Description,
+                                    Category);
         }
 
         /// <summary>
@@ -138,13 +127,13 @@ namespace NEventLite_Example.Domain
 
             NoteSnapshot item = (NoteSnapshot)snapshot;
 
-            this.Id = item.AggregateId;
-            this.CurrentVersion = item.Version;
-            this.LastCommittedVersion = item.Version;
-            this.CreatedDate = item.CreatedDate;
-            this.Title = item.Title;
-            this.Description = item.Description;
-            this.Category = item.Category;
+            Id = item.AggregateId;
+            CurrentVersion = item.Version;
+            LastCommittedVersion = item.Version;
+            CreatedDate = item.CreatedDate;
+            Title = item.Title;
+            Description = item.Description;
+            Category = item.Category;
         }
         #endregion
 

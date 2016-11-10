@@ -43,9 +43,9 @@
     <Compile Include="Command Handlers\ICommandHandler.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Custom Attributes\EventHandlingMethod.cs" />
     <Compile Include="Domain\AggregateRoot.cs" />
     <Compile Include="Event Bus\IEventBus.cs" />
-    <Compile Include="Event Handlers\IEventHandler.cs" />
     <Compile Include="Events\Event.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
@@ -66,8 +66,11 @@
     <Compile Include="Storage\IEventStorageProvider.cs" />
     <Compile Include="Storage\ISnapshotStorageProvider.cs" />
     <Compile Include="Scope\ILifeTimeScope.cs" />
+    <Compile Include="Util\ReflectionHelper.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Event Handlers\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

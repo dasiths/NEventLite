@@ -16,6 +16,7 @@ using System.Linq;
 using NEventLite.Events;
 using NEventLite.Exceptions;
 using NEventLite.Extensions;
+using NEventLite.Util;
 
 namespace NEventLite.Domain
 {
@@ -30,8 +31,8 @@ namespace NEventLite.Domain
             HasStream = 1
         }
 
-        private const string ApplyMethodNameInEventHandler = "Apply";
         private readonly List<IEvent> _uncommittedChanges;
+        private Dictionary<Type, string> _eventHandlerCache;
 
         public Guid Id { get; protected set; } //The AggregateID must be unique
         public int CurrentVersion { get; protected set; } //This will store the current version of the aggregate
@@ -54,6 +55,7 @@ namespace NEventLite.Domain
             CurrentVersion = (int)StreamState.NoStream;
             LastCommittedVersion = (int)StreamState.NoStream;
             _uncommittedChanges = new List<IEvent>();
+            SetupEventHandlers();
         }
 
         /// <summary>
@@ -156,9 +158,21 @@ namespace NEventLite.Domain
                 Id = @event.AggregateId; //This is only needed for the very first event as every other event CAN ONLY apply to matching ID
             }
             
-            @event.InvokeOnAggregate(this, ApplyMethodNameInEventHandler);
+            if (_eventHandlerCache.ContainsKey(@event.GetType()))
+            {
+                @event.InvokeOnAggregate(this, _eventHandlerCache[@event.GetType()]);
+            }
+            else
+            {
+                throw new EventHandlerApplyMethodMissingException($"No event handler specified for {@event.GetType()} on {this.GetType()}");
+            }
 
             CurrentVersion++;
+        }
+
+        private void SetupEventHandlers()
+        {
+            _eventHandlerCache = ReflectionHelper.FindEventHandlerMethodsInAggregate(this.GetType());
         }
     }
 }
