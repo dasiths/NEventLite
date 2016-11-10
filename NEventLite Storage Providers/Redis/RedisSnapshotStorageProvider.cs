@@ -8,16 +8,13 @@ namespace NEventLite_Storage_Providers.Redis
     public abstract class RedisSnapshotStorageProvider : ISnapshotStorageProvider
     {
         private IRedisClientsManager clientsManager = null;
-
-        public RedisSnapshotStorageProvider()
+        protected RedisSnapshotStorageProvider(int frequency)
         {
             clientsManager = GetClientsManager();
+            SnapshotFrequency = frequency;
         }
-
         public abstract IRedisClientsManager GetClientsManager();
-
-        public int SnapshotFrequency { get; set; }
-
+        public int SnapshotFrequency { get; }
         public NEventLite.Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {
 
@@ -42,7 +39,6 @@ namespace NEventLite_Storage_Providers.Redis
             return snapshot;
 
         }
-
         public void SaveSnapshot(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot)
         {
             using (IRedisClient redis = clientsManager.GetClient())

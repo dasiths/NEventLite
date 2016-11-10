@@ -33,10 +33,24 @@ namespace NEventLite.Domain
         private readonly List<IEvent> _uncommittedChanges;
         private Dictionary<Type, string> _eventHandlerCache;
 
-        public Guid Id { get; protected set; } //The AggregateID must be unique
-        public int CurrentVersion { get; protected set; } //This will store the current version of the aggregate
-        public int LastCommittedVersion { get; protected set; } //We use this for implement optimistic concurrency
+        /// <summary>
+        /// Aggregates unique Guid
+        /// </summary>
+        public Guid Id { get; protected set; }
+        /// <summary>
+        /// Current version of the Aggregate. Starts with -1 and parameterized constructor increments it by 1.
+        /// All events will increment this by 1 when Applied.
+        /// </summary>
+        public int CurrentVersion { get; protected set; }
+        /// <summary>
+        /// This is the CurrentVersion of the Aggregate when it was saved last. This is used to ensure optimistic concurrency. 
+        /// </summary>
+        public int LastCommittedVersion { get; protected set; }
 
+        /// <summary>
+        /// Get the current state of this Aggregate
+        /// </summary>
+        /// <returns>StreamState</returns>
         public StreamState GetStreamState()
         {
             if (CurrentVersion == -1)
@@ -49,6 +63,9 @@ namespace NEventLite.Domain
             }
         }
 
+        /// <summary>
+        /// This bootstraps the Aggregate and marks it ready to receive events
+        /// </summary>
         protected AggregateRoot()
         {
             CurrentVersion = (int)StreamState.NoStream;
@@ -169,6 +186,9 @@ namespace NEventLite.Domain
             CurrentVersion++;
         }
 
+        /// <summary>
+        /// This will wireup the event handling methods to corresponding events
+        /// </summary>
         private void SetupEventHandlers()
         {
             _eventHandlerCache = ReflectionHelper.FindEventHandlerMethodsInAggregate(this.GetType());

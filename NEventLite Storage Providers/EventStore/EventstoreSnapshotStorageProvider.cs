@@ -9,8 +9,11 @@ namespace NEventLite_Storage_Providers.EventStore
 {
     public abstract class EventstoreSnapshotStorageProvider : EventstoreStorageProviderBase, IEventSnapshotStorageProvider
     {
-        public int SnapshotFrequency { get; set; }
-
+        public int SnapshotFrequency { get; }
+        protected EventstoreSnapshotStorageProvider(int frequency)
+        {
+            SnapshotFrequency = frequency;
+        }
         public Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {
 
@@ -30,7 +33,6 @@ namespace NEventLite_Storage_Providers.EventStore
 
             return snapshot;
         }
-
         public void SaveSnapshot(Type aggregateType, Snapshot snapshot)
         {
             var connection = GetEventStoreConnection();
@@ -45,7 +47,6 @@ namespace NEventLite_Storage_Providers.EventStore
             connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregateType, snapshot.AggregateId)}",
                                                 ExpectedVersion.Any, snapshotyEvent).Wait();
         }
-        
         public Snapshot GetSnapshot(Type aggregateType, Guid aggregateId, int version)
         {
             Snapshot snapshot = null;
@@ -69,7 +70,6 @@ namespace NEventLite_Storage_Providers.EventStore
 
             return snapshot;
         }
-
         protected abstract IEventStoreConnection GetEventStoreConnection();
 
     }

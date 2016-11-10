@@ -7,6 +7,7 @@ using NEventLite.Events;
 using NEventLite.Event_Bus;
 using NEventLite.Exceptions;
 using NEventLite.Extensions;
+using NEventLite.Logger;
 using NEventLite.Snapshot;
 using NEventLite.Storage;
 
@@ -16,16 +17,13 @@ namespace NEventLite.Repository
     {
         public IEventStorageProvider EventStorageProvider { get; }
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
-
         public IEventBus EventBus { get; }
-
         public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider, IEventBus eventBus)
         {
             EventStorageProvider = eventStorageProvider;
             SnapshotStorageProvider = snapshotStorageProvider;
             EventBus = eventBus;
         }
-
         public virtual T GetById(Guid id)
         {
             T item = null;
@@ -58,12 +56,10 @@ namespace NEventLite.Repository
 
             return item;
         }
-
         public virtual void Save(T aggregate)
         {
             CommitChanges(aggregate);
         }
-
         private IEnumerable<IEvent> CommitChanges(AggregateRoot aggregate)
         {
             var expectedVersion = aggregate.LastCommittedVersion;
@@ -108,7 +104,6 @@ namespace NEventLite.Repository
 
             return changesToCommit;
         }
-
         private void PublishToEventBus(List<IEvent> changesToCommit)
         {
             EventBus.Publish(changesToCommit);

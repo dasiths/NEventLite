@@ -26,8 +26,6 @@ namespace NEventLite_Example
 
                 using (new MyLifeTimeScope())
                 {
-                    //Set snapshot frequency
-                    container.Resolve<ISnapshotStorageProvider>().SnapshotFrequency = 5;
 
                     DoMockRun(container);
                 }

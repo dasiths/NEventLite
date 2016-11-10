@@ -44,10 +44,10 @@ namespace NEventLite.Extensions
         }
 
         private static IEnumerable<MethodInfo> GetMethodsBySig(this Type type,
-                                                                Type returnType,
-                                                                Type customAttributeType,
-                                                                bool matchParameterInheritence,
-                                                                params Type[] parameterTypes)
+                                                               Type returnType,
+                                                               Type customAttributeType,
+                                                               bool matchParameterInheritence,
+                                                               params Type[] parameterTypes)
         {
             return type.GetMethods().Where((m) =>
             {

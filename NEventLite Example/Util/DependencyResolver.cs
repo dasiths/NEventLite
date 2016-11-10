@@ -29,7 +29,7 @@ namespace NEventLite_Example.Util
         {
             // Create your builder.
             var builder = new ContainerBuilder();
-
+            
             //-------- Event Stores ------------
 
             //Event store connection settings are in EventstoreEventStorageProvider class
@@ -41,14 +41,16 @@ namespace NEventLite_Example.Util
 
             //-------- Snapshot Stores ----------
 
+            var snapshotFrequency = 10;
+
             //Event store connection settings are in EventstoreConnection class
             //If you don't have eventstore installed comment out the line below
-            //builder.RegisterType<MyEventstoreSnapshotStorageProvider>().As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
+            //builder.Register(o => new MyEventstoreSnapshotStorageProvider(snapshotFrequency)).As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
 
             //Redis connection settings are in RedisConnection class
-            //builder.RegisterType<MyRedisSnapshotStorageProvider>().As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
+            //builder.Register(o => new MyRedisSnapshotStorageProvider(snapshotFrequency)).As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
 
-            builder.RegisterType<InMemorySnapshotStorageProvider>().As<ISnapshotStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
+            builder.Register(o => new InMemorySnapshotStorageProvider(snapshotFrequency)).As<ISnapshotStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
             //----------------------------------
 
             //Event Bus

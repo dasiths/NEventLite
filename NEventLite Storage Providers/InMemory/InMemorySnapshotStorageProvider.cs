@@ -8,8 +8,11 @@ namespace NEventLite_Storage_Providers.InMemory
 
         private readonly Dictionary<Guid,NEventLite.Snapshot.Snapshot> _items = new Dictionary<Guid,NEventLite.Snapshot.Snapshot>();
 
-        public int SnapshotFrequency { get; set; }
-
+        public int SnapshotFrequency { get; }
+        public InMemorySnapshotStorageProvider(int frequency)
+        {
+            SnapshotFrequency = frequency;
+        }
         public NEventLite.Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
         {
             if (_items.ContainsKey(aggregateId))
@@ -21,7 +24,6 @@ namespace NEventLite_Storage_Providers.InMemory
                 return null;
             }
         }
-
         public void SaveSnapshot(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot) 
         {
             if (_items.ContainsKey(snapshot.AggregateId))

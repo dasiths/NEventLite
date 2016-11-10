@@ -121,6 +121,7 @@ namespace NEventLite_Example.Domain
             Description = item.Description;
             Category = item.Category;
         }
+        
         #endregion
 
     }
