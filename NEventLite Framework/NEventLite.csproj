@@ -55,7 +55,7 @@
     <Compile Include="Exceptions\AggregateStateMismatchException.cs" />
     <Compile Include="Exceptions\ConcurrencyException.cs" />
     <Compile Include="Exceptions\EventHandlerApplyMethodMissingException.cs" />
-    <Compile Include="Extensions\AggregateExtensions.cs" />
+    <Compile Include="Extensions\EnsureExtensions.cs" />
     <Compile Include="Extensions\EventExtension.cs" />
     <Compile Include="Extensions\ReflectionHelper.cs" />
     <Compile Include="Logger\ILogger.cs" />

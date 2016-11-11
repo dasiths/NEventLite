@@ -9,7 +9,7 @@ using NEventLite.Repository;
 
 namespace NEventLite.Extensions
 {
-    public static class AggregateExtensions
+    public static class EnsureExtensions
     {
         public static void EnsureDoesntExist<T>(this IRepository<T> repository, Guid id) where T : AggregateRoot, new()
         {
@@ -21,7 +21,7 @@ namespace NEventLite.Extensions
             }
         }
 
-        public static T EnsureExists<T>(this IRepository<T> repository, Guid id) where T:AggregateRoot, new()
+        public static T EnsureExists<T>(this IRepository<T> repository, Guid id) where T : AggregateRoot, new()
         {
             var aggregate = repository.GetById(id);
 
@@ -33,11 +33,17 @@ namespace NEventLite.Extensions
             return aggregate;
         }
 
-        public static void EnsureVersionMatch(this AggregateRoot aggregate, int version)
+        public static T EnsureExists<T>(this IRepository<T> repository, Guid id, int version) where T:AggregateRoot, new()
         {
-            if (aggregate.CurrentVersion != version)
+            var aggregate = repository.EnsureExists(id);
+
+            if (aggregate.CurrentVersion == version)
             {
-                throw new ConcurrencyException($"The version of the Note ({aggregate.CurrentVersion})" +$" and Command ({version}) didn't match.");
+                return aggregate;
+            }
+            else
+            {
+                throw new ConcurrencyException($"The version of the Note ({aggregate.CurrentVersion})" + $" and Command ({version}) didn't match.");
             }
         }
     }

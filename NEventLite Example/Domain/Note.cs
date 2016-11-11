@@ -51,13 +51,18 @@ namespace NEventLite_Example.Domain
         public void ChangeTitle(string newTitle)
         {
             //Pattern: Create the event and call ApplyEvent(Event)
-            ApplyEvent(new NoteTitleChangedEvent(Id, CurrentVersion, newTitle));
+            if (this.Title != newTitle)
+            {
+                ApplyEvent(new NoteTitleChangedEvent(Id, CurrentVersion, newTitle));
+            }
         }
 
         public void ChangeCategory(string newCategory)
         {
-            //Pattern: Create the event and call ApplyEvent(Event)
-            ApplyEvent(new NoteCategoryChangedEvent(Id, CurrentVersion, newCategory));
+            if (this.Category != newCategory)
+            {
+                ApplyEvent(new NoteCategoryChangedEvent(Id, CurrentVersion, newCategory));
+            }
         }
 
         #endregion
@@ -68,7 +73,7 @@ namespace NEventLite_Example.Domain
         //We mark the EventHandler method with the [OnApplyEvent()] marker
         //This way the framework knows which method to invoke when a event happens
 
-        [OnApplyEvent()]
+        [OnApplyEvent]
         public void OnNoteCreated(NoteCreatedEvent @event)
         {
             CreatedDate = @event.createdTime;
@@ -77,13 +82,13 @@ namespace NEventLite_Example.Domain
             Category = @event.cat;
         }
 
-        [OnApplyEvent()]
+        [OnApplyEvent]
         public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
             Title = @event.title;
         }
 
-        [OnApplyEvent()]
+        [OnApplyEvent]
         public void OnCategoryChanged(NoteCategoryChangedEvent @event)
         {
             Category = @event.cat;

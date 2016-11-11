@@ -35,22 +35,14 @@ namespace NEventLite_Example.Command_Handlers
 
         public ICommandResult Handle(EditNoteCommand command)
         {
-            var LoadedNote = _repository.EnsureExists(command.AggregateId);
-            LoadedNote.EnsureVersionMatch(command.TargetVersion);
+            var loadedNote = _repository.EnsureExists(command.AggregateId, command.TargetVersion);
 
-            if (LoadedNote.Title != command.title)
-            {
-                LoadedNote.ChangeTitle(command.title);
-            }
+            loadedNote.ChangeTitle(command.title);
+            loadedNote.ChangeCategory(command.cat);
 
-            if (LoadedNote.Category != command.cat)
-            {
-                LoadedNote.ChangeCategory(command.cat);
-            }
+            _repository.Save(loadedNote);
 
-            _repository.Save(LoadedNote);
-
-            return new CommandResult(LoadedNote.CurrentVersion, true, "");
+            return new CommandResult(loadedNote.CurrentVersion, true, "");
         }
     }
 }
