@@ -9,6 +9,8 @@ namespace NEventLite.Unit_Of_Work
 {
     public interface IUnitOfWork<T> where T:AggregateRoot, new()
     {
-
+        T Get(Guid id, int? expectedVersion = null);
+        void Add(T aggregate);
+        void Commit();
     }
 }
