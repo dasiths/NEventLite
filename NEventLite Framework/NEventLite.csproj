@@ -70,6 +70,8 @@
     <Compile Include="Storage\IEventStorageProvider.cs" />
     <Compile Include="Storage\ISnapshotStorageProvider.cs" />
     <Compile Include="Scope\ILifeTimeScope.cs" />
+    <Compile Include="Unit Of Work\IUnitOfWork.cs" />
+    <Compile Include="Unit Of Work\UnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Event Handlers\" />
