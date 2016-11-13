@@ -38,7 +38,7 @@ namespace NEventLite_Example.Command_Handlers
         public ICommandResult Handle(EditNoteCommand command)
         {
             var work = new UnitOfWork<Note>(_repository);
-            var loadedNote = work.Get(command.AggregateId,command.TargetVersion);
+            var loadedNote = work.Get(command.AggregateId, command.TargetVersion);
 
             loadedNote.ChangeTitle(command.title);
             loadedNote.ChangeCategory(command.cat);
