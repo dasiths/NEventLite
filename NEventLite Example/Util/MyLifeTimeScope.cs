@@ -8,7 +8,7 @@ using NEventLite.Scope;
 
 namespace NEventLite_Example.Util
 {
-    public class MyLifeTimeScope:ILifeTimeScope
+    public class MyLifeTimeScope:LifeTimeScopeBase
     {
         protected override void OnStart()
         {
