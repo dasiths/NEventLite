@@ -9,7 +9,7 @@ using NEventLite.Repository;
 
 namespace NEventLite.Unit_Of_Work
 {
-    class UnitOfWork<T>:IUnitOfWork<T> where T : AggregateRoot, new()
+    public class UnitOfWork<T>:IUnitOfWork<T> where T : AggregateRoot, new()
     {
         private readonly IRepository<T> _repository;
         private readonly Dictionary<Guid, T> _trackedAggregates;
