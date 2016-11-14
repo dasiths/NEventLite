@@ -8,22 +8,21 @@ using NEventLite.Events;
 
 namespace NEventLite.Repository
 {
-    public abstract class RepositoryDecorator<TAggregate>:IRepository<TAggregate> 
-        where TAggregate:AggregateRoot, new() 
+    public abstract class RepositoryDecorator:IRepository
     {
-        protected readonly IRepository<TAggregate> Repository;
+        protected readonly IRepository Repository;
 
-        protected RepositoryDecorator(IRepository<TAggregate>  repository)
+        protected RepositoryDecorator(IRepository  repository)
         {
             Repository = repository;
         }
 
-        public virtual TAggregate GetById(Guid Id)
+        public virtual TAggregate GetById<TAggregate>(Guid Id) where TAggregate:AggregateRoot
         {
-            return Repository.GetById(Id);
+            return Repository.GetById<TAggregate>(Id);
         }
 
-        public virtual void Save(TAggregate aggregate)
+        public virtual void Save<TAggregate>(TAggregate aggregate) where TAggregate : AggregateRoot
         {
             Repository.Save(aggregate);
         }

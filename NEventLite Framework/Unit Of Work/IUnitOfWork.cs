@@ -7,10 +7,10 @@ using NEventLite.Domain;
 
 namespace NEventLite.Unit_Of_Work
 {
-    public interface IUnitOfWork<T> where T:AggregateRoot, new()
+    public interface IUnitOfWork
     {
-        T Get(Guid id, int? expectedVersion = null);
-        void Add(T aggregate);
+        T Get<T>(Guid id, int? expectedVersion = null) where T:AggregateRoot;
+        void Add<T>(T aggregate) where T : AggregateRoot;
         void Commit();
     }
 }

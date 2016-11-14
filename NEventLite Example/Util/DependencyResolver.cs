@@ -60,11 +60,11 @@ namespace NEventLite_Example.Util
             builder.RegisterType<ConsoleLogger>().As<ILogger>().SingleInstance();
 
             //This will resolve and bind storage types to a concrete repository of <T> as needed
-            builder.RegisterGeneric(typeof(Repository<>)).Named("Repository", typeof(IRepository<>)).InstancePerDependency();
+            builder.RegisterType<NEventLite.Repository.Repository>().Named("Repository", typeof(IRepository)).InstancePerDependency();
 
             //This will bind the decorator
             //This way you can link multiple decorators for cross cutting concerns
-            builder.RegisterGenericDecorator(typeof(MyRepositoryDecorator<>), typeof(IRepository<>), fromKey: "Repository").InstancePerDependency();
+            builder.RegisterDecorator<IRepository>((c, inner) => new MyRepositoryDecorator(inner), fromKey: "Repository");
 
             //Register NoteRepository
             builder.RegisterType<NoteRepository>().InstancePerLifetimeScope();

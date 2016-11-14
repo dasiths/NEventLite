@@ -53,7 +53,7 @@ namespace NEventLite_Example
 
             if ((string.IsNullOrEmpty(strGuid) == false) && (Guid.TryParse(strGuid, out SavedItemID)))
             {
-                Note tmpNote = rep.GetById(SavedItemID);
+                Note tmpNote = rep.GetById<Note>(SavedItemID);
 
                 if (tmpNote == null)
                 {
@@ -70,7 +70,7 @@ namespace NEventLite_Example
                     new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
 
-                Note tmpNote = rep.GetById(newItemId);
+                Note tmpNote = rep.GetById<Note>(newItemId);
 
                 Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
@@ -82,7 +82,7 @@ namespace NEventLite_Example
             Console.WriteLine("Doing some changes now...");
 
             //Reload and do some changes
-            int LastVersion = rep.GetById(SavedItemID).CurrentVersion;
+            int LastVersion = rep.GetById<Note>(SavedItemID).CurrentVersion;
 
             //Do 12 events cycle to check snapshots too.
             for (int i = 1; i <= 12; i++)
@@ -98,7 +98,7 @@ namespace NEventLite_Example
             Console.WriteLine("Finished applying changes.");
 
             //Load to display
-            var noteToLoad = rep.GetById(SavedItemID);
+            var noteToLoad = rep.GetById<Note>(SavedItemID);
 
             Console.WriteLine("");
             Console.WriteLine("After Committing Events:");

@@ -9,26 +9,24 @@ using NEventLite.Repository;
 
 namespace NEventLite.Unit_Of_Work
 {
-    public class UnitOfWork<T>:IUnitOfWork<T> where T : AggregateRoot, new()
+    public class UnitOfWork:IUnitOfWork
     {
-        private readonly IRepository<T> _repository;
-        private readonly Dictionary<Guid, T> _trackedAggregates;
+        private readonly IRepository _repository;
+        private readonly Dictionary<Guid, AggregateRoot> _trackedAggregates;
 
-        public UnitOfWork(IRepository<T> repository)
+        public UnitOfWork(IRepository repository)
         {
             _repository = repository;
-            _trackedAggregates = new Dictionary<Guid, T>();
+            _trackedAggregates = new Dictionary<Guid, AggregateRoot>();
         }
-
-        public void Add(T aggregate)
+        public void Add<T>(T aggregate) where T : AggregateRoot
         {
             if (!IsTracked(aggregate.Id))
                 _trackedAggregates.Add(aggregate.Id,aggregate);
             else if (_trackedAggregates[aggregate.Id] != aggregate)
                 throw new ConcurrencyException($"Aggregate can't be added because it's already tracked.");
         }
-
-        public T Get(Guid id, int? expectedVersion = null)
+        public T Get<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot
         {
 
             T aggregate = null;
@@ -36,11 +34,11 @@ namespace NEventLite.Unit_Of_Work
 
             if (IsTracked(id))
             {
-                aggregate = _trackedAggregates[id];
+                aggregate = (T)_trackedAggregates[id];
             }
             else
             {
-                aggregate = _repository.GetById(id);
+                aggregate = _repository.GetById<T>(id);
                 mustbeAdded = true;
             }
 
@@ -53,12 +51,10 @@ namespace NEventLite.Unit_Of_Work
 
             return aggregate;
         }
-
         private bool IsTracked(Guid id)
         {
             return _trackedAggregates.ContainsKey(id);
         }
-
         public void Commit()
         {
             foreach (var aggregate in _trackedAggregates.Values)

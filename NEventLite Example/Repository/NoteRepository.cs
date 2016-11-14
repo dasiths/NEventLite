@@ -10,18 +10,18 @@ using NEventLite_Example.Domain;
 
 namespace NEventLite_Example.Repository
 {
-    public class NoteRepository:RepositoryDecorator<Note>
+    public class NoteRepository:RepositoryDecorator
     {
-        public NoteRepository(IRepository<Note> repository) : base(repository)
+        public NoteRepository(IRepository repository) : base(repository)
         {
             
         }
 
-        public override void Save(Note aggregate)
+        public override void Save<T>(T aggregate)
         {
-            LogManager.Log("Saving Note...", LogSeverity.Debug);
+            LogManager.Log($"Saving {aggregate.GetType().Name}...", LogSeverity.Debug);
             base.Save(aggregate);
-            LogManager.Log("Note Saved...", LogSeverity.Debug);
+            LogManager.Log($"{aggregate.GetType().Name} Saved...", LogSeverity.Debug);
         }
     }
 }

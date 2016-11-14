@@ -13,7 +13,7 @@ using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class Repository<T> : IRepository<T> where T : AggregateRoot, new()
+    public class Repository: IRepository
     {
         public IEventStorageProvider EventStorageProvider { get; }
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
@@ -24,9 +24,9 @@ namespace NEventLite.Repository
             SnapshotStorageProvider = snapshotStorageProvider;
             EventBus = eventBus;
         }
-        public virtual T GetById(Guid id)
+        public virtual T GetById<T>(Guid id) where T:AggregateRoot
         {
-            T item = null;
+            T item = default(T);
 
             var isSnapshottable = typeof(ISnapshottable).IsAssignableFrom(typeof(T));
             Snapshot.Snapshot snapshot = null;
@@ -38,7 +38,7 @@ namespace NEventLite.Repository
 
             if (snapshot != null)
             {
-                item = new T();
+                item = CreateInstance<T>();
                 ((ISnapshottable)item).ApplySnapshot(snapshot);
                 var events = EventStorageProvider.GetEvents(typeof(T), id, snapshot.Version + 1, int.MaxValue);
                 item.LoadsFromHistory(events);
@@ -49,14 +49,14 @@ namespace NEventLite.Repository
 
                 if (events.Any())
                 {
-                    item = new T();
+                    item = CreateInstance<T>();
                     item.LoadsFromHistory(events);
                 }
             }
 
             return item;
         }
-        public virtual void Save(T aggregate)
+        public virtual void Save<T>(T aggregate) where T:AggregateRoot
         {
             if (aggregate.HasUncommittedChanges())
             {
@@ -106,6 +106,10 @@ namespace NEventLite.Repository
             aggregate.MarkChangesAsCommitted();
 
             return changesToCommit;
+        }
+        private static T CreateInstance<T>() where T : AggregateRoot
+        {
+            return (T)Activator.CreateInstance(typeof(T));
         }
         private void PublishToEventBus(List<IEvent> changesToCommit)
         {
