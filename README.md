@@ -47,7 +47,7 @@ Command Handler (NoteCommandHandler.cs in example)
 ```C#
         public ICommandResult Handle(CreateNoteCommand command)
         {
-            var work = new UnitOfWork<Note>(_repository);
+            var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
 
             work.Add(newNote);
@@ -58,8 +58,8 @@ Command Handler (NoteCommandHandler.cs in example)
 
         public ICommandResult Handle(EditNoteCommand command)
         {
-            var work = new UnitOfWork<Note>(_repository);
-            var loadedNote = work.Get(command.AggregateId, command.TargetVersion);
+            var work = new UnitOfWork(_repository);
+            var loadedNote = work.Get<Note>(command.AggregateId, command.TargetVersion);
 
             loadedNote.ChangeTitle(command.title);
             loadedNote.ChangeCategory(command.cat);
