@@ -80,7 +80,10 @@ namespace NEventLite.Domain
         /// <returns></returns>
         public bool HasUncommittedChanges()
         {
-            return _uncommittedChanges.Any();
+            lock (_uncommittedChanges)
+            {
+                return _uncommittedChanges.Any();
+            }
         }
 
         /// <summary>
@@ -89,7 +92,10 @@ namespace NEventLite.Domain
         /// <returns>The uncommited events</returns>
         public IEnumerable<IEvent> GetUncommittedChanges()
         {
-            return _uncommittedChanges.ToList();
+            lock (_uncommittedChanges)
+            {
+                return _uncommittedChanges.ToList();
+            }
         }
 
         /// <summary>
@@ -97,8 +103,11 @@ namespace NEventLite.Domain
         /// </summary>
         public void MarkChangesAsCommitted()
         {
-            _uncommittedChanges.Clear();
-            LastCommittedVersion = CurrentVersion;
+            lock (_uncommittedChanges)
+            {
+                _uncommittedChanges.Clear();
+                LastCommittedVersion = CurrentVersion;
+            }
         }
 
         /// <summary>
@@ -141,7 +150,10 @@ namespace NEventLite.Domain
 
                 if (isNew)
                 {
-                    _uncommittedChanges.Add(@event); //only add to the events collection if it's a new event
+                    lock (_uncommittedChanges)
+                    {
+                        _uncommittedChanges.Add(@event); //only add to the events collection if it's a new event
+                    }
                 }
             }
             else
@@ -152,7 +164,7 @@ namespace NEventLite.Domain
             }
 
         }
-        
+
         /// <summary>
         /// Determine if the current event can be applied
         /// </summary>
@@ -161,7 +173,7 @@ namespace NEventLite.Domain
         private bool CanApply(IEvent @event)
         {
             //Check to see if event is applying against the right Aggregate and matches the target version
-            if (((GetStreamState()== StreamState.NoStream) || (Id == @event.AggregateId)) && (CurrentVersion == @event.TargetVersion))
+            if (((GetStreamState() == StreamState.NoStream) || (Id == @event.AggregateId)) && (CurrentVersion == @event.TargetVersion))
             {
                 return true;
             }
@@ -182,7 +194,7 @@ namespace NEventLite.Domain
             {
                 Id = @event.AggregateId; //This is only needed for the very first event as every other event CAN ONLY apply to matching ID
             }
-            
+
             if (_eventHandlerCache.ContainsKey(@event.GetType()))
             {
                 @event.InvokeOnAggregate(this, _eventHandlerCache[@event.GetType()]);
