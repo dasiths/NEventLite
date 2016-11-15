@@ -87,7 +87,14 @@ namespace NEventLite.Repository
 
             var changesToCommit = aggregate.GetUncommittedChanges().ToList();
 
-            EventStorageProvider.CommitChanges(aggregate.GetType(), aggregate);
+            //perform pre commit actions
+            foreach (var e in changesToCommit)
+            {
+                DoPreCommitTasks(e);
+            }
+
+            //Commit events to storage provider
+            EventStorageProvider.CommitChanges(aggregate);
 
             //If the Aggregate implements snaphottable
             var snapshottable = aggregate as ISnapshottable;
@@ -111,6 +118,11 @@ namespace NEventLite.Repository
             PublishToEventBus(changesToCommit.ToList());
 
             aggregate.MarkChangesAsCommitted();
+        }
+
+        private static void DoPreCommitTasks(IEvent e)
+        {
+            e.EventCommittedTimestamp = DateTime.UtcNow;
         }
 
         private static T CreateInstance<T>() where T : AggregateRoot
