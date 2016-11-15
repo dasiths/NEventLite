@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using NEventLite.Domain;
 using NEventLite.Events;
 using NEventLite.Event_Bus;
@@ -100,7 +101,7 @@ namespace NEventLite.Repository
                 }
             }
 
-            //Publish to event bus
+            //Publish to event publisher asynchronously
             PublishToEventBus(changesToCommit);
 
             aggregate.MarkChangesAsCommitted();
@@ -111,9 +112,9 @@ namespace NEventLite.Repository
         {
             return (T)Activator.CreateInstance(typeof(T));
         }
-        private void PublishToEventBus(List<IEvent> changesToCommit)
+        private Task PublishToEventBus(List<IEvent> changesToCommit)
         {
-            EventPublisher.Publish(changesToCommit);
+            return EventPublisher.Publish(changesToCommit);
         }
     }
 }

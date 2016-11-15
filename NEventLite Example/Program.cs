@@ -17,7 +17,6 @@ namespace NEventLite_Example
 
         static void Main(string[] args)
         {
-
             //Load dependency resolver
             using (var container = new DependencyResolver())
             {
@@ -30,11 +29,8 @@ namespace NEventLite_Example
                 }
             }
 
-            Console.WriteLine();
-            Console.WriteLine("Press enter key to exit.");
-
-            Console.ReadLine();
-
+            Console.WriteLine("\nPress enter key to exit. \n");
+            Console.Read();
         }
 
         private static void DoMockRun(DependencyResolver container)
@@ -47,7 +43,7 @@ namespace NEventLite_Example
             Guid SavedItemID = Guid.Empty;
 
             //Try to load a given guid.
-            Console.WriteLine("Enter a GUID to try to load or leave blank and press enter:");
+            LogManager.Log("Enter a GUID to try to load or leave blank and press enter:", LogSeverity.Warning);
             string strGuid = Console.ReadLine();
 
 
@@ -57,7 +53,7 @@ namespace NEventLite_Example
 
                 if (tmpNote == null)
                 {
-                    Console.WriteLine($"No Note found with provided Guid of {SavedItemID}. Press enter key to exit.");
+                    LogManager.Log($"No Note found with Guid: {SavedItemID}.", LogSeverity.Critical);
                     return;
                 }
             }
@@ -72,14 +68,13 @@ namespace NEventLite_Example
 
                 Note tmpNote = rep.GetById<Note>(newItemId);
 
-                Console.WriteLine("After Creation: This is version 0 of the AggregateRoot.");
-                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote));
-                Console.WriteLine();
+                LogManager.Log("After Creation: This is version 0 of the AggregateRoot.", LogSeverity.Debug);
+                LogManager.Log(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote) + "\n", LogSeverity.Debug);
 
                 SavedItemID = newItemId;
             }
 
-            Console.WriteLine("Doing some changes now...");
+            LogManager.Log("Doing some changes now... \n", LogSeverity.Debug);
 
             //Reload and do some changes
             int LastVersion = rep.GetById<Note>(SavedItemID).CurrentVersion;
@@ -87,7 +82,7 @@ namespace NEventLite_Example
             //Do 12 events cycle to check snapshots too.
             for (int i = 1; i <= 12; i++)
             {
-                Console.WriteLine($"Applying Changes For Cycle {i}");
+                LogManager.Log($"Applying Changes For Cycle {i}", LogSeverity.Debug);
 
                 LastVersion = editCommandHandler.Handle(
                                 new EditNoteCommand(Guid.NewGuid(), SavedItemID, LastVersion,
@@ -95,14 +90,13 @@ namespace NEventLite_Example
                                     $"Event Sourcing in .NET Example. Event ({LastVersion + 2})")).AggregateVersion;
             }
 
-            Console.WriteLine("Finished applying changes.");
+            LogManager.Log("\nFinished applying changes. \n", LogSeverity.Debug);
 
             //Load to display
             var noteToLoad = rep.GetById<Note>(SavedItemID);
 
-            Console.WriteLine("");
-            Console.WriteLine("After Committing Events:");
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(noteToLoad));
+            LogManager.Log("\nAfter Committing Events:", LogSeverity.Debug);
+            LogManager.Log(Newtonsoft.Json.JsonConvert.SerializeObject(noteToLoad) + "\n", LogSeverity.Debug);
 
         }
     }

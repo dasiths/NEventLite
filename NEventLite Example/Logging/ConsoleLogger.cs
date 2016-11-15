@@ -7,38 +7,44 @@ using NEventLite.Logger;
 
 namespace NEventLite_Example.Logging
 {
-    public class ConsoleLogger:ILogger
+    public class ConsoleLogger : ILogger
     {
+
+        private object _lockObject = new object();
+
         public void Log(string message, LogSeverity severity)
         {
-            switch (severity)
+            lock (_lockObject)
             {
-                case LogSeverity.Debug:
+                switch (severity)
                 {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    break;
+                    case LogSeverity.Debug:
+                        {
+                            Console.ForegroundColor = ConsoleColor.White;
+                            break;
+                        }
+                    case LogSeverity.Information:
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            break;
+                        }
+                    case LogSeverity.Warning:
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            break;
+                        }
+
+                    case LogSeverity.Critical:
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            break;
+                        }
                 }
-                case LogSeverity.Information:
-                    {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        break;
-                    }
-                case LogSeverity.Warning:
-                    {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        break;
-                    }
 
-                case LogSeverity.Critical:
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        break;
-                    }
+                Console.WriteLine("   > " + message);
+
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
-
-            Console.WriteLine("   > " + message);
-
-            Console.ForegroundColor = ConsoleColor.Gray;
         }
     }
 }

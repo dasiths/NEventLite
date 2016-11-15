@@ -12,14 +12,14 @@ namespace NEventLite_Example.Util
     {
         protected override void OnStart()
         {
-            LogManager.Log("Scope Started...", LogSeverity.Information);
+            LogManager.Log("Scope Started...", LogSeverity.Warning);
         }
 
         protected override void OnEnd()
         {
             EventstoreConnection.CloseConnection();
             RedisConnection.CloseClients();
-            LogManager.Log("Scope Ended...", LogSeverity.Information);
+            LogManager.Log("Scope Ended...", LogSeverity.Warning);
         }
     }
 }
