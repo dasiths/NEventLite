@@ -17,14 +17,18 @@ namespace NEventLite.Repository
     public class Repository: IRepository
     {
         public IEventStorageProvider EventStorageProvider { get; }
+
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
+
         public IEventPublisher EventPublisher { get; }
+
         public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider, IEventPublisher eventPublisher)
         {
             EventStorageProvider = eventStorageProvider;
             SnapshotStorageProvider = snapshotStorageProvider;
             EventPublisher = eventPublisher;
         }
+
         public virtual T GetById<T>(Guid id) where T:AggregateRoot
         {
             T item = default(T);
@@ -57,6 +61,7 @@ namespace NEventLite.Repository
 
             return item;
         }
+
         public virtual void Save<T>(T aggregate) where T:AggregateRoot
         {
             if (aggregate.HasUncommittedChanges())
@@ -64,7 +69,8 @@ namespace NEventLite.Repository
                 CommitChanges(aggregate);
             }
         }
-        private IEnumerable<IEvent> CommitChanges(AggregateRoot aggregate)
+
+        private void CommitChanges(AggregateRoot aggregate)
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 
@@ -102,19 +108,19 @@ namespace NEventLite.Repository
             }
 
             //Publish to event publisher asynchronously
-            PublishToEventBus(changesToCommit);
+            PublishToEventBus(changesToCommit.ToList());
 
             aggregate.MarkChangesAsCommitted();
-
-            return changesToCommit;
         }
+
         private static T CreateInstance<T>() where T : AggregateRoot
         {
             return (T)Activator.CreateInstance(typeof(T));
         }
-        private Task PublishToEventBus(List<IEvent> changesToCommit)
+
+        private void PublishToEventBus(List<IEvent> changesToCommit)
         {
-            return EventPublisher.Publish(changesToCommit);
+            EventPublisher.Publish(changesToCommit);
         }
     }
 }

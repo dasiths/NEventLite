@@ -16,9 +16,9 @@ namespace NEventLite_Example.Event_Bus
             LogManager.Log("EventPublisher Started...", LogSeverity.Information);
         }
 
-        public Task Publish(IEnumerable<IEvent> events)
+        public async Task Publish(IEnumerable<IEvent> events)
         {
-            return Task.Run(() =>
+            await Task.Run(() =>
             {
                 foreach (var e in events)
                 {
