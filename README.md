@@ -110,7 +110,7 @@ Implement IEventStorageProvider and ISnapshotStorage provider for storage or use
     {
         IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count);
         IEvent GetLastEvent(Type aggregateType, Guid aggregateId);
-        void CommitChanges(Type aggregateType, AggregateRoot aggregate);
+        void CommitChanges(AggregateRoot aggregate);
     }
 ```
 
