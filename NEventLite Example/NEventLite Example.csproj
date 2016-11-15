@@ -76,7 +76,7 @@
     <Compile Include="Commands\CreateNoteCommand.cs" />
     <Compile Include="Commands\EditNoteCommand.cs" />
     <Compile Include="Domain\Note.cs" />
-    <Compile Include="Event Bus\InMemoryEventBus.cs" />
+    <Compile Include="Event Bus\MyEventPublisher.cs" />
     <Compile Include="Events\NoteCategoryChangedEvent.cs" />
     <Compile Include="Events\NoteTitleChangedEvent.cs" />
     <Compile Include="Events\NoteCreatedEvent.cs" />

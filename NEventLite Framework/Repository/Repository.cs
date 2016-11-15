@@ -17,12 +17,12 @@ namespace NEventLite.Repository
     {
         public IEventStorageProvider EventStorageProvider { get; }
         public ISnapshotStorageProvider SnapshotStorageProvider { get; }
-        public IEventBus EventBus { get; }
-        public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider, IEventBus eventBus)
+        public IEventPublisher EventPublisher { get; }
+        public Repository(IEventStorageProvider eventStorageProvider, ISnapshotStorageProvider snapshotStorageProvider, IEventPublisher eventPublisher)
         {
             EventStorageProvider = eventStorageProvider;
             SnapshotStorageProvider = snapshotStorageProvider;
-            EventBus = eventBus;
+            EventPublisher = eventPublisher;
         }
         public virtual T GetById<T>(Guid id) where T:AggregateRoot
         {
@@ -113,7 +113,7 @@ namespace NEventLite.Repository
         }
         private void PublishToEventBus(List<IEvent> changesToCommit)
         {
-            EventBus.Publish(changesToCommit);
+            EventPublisher.Publish(changesToCommit);
         }
     }
 }

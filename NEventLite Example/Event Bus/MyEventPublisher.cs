@@ -9,11 +9,11 @@ using NEventLite.Logger;
 
 namespace NEventLite_Example.Event_Bus
 {
-    public class InMemoryEventBus : IEventBus
+    public class MyEventPublisher : IEventPublisher
     {
-        public InMemoryEventBus()
+        public MyEventPublisher()
         {
-            LogManager.Log("EventBus Started...", LogSeverity.Information);
+            LogManager.Log("EventPublisher Started...", LogSeverity.Information);
         }
 
         public void Publish(IEnumerable<IEvent> events)

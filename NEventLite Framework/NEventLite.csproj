@@ -48,7 +48,7 @@
     <Compile Include="Commands\ICommandResult.cs" />
     <Compile Include="Custom Attributes\OnApplyEvent.cs" />
     <Compile Include="Domain\AggregateRoot.cs" />
-    <Compile Include="Event Bus\IEventBus.cs" />
+    <Compile Include="Event Bus\IEventPublisher.cs" />
     <Compile Include="Events\Event.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />

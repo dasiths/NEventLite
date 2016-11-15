@@ -54,7 +54,7 @@ namespace NEventLite_Example.Util
             //----------------------------------
 
             //Event Bus
-            builder.RegisterType<InMemoryEventBus>().As<IEventBus>().InstancePerLifetimeScope();
+            builder.RegisterType<MyEventPublisher>().As<IEventPublisher>().InstancePerLifetimeScope();
 
             //Logging
             builder.RegisterType<ConsoleLogger>().As<ILogger>().SingleInstance();
