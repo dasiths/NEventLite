@@ -125,14 +125,14 @@ namespace NEventLite.Repository
             e.EventCommittedTimestamp = DateTime.UtcNow;
         }
 
-        private static T CreateInstance<T>() where T : AggregateRoot
-        {
-            return (T)Activator.CreateInstance(typeof(T));
-        }
-
         private void PublishToEventBus(List<IEvent> changesToCommit)
         {
             EventPublisher.Publish(changesToCommit);
+        }
+
+        private static T CreateInstance<T>() where T : AggregateRoot
+        {
+            return (T)Activator.CreateInstance(typeof(T));
         }
     }
 }

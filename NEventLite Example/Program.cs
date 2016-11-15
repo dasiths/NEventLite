@@ -29,7 +29,7 @@ namespace NEventLite_Example
                 }
             }
 
-            Console.WriteLine("\nPress enter key to exit. \n");
+            Console.WriteLine("Press enter key to exit. \n");
             Console.Read();
         }
 
@@ -68,7 +68,7 @@ namespace NEventLite_Example
 
                 Note tmpNote = rep.GetById<Note>(newItemId);
 
-                LogManager.Log("After Creation: This is version 0 of the AggregateRoot.", LogSeverity.Debug);
+                LogManager.Log("After Creation: This is version 0 of the AggregateRoot.", LogSeverity.Information);
                 LogManager.Log(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote) + "\n", LogSeverity.Debug);
 
                 SavedItemID = newItemId;
@@ -90,12 +90,12 @@ namespace NEventLite_Example
                                     $"Event Sourcing in .NET Example. Event ({LastVersion + 2})")).AggregateVersion;
             }
 
-            LogManager.Log("\nFinished applying changes. \n", LogSeverity.Debug);
+            LogManager.Log("Finished applying changes. \n", LogSeverity.Debug);
 
             //Load to display
             var noteToLoad = rep.GetById<Note>(SavedItemID);
 
-            LogManager.Log("\nAfter Committing Events:", LogSeverity.Debug);
+            LogManager.Log("After Committing Events:", LogSeverity.Information);
             LogManager.Log(Newtonsoft.Json.JsonConvert.SerializeObject(noteToLoad) + "\n", LogSeverity.Debug);
 
         }
