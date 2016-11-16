@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using NEventLite.Command_Bus;
 using NEventLite.Command_Handlers;
 using NEventLite.Logger;
 using NEventLite.Repository;
@@ -25,7 +27,7 @@ namespace NEventLite_Example
 
                 using (new MyLifeTimeScope())
                 {
-                    DoMockRun(container);
+                    DoMockRun(container).Wait();
                 }
             }
 
@@ -33,12 +35,11 @@ namespace NEventLite_Example
             Console.Read();
         }
 
-        private static void DoMockRun(DependencyResolver container)
+        private static async Task DoMockRun(DependencyResolver container)
         {
             //Get ioc container to create our repository
             NoteRepository rep = container.Resolve<NoteRepository>();
-            var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>();
-            var editCommandHandler = container.Resolve<ICommandHandler<EditNoteCommand>>();
+            var commandBus = container.Resolve<ICommandBus>();
 
             Guid SavedItemID = Guid.Empty;
 
@@ -62,7 +63,7 @@ namespace NEventLite_Example
                 //Create new note
                 Guid newItemId = Guid.NewGuid();
 
-                createCommandHandler.Handle(
+                await commandBus.Execute(
                     new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
 
@@ -84,10 +85,12 @@ namespace NEventLite_Example
             {
                 LogManager.Log($"Applying Changes For Cycle {i}", LogSeverity.Debug);
 
-                LastVersion = editCommandHandler.Handle(
+                var result = await commandBus.Execute(
                                 new EditNoteCommand(Guid.NewGuid(), SavedItemID, LastVersion,
                                     $"Test Note 123 Event ({LastVersion + 1})",
-                                    $"Event Sourcing in .NET Example. Event ({LastVersion + 2})")).AggregateVersion;
+                                    $"Event Sourcing in .NET Example. Event ({LastVersion + 2})"));
+
+                LastVersion = result.AggregateVersion;
             }
 
             LogManager.Log("Finished applying changes. \n", LogSeverity.Debug);
