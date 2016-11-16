@@ -70,9 +70,6 @@ namespace NEventLite_Example.Util
 
             //Register NoteRepository
             builder.RegisterType<NoteRepository>().InstancePerLifetimeScope();
-
-            //Register NoteRepository
-            builder.RegisterType<NoteCommandHandler>().AsImplementedInterfaces().InstancePerLifetimeScope();
             
             //Register command bus
             builder.RegisterType<NoteCommandHandler>().InstancePerLifetimeScope();
