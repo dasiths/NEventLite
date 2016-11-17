@@ -20,7 +20,7 @@ namespace NEventLite_Example.Command_Bus
             _noteCommandHandler = noteCommandHandler;
         }
 
-        public async Task<ICommandResult> Execute<T>(T command) where T:ICommand
+        public async Task<ICommandResult> ExecuteAsync<T>(T command) where T:ICommand
         {
             var handler = _noteCommandHandler as ICommandHandler<T>;
 

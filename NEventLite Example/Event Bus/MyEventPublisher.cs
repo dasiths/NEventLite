@@ -16,16 +16,13 @@ namespace NEventLite_Example.Event_Bus
             LogManager.Log("EventPublisher Started...", LogSeverity.Information);
         }
 
-        public async Task Publish(IEnumerable<IEvent> events)
+        public async Task PublishAsync(IEvent @event)
         {
             await Task.Run(() =>
             {
-                foreach (var e in events)
-                {
                     LogManager.Log(
-                        $"Event #{e.TargetVersion + 1} Published: {e.GetType().Name} @ {DateTime.Now.ToLongTimeString()}", 
+                        $"Event #{@event.TargetVersion + 1} Published: {@event.GetType().Name} @ {DateTime.Now.ToLongTimeString()}", 
                         LogSeverity.Information);
-                }
             });
         }
     }

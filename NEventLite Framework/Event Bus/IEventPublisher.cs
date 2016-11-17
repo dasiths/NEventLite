@@ -9,6 +9,6 @@ namespace NEventLite.Event_Bus
 {
     public interface IEventPublisher
     {
-        Task PublishAsync(IEnumerable<IEvent> events);
+        Task PublishAsync(IEvent @event);
     }
 }

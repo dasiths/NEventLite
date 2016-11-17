@@ -63,7 +63,7 @@ namespace NEventLite_Example
                 //Create new note
                 Guid newItemId = Guid.NewGuid();
 
-                await commandBus.Execute(
+                await commandBus.ExecuteAsync(
                     new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
 
@@ -85,7 +85,7 @@ namespace NEventLite_Example
             {
                 LogManager.Log($"Applying Changes For Cycle {i}", LogSeverity.Debug);
 
-                var result = await commandBus.Execute(
+                var result = await commandBus.ExecuteAsync(
                                 new EditNoteCommand(Guid.NewGuid(), SavedItemID, LastVersion,
                                     $"Test Note 123 Event ({LastVersion + 1})",
                                     $"Event Sourcing in .NET Example. Event ({LastVersion + 2})"));
