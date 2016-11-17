@@ -16,7 +16,6 @@ namespace NEventLite.Events
     /// <summary>
     /// The base class for all events applies to an AggregateRoot
     /// </summary>
-    [Serializable]
     public class Event : IEvent
     {
         public int TargetVersion { get; set; }

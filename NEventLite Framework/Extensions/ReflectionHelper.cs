@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NEventLite.Custom_Attributes;
+using NEventLite.Domain;
 using NEventLite.Events;
 
 namespace NEventLite.Extensions
@@ -73,6 +74,36 @@ namespace NEventLite.Extensions
 
                 return true;
             });
+        }
+
+        public static string GetTypeName(Type t)
+        {
+            return t.Name;
+        }
+
+        public static string GetTypeFullName(Type t)
+        {
+            return t.AssemblyQualifiedName;
+        }
+
+        public static MethodInfo[] GetMethods(Type t)
+        {
+            return t.GetMethods();
+        }
+
+        public static MethodInfo GetMethod(Type t, string methodName, Type[] paramTypes)
+        {
+            return t.GetMethod(methodName, paramTypes);
+        }
+
+        public static MemberInfo[] GetMemebers(Type t)
+        {
+            return t.GetMembers();
+        }
+
+        public static T CreateInstance<T>() where T : AggregateRoot
+        {
+            return (T)Activator.CreateInstance(typeof(T));
         }
     }
 }
