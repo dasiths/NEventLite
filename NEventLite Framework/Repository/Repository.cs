@@ -107,8 +107,8 @@ namespace NEventLite.Repository
                 }
             }
 
-            //Publish to event publisher asynchronously
-            PublishToEventBus(changesToCommit);
+            //PublishAsync to event publisher asynchronously
+            PublishToEventBus(changesToCommit).Start();
 
             aggregate.MarkChangesAsCommitted();
 
@@ -117,7 +117,7 @@ namespace NEventLite.Repository
 
         private Task PublishToEventBus(List<IEvent> changesToCommit)
         {
-            return EventPublisher.Publish(changesToCommit);
+            return EventPublisher.PublishAsync(changesToCommit);
         }
     }
 }
