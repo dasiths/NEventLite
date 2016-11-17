@@ -57,7 +57,7 @@ namespace NEventLite_Storage_Providers.InMemory
             }
         }
 
-        public void CommitChanges(Type aggregateType, AggregateRoot aggregate)
+        public void CommitChanges(AggregateRoot aggregate)
         {
             var events = aggregate.GetUncommittedChanges();
 

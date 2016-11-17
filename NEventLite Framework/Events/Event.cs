@@ -21,6 +21,8 @@ namespace NEventLite.Events
         public int TargetVersion { get; set; }
         public Guid AggregateId { get;  set; }
         public Guid Id { get; }
+        public DateTime EventCommittedTimestamp { get; set; }
+        public int ClassVersion { get; set; }
 
         public Event()
         {
@@ -31,10 +33,12 @@ namespace NEventLite.Events
         /// </summary>
         /// <param name="AggregateID">Aggregate ID</param>
         /// <param name="TargetVersion">Target Version</param>
-        public Event(Guid AggregateID, int TargetVersion):base()
+        /// <param name="EventClassVersion">Version of the current class</param>
+        public Event(Guid AggregateID, int TargetVersion, int EventClassVersion):base()
         {
             this.AggregateId = AggregateID;
             this.TargetVersion = TargetVersion;
+            this.ClassVersion = EventClassVersion;
             this.Id = Guid.NewGuid();
         }
     }

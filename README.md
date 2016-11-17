@@ -30,14 +30,14 @@ void CreateNote() {
     {
         //Get ioc container to create our repository
         NoteRepository rep = container.Resolve<NoteRepository>();
-        var createCommandHandler = container.Resolve<ICommandHandler<CreateNoteCommand>>();        
+        var commandBus = container.Resolve<ICommandBus>();        
 
         //Create new note
         Guid itemId = Guid.NewGuid();
         
-        createCommandHandler.Handle(
-                new CreateNoteCommand(Guid.NewGuid(), itemId, -1, 
-                    "Test Note", "Event Sourcing System Demo", "Event Sourcing"));        
+        await commandBus.Execute(
+                    new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
+                    "Test Note", "Event Sourcing System Demo", "Event Sourcing"));     
     }
 }
 
@@ -110,7 +110,7 @@ Implement IEventStorageProvider and ISnapshotStorage provider for storage or use
     {
         IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count);
         IEvent GetLastEvent(Type aggregateType, Guid aggregateId);
-        void CommitChanges(Type aggregateType, AggregateRoot aggregate);
+        void CommitChanges(AggregateRoot aggregate);
     }
 ```
 

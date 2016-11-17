@@ -75,7 +75,7 @@ namespace NEventLite_Storage_Providers.EventStore
             }
         }
 
-        public void CommitChanges(Type aggregateType, AggregateRoot aggregate)
+        public void CommitChanges(AggregateRoot aggregate)
         {
             var connection = GetEventStoreConnection();
             var events = aggregate.GetUncommittedChanges();
