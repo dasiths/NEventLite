@@ -11,13 +11,13 @@ namespace NEventLite_Storage_Providers.InMemory
 {
     public class InMemoryEventStorageProvider : IEventStorageProvider
     {
-        private Dictionary<Guid, List<IEvent>> eventStream = new Dictionary<Guid, List<IEvent>>();
+        private Dictionary<Guid, List<IEvent>> _eventStream = new Dictionary<Guid, List<IEvent>>();
 
         public async Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count)
         {
             try
             {
-                if (eventStream.ContainsKey(aggregateId))
+                if (_eventStream.ContainsKey(aggregateId))
                 {
 
                     //this is needed for make sure it doesn't fail when we have int.maxValue for count
@@ -27,10 +27,10 @@ namespace NEventLite_Storage_Providers.InMemory
                     }
 
                     return
-                        eventStream[aggregateId].Where(
+                        _eventStream[aggregateId].Where(
                             o =>
-                                (eventStream[aggregateId].IndexOf(o) >= start) &&
-                                (eventStream[aggregateId].IndexOf(o) < (start + count)))
+                                (_eventStream[aggregateId].IndexOf(o) >= start) &&
+                                (_eventStream[aggregateId].IndexOf(o) < (start + count)))
                             .ToArray();
                 }
                 else
@@ -48,9 +48,9 @@ namespace NEventLite_Storage_Providers.InMemory
 
         public async Task<IEvent> GetLastEventAsync(Type aggregateType, Guid aggregateId)
         {
-            if (eventStream.ContainsKey(aggregateId))
+            if (_eventStream.ContainsKey(aggregateId))
             {
-                return eventStream[aggregateId].Last();
+                return _eventStream[aggregateId].Last();
             }
             else
             {
@@ -64,13 +64,13 @@ namespace NEventLite_Storage_Providers.InMemory
 
             if (events.Any())
             {
-                if (eventStream.ContainsKey(aggregate.Id) == false)
+                if (_eventStream.ContainsKey(aggregate.Id) == false)
                 {
-                    eventStream.Add(aggregate.Id, events.ToList());
+                    _eventStream.Add(aggregate.Id, events.ToList());
                 }
                 else
                 {
-                    eventStream[aggregate.Id].AddRange(events);
+                    _eventStream[aggregate.Id].AddRange(events);
                 }
             }
 

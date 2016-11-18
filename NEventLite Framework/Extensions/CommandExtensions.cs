@@ -12,7 +12,7 @@ namespace NEventLite.Extensions
     {
         public static ICommandResult EnsureSuccess(this ICommandResult commandResult)
         {
-            if (commandResult.isSucess == false)
+            if (commandResult.IsSucess == false)
             {
                 throw new CommandExecutionFailedException($"Command failed with message: {commandResult.RejectReason}");
             }

@@ -9,7 +9,7 @@ namespace NEventLite.Commands
     public interface ICommandResult
     {
         int AggregateVersion { get; }
-        bool isSucess { get; }
+        bool IsSucess { get; }
         string RejectReason { get; }
     }
 }

@@ -18,11 +18,11 @@ namespace NEventLite_Example.Repository
         {
         }
 
-        public override async Task<T> GetByIdAsync<T>(Guid Id)
+        public override async Task<T> GetByIdAsync<T>(Guid id)
         {
-            BeforeLoadAggregate(Id);
-            var result = await base.GetByIdAsync<T>(Id);
-            AfterLoadingAggregate(Id, result);
+            BeforeLoadAggregate(id);
+            var result = await base.GetByIdAsync<T>(id);
+            AfterLoadingAggregate(id, result);
             return result;
         }
 

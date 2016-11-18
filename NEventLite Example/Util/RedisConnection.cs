@@ -5,7 +5,7 @@ namespace NEventLite_Example.Util
 {
     public static class RedisConnection
     {
-        private const string redisConnectionString = "EventSourcingTest:redisPassword123@redis-12322.c10.us-east-1-3.ec2.cloud.redislabs.com:12322";
+        private const string RedisConnectionString = "EventSourcingTest:redisPassword123@redis-12322.c10.us-east-1-3.ec2.cloud.redislabs.com:12322";
 
         private static IRedisClientsManager _manager;
 
@@ -14,7 +14,7 @@ namespace NEventLite_Example.Util
             if (_manager == null)
             {
                 LogManager.Log("Connecting to Redis server...", LogSeverity.Information);
-                _manager = new RedisManagerPool(redisConnectionString);
+                _manager = new RedisManagerPool(RedisConnectionString);
             }
 
             return _manager;

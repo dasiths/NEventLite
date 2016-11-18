@@ -9,15 +9,15 @@ namespace NEventLite_Example.Commands
 {
     public class CreateNoteCommand:Command
     {
-        public string title { get; private set; }
-        public string desc { get; private set; }
-        public string cat { get; private set; }
+        public string Title { get; private set; }
+        public string Desc { get; private set; }
+        public string Cat { get; private set; }
         
-        public CreateNoteCommand(Guid id, Guid aggregateID, int targetVersion, string title, string desc, string cat) : base(id, aggregateID , targetVersion)
+        public CreateNoteCommand(Guid id, Guid aggregateId, int targetVersion, string title, string desc, string cat) : base(id, aggregateId , targetVersion)
         {
-            this.title = title;
-            this.desc = desc;
-            this.cat = cat;
+            this.Title = title;
+            this.Desc = desc;
+            this.Cat = cat;
         }
 
     }

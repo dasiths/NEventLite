@@ -8,11 +8,11 @@ namespace NEventLite_Storage_Providers.Redis
 {
     public abstract class RedisSnapshotStorageProvider : ISnapshotStorageProvider
     {
-        private IRedisClientsManager clientsManager = null;
+        private IRedisClientsManager _clientsManager = null;
 
         protected RedisSnapshotStorageProvider(int frequency)
         {
-            clientsManager = GetClientsManager();
+            _clientsManager = GetClientsManager();
             SnapshotFrequency = frequency;
         }
 
@@ -25,7 +25,7 @@ namespace NEventLite_Storage_Providers.Redis
 
             NEventLite.Snapshot.Snapshot snapshot = null;
 
-            using (IRedisClient redis = clientsManager.GetClient())
+            using (IRedisClient redis = _clientsManager.GetClient())
             {
                 var strSnapshot = redis.GetValue(aggregateId.ToString());
 
@@ -47,7 +47,7 @@ namespace NEventLite_Storage_Providers.Redis
 
         public async Task SaveSnapshotAsync(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot)
         {
-            using (IRedisClient redis = clientsManager.GetClient())
+            using (IRedisClient redis = _clientsManager.GetClient())
             {
 
                 JsonSerializerSettings serializerSettings = new JsonSerializerSettings

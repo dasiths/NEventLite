@@ -27,7 +27,7 @@ namespace NEventLite_Example.Command_Handlers
         public async Task<ICommandResult> Handle(CreateNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
-            var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
+            var newNote = new Note(command.AggregateId, command.Title, command.Desc, command.Cat);
 
             var task = await work.AddAsync(newNote).ContinueWith((o) => work.CommitAsync());
 
@@ -39,8 +39,8 @@ namespace NEventLite_Example.Command_Handlers
             var work = new UnitOfWork(_repository);
             var loadedNote = await work.GetAsync<Note>(command.AggregateId, command.TargetVersion);
 
-            loadedNote.ChangeTitle(command.title);
-            loadedNote.ChangeCategory(command.cat);
+            loadedNote.ChangeTitle(command.Title);
+            loadedNote.ChangeCategory(command.Cat);
 
             var task = work.CommitAsync();
             await task;

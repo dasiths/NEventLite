@@ -9,13 +9,13 @@ namespace NEventLite_Example.Commands
 {
     public class EditNoteCommand:Command
     {
-        public string title { get; private set; }
-        public string cat { get; private set; }
+        public string Title { get; private set; }
+        public string Cat { get; private set; }
 
         public EditNoteCommand(Guid id, Guid aggregateId, int targetVersion, string title, string cat) : base(id, aggregateId, targetVersion)
         {
-            this.title = title;
-            this.cat = cat;
+            this.Title = title;
+            this.Cat = cat;
         }
     }
 }

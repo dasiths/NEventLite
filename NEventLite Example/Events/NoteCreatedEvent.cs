@@ -7,18 +7,18 @@ namespace NEventLite_Example.Events
     {
         private static int _currrentTypeVersion = 1;
 
-        public string title { get; set; }
-        public string desc { get; set; }
-        public string cat { get; set; }
-        public DateTime createdTime { get; set; }
+        public string Title { get; set; }
+        public string Desc { get; set; }
+        public string Cat { get; set; }
+        public DateTime CreatedTime { get; set; }
 
-        public NoteCreatedEvent(Guid aggregateID, int version, string title, string desc, string cat, DateTime createdTime)
-            : base(aggregateID, version, _currrentTypeVersion)
+        public NoteCreatedEvent(Guid aggregateId, int version, string title, string desc, string cat, DateTime createdTime)
+            : base(aggregateId, version, _currrentTypeVersion)
         {
-            this.title = title;
-            this.desc = desc;
-            this.cat = cat;
-            this.createdTime = createdTime;
+            this.Title = title;
+            this.Desc = desc;
+            this.Cat = cat;
+            this.CreatedTime = createdTime;
         }
     }
 }

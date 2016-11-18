@@ -2,7 +2,7 @@
 {
     public class EventstoreMetaDataHeader
     {
-        public string CLRType { get; set; }
+        public string ClrType { get; set; }
         public int CommitNumber { get; set; }
     }
 }

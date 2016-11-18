@@ -79,22 +79,22 @@ namespace NEventLite_Example.Domain
         [OnApplyEvent]
         public void OnNoteCreated(NoteCreatedEvent @event)
         {
-            CreatedDate = @event.createdTime;
-            Title = @event.title;
-            Description = @event.desc;
-            Category = @event.cat;
+            CreatedDate = @event.CreatedTime;
+            Title = @event.Title;
+            Description = @event.Desc;
+            Category = @event.Cat;
         }
 
         [OnApplyEvent]
         public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
-            Title = @event.title;
+            Title = @event.Title;
         }
 
         [OnApplyEvent]
         public void OnCategoryChanged(NoteCategoryChangedEvent @event)
         {
-            Category = @event.cat;
+            Category = @event.Cat;
         }
 
         #endregion

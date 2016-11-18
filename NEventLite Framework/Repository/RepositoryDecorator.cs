@@ -17,9 +17,9 @@ namespace NEventLite.Repository
             Repository = repository;
         }
 
-        public virtual async Task<TAggregate> GetByIdAsync<TAggregate>(Guid Id) where TAggregate:AggregateRoot
+        public virtual async Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate:AggregateRoot
         {
-            return await Repository.GetByIdAsync<TAggregate>(Id);
+            return await Repository.GetByIdAsync<TAggregate>(id);
         }
 
         public virtual async Task SaveAsync<TAggregate>(TAggregate aggregate) where TAggregate : AggregateRoot

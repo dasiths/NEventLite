@@ -31,14 +31,14 @@ namespace NEventLite.Events
         /// <summary>
         /// This method makes it easier to construct a new Event
         /// </summary>
-        /// <param name="AggregateID">Aggregate ID</param>
-        /// <param name="TargetVersion">Target Version</param>
-        /// <param name="EventClassVersion">Version of the current class</param>
-        public Event(Guid AggregateID, int TargetVersion, int EventClassVersion):base()
+        /// <param name="aggregateId">Aggregate ID</param>
+        /// <param name="targetVersion">Target Version</param>
+        /// <param name="eventClassVersion">Version of the current class</param>
+        public Event(Guid aggregateId, int targetVersion, int eventClassVersion):base()
         {
-            this.AggregateId = AggregateID;
-            this.TargetVersion = TargetVersion;
-            this.ClassVersion = EventClassVersion;
+            this.AggregateId = aggregateId;
+            this.TargetVersion = targetVersion;
+            this.ClassVersion = eventClassVersion;
             this.Id = Guid.NewGuid();
         }
     }

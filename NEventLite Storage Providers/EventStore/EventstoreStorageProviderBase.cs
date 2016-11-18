@@ -36,18 +36,18 @@ namespace NEventLite_Storage_Providers.EventStore
             var header = JsonConvert.DeserializeObject<EventstoreMetaDataHeader>(
                 Encoding.UTF8.GetString(returnedEvent.Event.Metadata), GetSerializerSettings());
 
-            var returnType = Type.GetType(header.CLRType);
+            var returnType = Type.GetType(header.ClrType);
 
             return
                 (Event)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(returnedEvent.Event.Data), returnType,
                         GetSerializerSettings());
         }
-        protected static EventData SerializeEvent(IEvent @event, int CommitNumber)
+        protected static EventData SerializeEvent(IEvent @event, int commitNumber)
         {
             var header = new EventstoreMetaDataHeader()
             {
-                CLRType = GetClrTypeName(@event),
-                CommitNumber = CommitNumber
+                ClrType = GetClrTypeName(@event),
+                CommitNumber = commitNumber
             };
 
             return new EventData(@event.Id, @event.GetType().Name, true,
@@ -60,7 +60,7 @@ namespace NEventLite_Storage_Providers.EventStore
             var header = JsonConvert.DeserializeObject<EventstoreMetaDataHeader>(
                 Encoding.UTF8.GetString(returnedEvent.Event.Metadata), GetSerializerSettings());
 
-            var returnType = Type.GetType(header.CLRType);
+            var returnType = Type.GetType(header.ClrType);
 
             return
                 (Snapshot)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(returnedEvent.Event.Data), returnType,
@@ -70,7 +70,7 @@ namespace NEventLite_Storage_Providers.EventStore
         {
             var header = new EventstoreMetaDataHeader()
             {
-                CLRType = GetClrTypeName(@event),
+                ClrType = GetClrTypeName(@event),
                 CommitNumber = commitNumber
             };
 

@@ -9,13 +9,13 @@ namespace NEventLite.Commands
     public class CommandResult:ICommandResult
     {
         public int AggregateVersion { get; }
-        public bool isSucess { get; }
+        public bool IsSucess { get; }
         public string RejectReason { get; }
 
         public CommandResult(int aggregateVersion, bool isSucess, string rejectReason)
         {
             AggregateVersion = aggregateVersion;
-            this.isSucess = isSucess;
+            this.IsSucess = isSucess;
             RejectReason = rejectReason;
         }
     }

@@ -7,12 +7,12 @@ namespace NEventLite_Example.Events
     {
         private static int _currrentTypeVersion = 1;
 
-        public string title { get; set; }
+        public string Title { get; set; }
 
-        public NoteTitleChangedEvent(Guid aggregateID, int version, string title)
-            : base(aggregateID, version, _currrentTypeVersion)
+        public NoteTitleChangedEvent(Guid aggregateId, int version, string title)
+            : base(aggregateId, version, _currrentTypeVersion)
         {
-            this.title = title;
+            this.Title = title;
         }
     }
 }

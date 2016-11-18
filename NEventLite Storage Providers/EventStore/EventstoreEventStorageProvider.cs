@@ -12,7 +12,7 @@ namespace NEventLite_Storage_Providers.EventStore
     public abstract class EventstoreEventStorageProvider : EventstoreStorageProviderBase, IEventStorageProvider
     {
         //There is a max limit of 4096 messages per read in eventstore so use paging
-        private const int eventStorePageSize = 200;
+        private const int EventStorePageSize = 200;
 
         public async Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count)
         {
@@ -38,9 +38,9 @@ namespace NEventLite_Storage_Providers.EventStore
             {
                 int nextReadCount = count - streamEvents.Count();
 
-                if (nextReadCount > eventStorePageSize)
+                if (nextReadCount > EventStorePageSize)
                 {
-                    nextReadCount = eventStorePageSize;
+                    nextReadCount = EventStorePageSize;
                 }
 
                 currentSlice = await connection.ReadStreamEventsForwardAsync(
@@ -85,7 +85,7 @@ namespace NEventLite_Storage_Providers.EventStore
 
             if (events.Any())
             {
-                var LastVersion = aggregate.LastCommittedVersion;
+                var lastVersion = aggregate.LastCommittedVersion;
                 List<EventData> lstEventData = new List<EventData>();
 
                 foreach (var @event in events)
@@ -94,7 +94,7 @@ namespace NEventLite_Storage_Providers.EventStore
                 }
 
                 await connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregate.GetType(), aggregate.Id)}",
-                                                (LastVersion < 0 ? ExpectedVersion.NoStream : LastVersion), lstEventData);
+                                                (lastVersion < 0 ? ExpectedVersion.NoStream : lastVersion), lstEventData);
             }
         }
 
