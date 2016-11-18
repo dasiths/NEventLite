@@ -40,6 +40,7 @@ namespace NEventLite_Example.Command_Handlers
             var loadedNote = await work.GetAsync<Note>(command.AggregateId, command.TargetVersion);
 
             loadedNote.ChangeTitle(command.Title);
+            loadedNote.ChangeDescription(command.Description);
             loadedNote.ChangeCategory(command.Cat);
 
             var task = work.CommitAsync();

@@ -60,6 +60,14 @@ namespace NEventLite_Example.Domain
             }
         }
 
+        public void ChangeDescription(string newDescription)
+        {
+            if (this.Description != newDescription)
+            {
+                ApplyEvent(new NoteDescriptionChangedEvent(Id, CurrentVersion, newDescription));
+            }
+        }
+
         public void ChangeCategory(string newCategory)
         {
             if (this.Category != newCategory)
@@ -89,6 +97,12 @@ namespace NEventLite_Example.Domain
         public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
             Title = @event.Title;
+        }
+
+        [OnApplyEvent]
+        public void OnDescriptionChanged(NoteDescriptionChangedEvent @event)
+        {
+            Description = @event.Description;
         }
 
         [OnApplyEvent]

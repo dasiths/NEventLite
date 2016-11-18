@@ -81,15 +81,17 @@ namespace NEventLite_Example
             //Reload and do some changes
             int lastVersion = (await rep.GetByIdAsync<Note>(savedItemId)).CurrentVersion;
 
-            //Do 12 events cycle to check snapshots too.
-            for (int i = 1; i <= 12; i++)
+            //Do 5 events cycle to check snapshots too.
+            for (int i = 1; i <= 5; i++)
             {
                 LogManager.Log($"Applying Changes For Cycle {i}", LogSeverity.Debug);
 
                 var result = (await commandBus.ExecuteAsync(
-                                new EditNoteCommand(Guid.NewGuid(), savedItemId, lastVersion,
+                                new EditNoteCommand(
+                                    Guid.NewGuid(), savedItemId, lastVersion,
                                     $"Test Note 123 Event ({lastVersion + 1})",
-                                    $"Event Sourcing in .NET Example. Event ({lastVersion + 2})")))
+                                    $"Event Sourcing System Demo ({lastVersion + 2})",
+                                    $"Event Sourcing in .NET Example. Event ({lastVersion + 3})")))
                                     .EnsureSuccess();
 
                 lastVersion = result.AggregateVersion;
