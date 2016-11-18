@@ -20,7 +20,7 @@ namespace NEventLite.Unit_Of_Work
             _trackedAggregates = new Dictionary<Guid, AggregateRoot>();
         }
 
-        public async Task AddAsync<T>(T aggregate) where T : AggregateRoot
+        public void Add<T>(T aggregate) where T : AggregateRoot
         {
             if (!IsTracked(aggregate.Id))
                 _trackedAggregates.Add(aggregate.Id,aggregate);
@@ -49,7 +49,7 @@ namespace NEventLite.Unit_Of_Work
                     $"The aggregate version ({aggregate.CurrentVersion}) doesn't match the expected version ({expectedVersion})");
 
             if (mustbeAdded)
-                await AddAsync(aggregate);
+                Add(aggregate);
 
             return aggregate;
         }

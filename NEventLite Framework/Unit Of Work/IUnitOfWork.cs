@@ -11,7 +11,7 @@ namespace NEventLite.Unit_Of_Work
     {
         Task<T> GetAsync<T>(Guid id, int? expectedVersion = null) where T:AggregateRoot;
 
-        Task AddAsync<T>(T aggregate) where T : AggregateRoot;
+        void Add<T>(T aggregate) where T : AggregateRoot;
 
         Task CommitAsync();
     }

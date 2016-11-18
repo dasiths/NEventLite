@@ -28,8 +28,8 @@ namespace NEventLite_Example.Command_Handlers
         {
             var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.Title, command.Desc, command.Cat);
+            work.Add(newNote);
 
-            await work.AddAsync(newNote);
             var task = work.CommitAsync();
             await task;
 
