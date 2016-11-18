@@ -66,7 +66,7 @@ namespace NEventLite_Example
 
                 (await commandBus.ExecuteAsync(
                     new CreateNoteCommand(Guid.NewGuid(), newItemId, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing")))
-                    .EnsureSucess();
+                    .EnsureSuccess();
 
                 Note tmpNote = await rep.GetByIdAsync<Note>(newItemId);
 
@@ -90,7 +90,7 @@ namespace NEventLite_Example
                                 new EditNoteCommand(Guid.NewGuid(), SavedItemID, LastVersion,
                                     $"Test Note 123 Event ({LastVersion + 1})",
                                     $"Event Sourcing in .NET Example. Event ({LastVersion + 2})")))
-                                    .EnsureSucess();
+                                    .EnsureSuccess();
 
                 LastVersion = result.AggregateVersion;
             }

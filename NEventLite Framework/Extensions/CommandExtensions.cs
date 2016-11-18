@@ -10,7 +10,7 @@ namespace NEventLite.Extensions
 {
     public static class CommandExtensions
     {
-        public static ICommandResult EnsureSucess(this ICommandResult commandResult)
+        public static ICommandResult EnsureSuccess(this ICommandResult commandResult)
         {
             if (commandResult.isSucess == false)
             {
