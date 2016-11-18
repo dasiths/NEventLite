@@ -25,7 +25,7 @@ It's very easy to use once setup. Ideal for implementing the CQRS pattern.
 
 //Load dependency resolver
 
-void CreateNote() {
+async Task CreateNote() {
     using (var container = new DependencyResolver())
     {
         //Get ioc container to create our repository
