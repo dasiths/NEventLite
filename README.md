@@ -37,10 +37,10 @@ async Task CreateNote() {
         
         var result = await commandBus.ExecuteAsync(
                      new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
-                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));     
+                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));	   
 
-	//This will throw and exception if commands hasn't succeeded
-	result.EnsureSuccess();
+		//This will throw and exception if commands hasn't succeeded
+		result.EnsureSuccess();
     }
 }
 
