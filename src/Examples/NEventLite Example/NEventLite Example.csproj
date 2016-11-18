@@ -101,11 +101,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NEventLite Framework\NEventLite.csproj">
+    <ProjectReference Include="..\..\Framework\NEventLite.csproj">
       <Project>{0b52f02d-037e-4c47-9246-882fd59304db}</Project>
       <Name>NEventLite</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\NEventLite Storage Providers\NEventLite Storage Providers.csproj">
+    <ProjectReference Include="..\..\Storage Providers\NEventLite Storage Providers.csproj">
       <Project>{14fda88e-b5a0-4be0-8b49-1828b9a3a4f2}</Project>
       <Name>NEventLite Storage Providers</Name>
     </ProjectReference>

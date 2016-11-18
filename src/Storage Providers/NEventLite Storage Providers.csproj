@@ -74,7 +74,7 @@
     <Compile Include="Redis\RedisSnapshotStorageProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NEventLite Framework\NEventLite.csproj">
+    <ProjectReference Include="..\Framework\NEventLite.csproj">
       <Project>{0b52f02d-037e-4c47-9246-882fd59304db}</Project>
       <Name>NEventLite</Name>
     </ProjectReference>
