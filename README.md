@@ -52,9 +52,9 @@ Command Handler (NoteCommandHandler.cs in example)
         public async Task<ICommandResult> HandleCommandAsync(CreateNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
-            var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
+            var newNote = new Note(command.AggregateId, command.Title, command.Desc, command.Cat);
+            work.Add(newNote);
 
-            await work.AddAsync(newNote);
             var task = work.CommitAsync();
             await task;
 
