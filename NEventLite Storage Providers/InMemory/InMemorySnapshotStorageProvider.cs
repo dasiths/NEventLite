@@ -14,7 +14,7 @@ namespace NEventLite_Storage_Providers.InMemory
         {
             SnapshotFrequency = frequency;
         }
-        public async Task<NEventLite.Snapshot.Snapshot> GetSnapshot(Type aggregateType, Guid aggregateId)
+        public async Task<NEventLite.Snapshot.Snapshot> GetSnapshotAsync(Type aggregateType, Guid aggregateId)
         {
             if (_items.ContainsKey(aggregateId))
             {
@@ -25,7 +25,7 @@ namespace NEventLite_Storage_Providers.InMemory
                 return null;
             }
         }
-        public async Task SaveSnapshot(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot) 
+        public async Task SaveSnapshotAsync(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot) 
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {

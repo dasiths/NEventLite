@@ -14,7 +14,7 @@ namespace NEventLite_Storage_Providers.EventStore
         //There is a max limit of 4096 messages per read in eventstore so use paging
         private const int eventStorePageSize = 200;
 
-        public async Task<IEnumerable<IEvent>> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
+        public async Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count)
         {
 
             var connection = GetEventStoreConnection();
@@ -61,7 +61,7 @@ namespace NEventLite_Storage_Providers.EventStore
             return events;
         }
 
-        public async Task<IEvent> GetLastEvent(Type aggregateType, Guid aggregateId)
+        public async Task<IEvent> GetLastEventAsync(Type aggregateType, Guid aggregateId)
         {
             var connection = GetEventStoreConnection();
 
@@ -78,7 +78,7 @@ namespace NEventLite_Storage_Providers.EventStore
             }
         }
 
-        public async Task CommitChanges(AggregateRoot aggregate)
+        public async Task CommitChangesAsync(AggregateRoot aggregate)
         {
             var connection = GetEventStoreConnection();
             var events = aggregate.GetUncommittedChanges();

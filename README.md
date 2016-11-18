@@ -35,9 +35,11 @@ void CreateNote() {
         //Create new note
         Guid itemId = Guid.NewGuid();
         
-        await commandBus.Execute(
-                    new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
-                    "Test Note", "Event Sourcing System Demo", "Event Sourcing"));     
+        var result = await commandBus.Execute(
+                     new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
+                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));     
+
+		result.EnsureSuccess();
     }
 }
 
@@ -45,28 +47,28 @@ void CreateNote() {
 Command Handler (NoteCommandHandler.cs in example)
 
 ```C#
-        public ICommandResult Handle(CreateNoteCommand command)
+        public async Task<ICommandResult> Handle(CreateNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
 
-            work.Add(newNote);
-            work.Commit();
+            var task = await work.AddAsync(newNote).ContinueWith((o) => work.CommitAsync());
 
-            return new CommandResult(newNote.CurrentVersion, true, "");
+            return new CommandResult(newNote.CurrentVersion, task.IsFaulted == false, task.Exception?.Message);
         }
 
-        public ICommandResult Handle(EditNoteCommand command)
+        public async Task<ICommandResult> Handle(EditNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
-            var loadedNote = work.Get<Note>(command.AggregateId, command.TargetVersion);
+            var loadedNote = await work.GetAsync<Note>(command.AggregateId, command.TargetVersion);
 
             loadedNote.ChangeTitle(command.title);
             loadedNote.ChangeCategory(command.cat);
 
-            work.Commit();
+            var task = work.CommitAsync();
+            await task;
 
-            return new CommandResult(loadedNote.CurrentVersion, true, "");
+            return new CommandResult(loadedNote.CurrentVersion, task.IsFaulted == false, task.Exception?.Message);
         }
 ```
 Aggregate (Note.cs in example)
@@ -108,9 +110,16 @@ Implement IEventStorageProvider and ISnapshotStorage provider for storage or use
 ```C#
     public interface IEventStorageProvider
     {
-        IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count);
-        IEvent GetLastEvent(Type aggregateType, Guid aggregateId);
-        void CommitChanges(AggregateRoot aggregate);
+        Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count);
+        Task<IEvent> GetLastEventAsync(Type aggregateType, Guid aggregateId);
+        Task CommitChangesAsync(AggregateRoot aggregate);
+    }
+
+	public interface ISnapshotStorageProvider
+    {
+        int SnapshotFrequency { get; }
+        Task<Snapshot.Snapshot> GetSnapshotAsync(Type aggregateType, Guid aggregateId);
+        Task SaveSnapshotAsync(Type aggregateType, Snapshot.Snapshot snapshot);
     }
 ```
 

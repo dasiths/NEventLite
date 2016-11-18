@@ -8,9 +8,9 @@ namespace NEventLite.Storage
 {
     public interface IEventStorageProvider
     {
-        Task<IEnumerable<IEvent>> GetEvents(Type aggregateType, Guid aggregateId, int start, int count);
-        Task<IEvent> GetLastEvent(Type aggregateType, Guid aggregateId);
-        Task CommitChanges(AggregateRoot aggregate);
+        Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count);
+        Task<IEvent> GetLastEventAsync(Type aggregateType, Guid aggregateId);
+        Task CommitChangesAsync(AggregateRoot aggregate);
     }
 }
 

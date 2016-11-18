@@ -38,19 +38,19 @@ namespace NEventLite.Repository
 
             if ((isSnapshottable) && (SnapshotStorageProvider != null))
             {
-                snapshot = await SnapshotStorageProvider.GetSnapshot(typeof(T), id);
+                snapshot = await SnapshotStorageProvider.GetSnapshotAsync(typeof(T), id);
             }
 
             if (snapshot != null)
             {
                 item = ReflectionHelper.CreateInstance<T>();
                 ((ISnapshottable)item).ApplySnapshot(snapshot);
-                var events = await EventStorageProvider.GetEvents(typeof(T), id, snapshot.Version + 1, int.MaxValue);
+                var events = await EventStorageProvider.GetEventsAsync(typeof(T), id, snapshot.Version + 1, int.MaxValue);
                 item.LoadsFromHistory(events);
             }
             else
             {
-                var events = (await EventStorageProvider.GetEvents(typeof(T), id, 0, int.MaxValue)).ToList();
+                var events = (await EventStorageProvider.GetEventsAsync(typeof(T), id, 0, int.MaxValue)).ToList();
 
                 if (events.Any())
                 {
@@ -74,7 +74,7 @@ namespace NEventLite.Repository
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 
-            IEvent item = await EventStorageProvider.GetLastEvent(aggregate.GetType(), aggregate.Id);
+            IEvent item = await EventStorageProvider.GetLastEventAsync(aggregate.GetType(), aggregate.Id);
 
             if ((item != null) && (expectedVersion == (int)AggregateRoot.StreamState.NoStream))
             {
@@ -94,7 +94,7 @@ namespace NEventLite.Repository
             }
 
             //CommitAsync events to storage provider
-            await EventStorageProvider.CommitChanges(aggregate);
+            await EventStorageProvider.CommitChangesAsync(aggregate);
 
             //Publish to event publisher asynchronously
             foreach (var e in changesToCommit)
@@ -116,7 +116,7 @@ namespace NEventLite.Repository
                         )
                     )
                 {
-                    await SnapshotStorageProvider.SaveSnapshot(aggregate.GetType(), snapshottable.TakeSnapshot());
+                    await SnapshotStorageProvider.SaveSnapshotAsync(aggregate.GetType(), snapshottable.TakeSnapshot());
                 }
             }
 

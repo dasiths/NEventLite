@@ -20,7 +20,7 @@ namespace NEventLite_Storage_Providers.Redis
 
         public int SnapshotFrequency { get; }
 
-        public async Task<NEventLite.Snapshot.Snapshot> GetSnapshot(Type aggregateType, Guid aggregateId)
+        public async Task<NEventLite.Snapshot.Snapshot> GetSnapshotAsync(Type aggregateType, Guid aggregateId)
         {
 
             NEventLite.Snapshot.Snapshot snapshot = null;
@@ -45,7 +45,7 @@ namespace NEventLite_Storage_Providers.Redis
 
         }
 
-        public async Task SaveSnapshot(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot)
+        public async Task SaveSnapshotAsync(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot)
         {
             using (IRedisClient redis = clientsManager.GetClient())
             {

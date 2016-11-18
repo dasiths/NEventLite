@@ -15,7 +15,7 @@ namespace NEventLite_Storage_Providers.EventStore
         {
             SnapshotFrequency = frequency;
         }
-        public async Task<Snapshot> GetSnapshot(Type aggregateType, Guid aggregateId)
+        public async Task<Snapshot> GetSnapshotAsync(Type aggregateType, Guid aggregateId)
         {
 
             Snapshot snapshot = null;
@@ -34,7 +34,7 @@ namespace NEventLite_Storage_Providers.EventStore
 
             return snapshot;
         }
-        public async Task SaveSnapshot(Type aggregateType, Snapshot snapshot)
+        public async Task SaveSnapshotAsync(Type aggregateType, Snapshot snapshot)
         {
             var connection = GetEventStoreConnection();
 
@@ -48,7 +48,7 @@ namespace NEventLite_Storage_Providers.EventStore
             await connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregateType, snapshot.AggregateId)}",
                                                 ExpectedVersion.Any, snapshotyEvent);
         }
-        public async Task<Snapshot> GetSnapshot(Type aggregateType, Guid aggregateId, int version)
+        public async Task<Snapshot> GetSnapshotAsync(Type aggregateType, Guid aggregateId, int version)
         {
             Snapshot snapshot = null;
 

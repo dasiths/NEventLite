@@ -13,7 +13,7 @@ namespace NEventLite_Storage_Providers.InMemory
     {
         private Dictionary<Guid, List<IEvent>> eventStream = new Dictionary<Guid, List<IEvent>>();
 
-        public async Task<IEnumerable<IEvent>> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
+        public async Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace NEventLite_Storage_Providers.InMemory
 
         }
 
-        public async Task<IEvent> GetLastEvent(Type aggregateType, Guid aggregateId)
+        public async Task<IEvent> GetLastEventAsync(Type aggregateType, Guid aggregateId)
         {
             if (eventStream.ContainsKey(aggregateId))
             {
@@ -58,7 +58,7 @@ namespace NEventLite_Storage_Providers.InMemory
             }
         }
 
-        public async Task CommitChanges(AggregateRoot aggregate)
+        public async Task CommitChangesAsync(AggregateRoot aggregate)
         {
             var events = aggregate.GetUncommittedChanges();
 
