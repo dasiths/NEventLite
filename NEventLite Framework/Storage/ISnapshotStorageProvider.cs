@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace NEventLite.Storage
 {
     public interface ISnapshotStorageProvider
     {
         int SnapshotFrequency { get; }
-        Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId);
-        void SaveSnapshot(Type aggregateType, Snapshot.Snapshot snapshot);
+        Task<Snapshot.Snapshot> GetSnapshot(Type aggregateType, Guid aggregateId);
+        Task SaveSnapshot(Type aggregateType, Snapshot.Snapshot snapshot);
     }
 }

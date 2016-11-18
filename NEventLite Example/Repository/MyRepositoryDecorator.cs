@@ -17,19 +17,21 @@ namespace NEventLite_Example.Repository
         public MyRepositoryDecorator(IRepository repository) : base(repository)
         {
         }
-        public override T GetById<T>(Guid Id)
+
+        public override async Task<T> GetById<T>(Guid Id)
         {
             BeforeLoadAggregate(Id);
-            var result = base.GetById<T>(Id);
+            var result = await base.GetById<T>(Id);
             AfterLoadingAggregate(Id, result);
             return result;
         }
-        public override void Save<T>(T aggregate)
+
+        public override async Task Save<T>(T aggregate)
         {
             var events = aggregate.GetUncommittedChanges().ToList();
 
             BeforeSaveAggregate(aggregate, events);
-            base.Save(aggregate);
+            await base.Save(aggregate);
             AfterSavingAggregate(aggregate, events);
         }
 
@@ -37,6 +39,7 @@ namespace NEventLite_Example.Repository
         {
             LogManager.Log($"Loading {id} ...", LogSeverity.Debug);
         }
+
         protected void AfterLoadingAggregate<T>(Guid id, T aggregate)
         {
             if (aggregate != null)
@@ -49,11 +52,13 @@ namespace NEventLite_Example.Repository
             }
             
         }
+
         protected void BeforeSaveAggregate<T>(T aggregate, IEnumerable<IEvent> events)
         {
             _commitStartTime = DateTime.Now;
             LogManager.Log($"Trying to commit {events.Count()} event(s) to storage.", LogSeverity.Debug);
         }
+
         protected void AfterSavingAggregate<T>(T aggregate, IEnumerable<IEvent> events)
         {
             LogManager.Log($"Committed {events.Count()} event(s) in {DateTime.Now.Subtract(_commitStartTime).TotalMilliseconds} ms.", LogSeverity.Debug);

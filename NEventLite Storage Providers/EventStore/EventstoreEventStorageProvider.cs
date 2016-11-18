@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using NEventLite.Domain;
 using NEventLite.Events;
@@ -13,16 +14,16 @@ namespace NEventLite_Storage_Providers.EventStore
         //There is a max limit of 4096 messages per read in eventstore so use paging
         private const int eventStorePageSize = 200;
 
-        public IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
+        public async Task<IEnumerable<IEvent>> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
         {
 
             var connection = GetEventStoreConnection();
-            var events = ReadEvents(aggregateType,connection, aggregateId, start, count);
+            var events = await ReadEvents(aggregateType,connection, aggregateId, start, count);
 
             return events;
         }
 
-        protected IEnumerable<IEvent> ReadEvents(Type aggregateType, IEventStoreConnection connection, Guid aggregateId, int start, int count)
+        protected async Task<IEnumerable<IEvent>> ReadEvents(Type aggregateType, IEventStoreConnection connection, Guid aggregateId, int start, int count)
         {
 
             var events = new List<IEvent>();
@@ -42,7 +43,9 @@ namespace NEventLite_Storage_Providers.EventStore
                     nextReadCount = eventStorePageSize;
                 }
 
-                currentSlice = connection.ReadStreamEventsForwardAsync($"{AggregateIdToStreamName(aggregateType, aggregateId)}", nextSliceStart, nextReadCount, false).Result;
+                currentSlice = await connection.ReadStreamEventsForwardAsync(
+                    $"{AggregateIdToStreamName(aggregateType, aggregateId)}", nextSliceStart, nextReadCount, false);
+
                 nextSliceStart = currentSlice.NextEventNumber;
 
                 streamEvents.AddRange(currentSlice.Events);
@@ -58,12 +61,12 @@ namespace NEventLite_Storage_Providers.EventStore
             return events;
         }
 
-        public IEvent GetLastEvent(Type aggregateType, Guid aggregateId)
+        public async Task<IEvent> GetLastEvent(Type aggregateType, Guid aggregateId)
         {
             var connection = GetEventStoreConnection();
 
-            var results = connection.ReadStreamEventsBackwardAsync(
-                $"{AggregateIdToStreamName(aggregateType, aggregateId)}", StreamPosition.End, 1, false).Result;
+            var results = await connection.ReadStreamEventsBackwardAsync(
+                $"{AggregateIdToStreamName(aggregateType, aggregateId)}", StreamPosition.End, 1, false);
 
             if (results.Status == SliceReadStatus.Success && results.Events.Count() > 0)
             {
@@ -75,7 +78,7 @@ namespace NEventLite_Storage_Providers.EventStore
             }
         }
 
-        public void CommitChanges(AggregateRoot aggregate)
+        public async Task CommitChanges(AggregateRoot aggregate)
         {
             var connection = GetEventStoreConnection();
             var events = aggregate.GetUncommittedChanges();
@@ -90,8 +93,8 @@ namespace NEventLite_Storage_Providers.EventStore
                     lstEventData.Add(SerializeEvent(@event, aggregate.LastCommittedVersion + 1));
                 }
 
-                connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregate.GetType(), aggregate.Id)}",
-                                                (LastVersion < 0 ? ExpectedVersion.NoStream : LastVersion), lstEventData).Wait();
+                await connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregate.GetType(), aggregate.Id)}",
+                                                (LastVersion < 0 ? ExpectedVersion.NoStream : LastVersion), lstEventData);
             }
         }
 

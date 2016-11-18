@@ -19,14 +19,16 @@ namespace NEventLite.Unit_Of_Work
             _repository = repository;
             _trackedAggregates = new Dictionary<Guid, AggregateRoot>();
         }
-        public void Add<T>(T aggregate) where T : AggregateRoot
+
+        public async Task Add<T>(T aggregate) where T : AggregateRoot
         {
             if (!IsTracked(aggregate.Id))
                 _trackedAggregates.Add(aggregate.Id,aggregate);
             else if (_trackedAggregates[aggregate.Id] != aggregate)
                 throw new ConcurrencyException($"Aggregate can't be added because it's already tracked.");
         }
-        public T Get<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot
+
+        public async Task<T> Get<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot
         {
 
             T aggregate = null;
@@ -38,7 +40,7 @@ namespace NEventLite.Unit_Of_Work
             }
             else
             {
-                aggregate = _repository.GetById<T>(id);
+                aggregate = await _repository.GetById<T>(id);
                 mustbeAdded = true;
             }
 
@@ -47,19 +49,21 @@ namespace NEventLite.Unit_Of_Work
                     $"The aggregate version ({aggregate.CurrentVersion}) doesn't match the expected version ({expectedVersion})");
 
             if (mustbeAdded)
-                Add(aggregate);
+                await Add(aggregate);
 
             return aggregate;
         }
+
         private bool IsTracked(Guid id)
         {
             return _trackedAggregates.ContainsKey(id);
         }
-        public void Commit()
+
+        public async Task Commit()
         {
             foreach (var aggregate in _trackedAggregates.Values)
             {
-                _repository.Save(aggregate);
+                await _repository.Save(aggregate);
             }
             _trackedAggregates.Clear();
         }

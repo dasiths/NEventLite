@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
 using NEventLite.Snapshot;
@@ -14,15 +15,15 @@ namespace NEventLite_Storage_Providers.EventStore
         {
             SnapshotFrequency = frequency;
         }
-        public Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
+        public async Task<Snapshot> GetSnapshot(Type aggregateType, Guid aggregateId)
         {
 
             Snapshot snapshot = null;
 
             var connection = GetEventStoreConnection();
 
-            var streamEvents = connection.ReadStreamEventsBackwardAsync(
-                $"{AggregateIdToStreamName(aggregateType, aggregateId)}", StreamPosition.End, 1, false).Result;
+            var streamEvents = await connection.ReadStreamEventsBackwardAsync(
+                $"{AggregateIdToStreamName(aggregateType, aggregateId)}", StreamPosition.End, 1, false);
 
             if (streamEvents.Events.Any())
             {
@@ -33,7 +34,7 @@ namespace NEventLite_Storage_Providers.EventStore
 
             return snapshot;
         }
-        public void SaveSnapshot(Type aggregateType, Snapshot snapshot)
+        public async Task SaveSnapshot(Type aggregateType, Snapshot snapshot)
         {
             var connection = GetEventStoreConnection();
 
@@ -44,10 +45,10 @@ namespace NEventLite_Storage_Providers.EventStore
 
             var snapshotyEvent = SerializeSnapshotEvent(snapshot,snapshot.Version);
 
-            connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregateType, snapshot.AggregateId)}",
-                                                ExpectedVersion.Any, snapshotyEvent).Wait();
+            await connection.AppendToStreamAsync($"{AggregateIdToStreamName(aggregateType, snapshot.AggregateId)}",
+                                                ExpectedVersion.Any, snapshotyEvent);
         }
-        public Snapshot GetSnapshot(Type aggregateType, Guid aggregateId, int version)
+        public async Task<Snapshot> GetSnapshot(Type aggregateType, Guid aggregateId, int version)
         {
             Snapshot snapshot = null;
 
@@ -58,8 +59,8 @@ namespace NEventLite_Storage_Providers.EventStore
                 TypeNameHandling = TypeNameHandling.All
             };
 
-            var streamEvents = connection.ReadStreamEventsBackwardAsync(
-                $"{AggregateIdToStreamName(aggregateType,aggregateId)}", version, 1, false).Result;
+            var streamEvents = await connection.ReadStreamEventsBackwardAsync(
+                $"{AggregateIdToStreamName(aggregateType,aggregateId)}", version, 1, false);
 
             if (streamEvents.Events.Any())
             {

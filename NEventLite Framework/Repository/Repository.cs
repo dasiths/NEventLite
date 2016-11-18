@@ -29,7 +29,7 @@ namespace NEventLite.Repository
             EventPublisher = eventPublisher;
         }
 
-        public virtual T GetById<T>(Guid id) where T : AggregateRoot
+        public virtual async Task<T> GetById<T>(Guid id) where T : AggregateRoot
         {
             T item = default(T);
 
@@ -38,19 +38,19 @@ namespace NEventLite.Repository
 
             if ((isSnapshottable) && (SnapshotStorageProvider != null))
             {
-                snapshot = SnapshotStorageProvider.GetSnapshot(typeof(T), id);
+                snapshot = await SnapshotStorageProvider.GetSnapshot(typeof(T), id);
             }
 
             if (snapshot != null)
             {
                 item = ReflectionHelper.CreateInstance<T>();
                 ((ISnapshottable)item).ApplySnapshot(snapshot);
-                var events = EventStorageProvider.GetEvents(typeof(T), id, snapshot.Version + 1, int.MaxValue);
+                var events = await EventStorageProvider.GetEvents(typeof(T), id, snapshot.Version + 1, int.MaxValue);
                 item.LoadsFromHistory(events);
             }
             else
             {
-                var events = EventStorageProvider.GetEvents(typeof(T), id, 0, int.MaxValue);
+                var events = (await EventStorageProvider.GetEvents(typeof(T), id, 0, int.MaxValue)).ToList();
 
                 if (events.Any())
                 {
@@ -62,19 +62,19 @@ namespace NEventLite.Repository
             return item;
         }
 
-        public virtual void Save<T>(T aggregate) where T : AggregateRoot
+        public virtual async Task Save<T>(T aggregate) where T : AggregateRoot
         {
             if (aggregate.HasUncommittedChanges())
             {
-                CommitChanges(aggregate);
+                await CommitChanges(aggregate);
             }
         }
 
-        private void CommitChanges(AggregateRoot aggregate)
+        private async Task CommitChanges(AggregateRoot aggregate)
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 
-            IEvent item = EventStorageProvider.GetLastEvent(aggregate.GetType(), aggregate.Id);
+            IEvent item = await EventStorageProvider.GetLastEvent(aggregate.GetType(), aggregate.Id);
 
             if ((item != null) && (expectedVersion == (int)AggregateRoot.StreamState.NoStream))
             {
@@ -94,12 +94,12 @@ namespace NEventLite.Repository
             }
 
             //Commit events to storage provider
-            EventStorageProvider.CommitChanges(aggregate);
+            await EventStorageProvider.CommitChanges(aggregate);
 
             //Publish to event publisher asynchronously
             foreach (var e in changesToCommit)
             {
-                PublishToEventBusAsync(e);
+                await PublishToEventBusAsync(e);
             }
 
             //If the Aggregate implements snaphottable
@@ -116,7 +116,7 @@ namespace NEventLite.Repository
                         )
                     )
                 {
-                    SnapshotStorageProvider.SaveSnapshot(aggregate.GetType(), snapshottable.TakeSnapshot());
+                    await SnapshotStorageProvider.SaveSnapshot(aggregate.GetType(), snapshottable.TakeSnapshot());
                 }
             }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NEventLite.Domain;
 using NEventLite.Events;
 using NEventLite.Exceptions;
@@ -12,7 +13,7 @@ namespace NEventLite_Storage_Providers.InMemory
     {
         private Dictionary<Guid, List<IEvent>> eventStream = new Dictionary<Guid, List<IEvent>>();
 
-        public IEnumerable<IEvent> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
+        public async Task<IEnumerable<IEvent>> GetEvents(Type aggregateType, Guid aggregateId, int start, int count)
         {
             try
             {
@@ -45,7 +46,7 @@ namespace NEventLite_Storage_Providers.InMemory
 
         }
 
-        public IEvent GetLastEvent(Type aggregateType, Guid aggregateId)
+        public async Task<IEvent> GetLastEvent(Type aggregateType, Guid aggregateId)
         {
             if (eventStream.ContainsKey(aggregateId))
             {
@@ -57,7 +58,7 @@ namespace NEventLite_Storage_Providers.InMemory
             }
         }
 
-        public void CommitChanges(AggregateRoot aggregate)
+        public async Task CommitChanges(AggregateRoot aggregate)
         {
             var events = aggregate.GetUncommittedChanges();
 

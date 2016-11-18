@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NEventLite.Storage;
 using ServiceStack.Redis;
@@ -8,14 +9,18 @@ namespace NEventLite_Storage_Providers.Redis
     public abstract class RedisSnapshotStorageProvider : ISnapshotStorageProvider
     {
         private IRedisClientsManager clientsManager = null;
+
         protected RedisSnapshotStorageProvider(int frequency)
         {
             clientsManager = GetClientsManager();
             SnapshotFrequency = frequency;
         }
+
         public abstract IRedisClientsManager GetClientsManager();
+
         public int SnapshotFrequency { get; }
-        public NEventLite.Snapshot.Snapshot GetSnapshot(Type aggregateType, Guid aggregateId)
+
+        public async Task<NEventLite.Snapshot.Snapshot> GetSnapshot(Type aggregateType, Guid aggregateId)
         {
 
             NEventLite.Snapshot.Snapshot snapshot = null;
@@ -39,7 +44,8 @@ namespace NEventLite_Storage_Providers.Redis
             return snapshot;
 
         }
-        public void SaveSnapshot(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot)
+
+        public async Task SaveSnapshot(Type aggregateType, NEventLite.Snapshot.Snapshot snapshot)
         {
             using (IRedisClient redis = clientsManager.GetClient())
             {

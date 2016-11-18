@@ -17,14 +17,14 @@ namespace NEventLite.Repository
             Repository = repository;
         }
 
-        public virtual TAggregate GetById<TAggregate>(Guid Id) where TAggregate:AggregateRoot
+        public virtual async Task<TAggregate> GetById<TAggregate>(Guid Id) where TAggregate:AggregateRoot
         {
-            return Repository.GetById<TAggregate>(Id);
+            return await Repository.GetById<TAggregate>(Id);
         }
 
-        public virtual void Save<TAggregate>(TAggregate aggregate) where TAggregate : AggregateRoot
+        public virtual async Task Save<TAggregate>(TAggregate aggregate) where TAggregate : AggregateRoot
         {
-            Repository.Save(aggregate);
+            await Repository.Save(aggregate);
         }
 
     }

@@ -23,7 +23,7 @@ namespace NEventLite_Example.Event_Bus
                     LogManager.Log(
                         $"Event #{@event.TargetVersion + 1} Published: {@event.GetType().Name} @ {DateTime.Now.ToLongTimeString()}", 
                         LogSeverity.Information);
-            });
+            }).ConfigureAwait(false);
         }
     }
 }

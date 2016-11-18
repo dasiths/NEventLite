@@ -24,26 +24,26 @@ namespace NEventLite_Example.Command_Handlers
             _repository = repository;
         }
 
-        public ICommandResult Handle(CreateNoteCommand command)
+        public async Task<ICommandResult> Handle(CreateNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
 
-            work.Add(newNote);
-            work.Commit();
+            await work.Add(newNote);
+            await work.Commit();
 
             return new CommandResult(newNote.CurrentVersion, true, "");
         }
 
-        public ICommandResult Handle(EditNoteCommand command)
+        public async Task<ICommandResult> Handle(EditNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
-            var loadedNote = work.Get<Note>(command.AggregateId, command.TargetVersion);
+            var loadedNote = await work.Get<Note>(command.AggregateId, command.TargetVersion);
 
             loadedNote.ChangeTitle(command.title);
             loadedNote.ChangeCategory(command.cat);
 
-            work.Commit();
+            await work.Commit();
 
             return new CommandResult(loadedNote.CurrentVersion, true, "");
         }
