@@ -32,14 +32,15 @@ async Task CreateNote() {
         NoteRepository rep = container.Resolve<NoteRepository>();
         var commandBus = container.Resolve<ICommandBus>();        
 
-        //Create new note
+        //Create new note by sending command to the Command Bus
         Guid itemId = Guid.NewGuid();
         
-        var result = await commandBus.Execute(
+        var result = await commandBus.ExecuteAsync(
                      new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
                      "Test Note", "Event Sourcing System Demo", "Event Sourcing"));     
 
-		result.EnsureSuccess();
+	//This will throw and exception if commands hasn't succeeded
+	result.EnsureSuccess();
     }
 }
 
