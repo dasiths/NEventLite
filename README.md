@@ -54,11 +54,13 @@ Command Handler (NoteCommandHandler.cs in example)
             var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
 
-            var task = await work.AddAsync(newNote).ContinueWith((o) => work.CommitAsync());
+            await work.AddAsync(newNote);
+            var task = work.CommitAsync();
+            await task;
 
             return new CommandResult(newNote.CurrentVersion, 
-                            task.Status == TaskStatus.RanToCompletion, 
-                            task.Exception?.Flatten().Message);
+                                     task.Status == TaskStatus.RanToCompletion, 
+                                     task.Exception?.Flatten().Message);
         }
 
         public async Task<ICommandResult> HandleCommandAsync(EditNoteCommand command)
