@@ -28,7 +28,7 @@ namespace NEventLite_Example
 
                 using (new MyLifeTimeScope())
                 {
-                    DoMockRun(container).Wait();
+                    DoMockRunAsync(container).Wait();
                 }
             }
 
@@ -36,7 +36,7 @@ namespace NEventLite_Example
             Console.Read();
         }
 
-        private static async Task DoMockRun(DependencyResolver container)
+        private static async Task DoMockRunAsync(DependencyResolver container)
         {
             //GetAsync ioc container to create our repository
             NoteRepository rep = container.Resolve<NoteRepository>();
