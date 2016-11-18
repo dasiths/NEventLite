@@ -26,7 +26,7 @@ namespace NEventLite_Example.Command_Bus
 
             if (handler != null)
             {
-                var result = await Task.Run(()=> handler.Handle(command));
+                var result = await Task.Run(()=> handler.HandleCommandAsync(command));
                 return result;
             }
             else

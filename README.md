@@ -49,7 +49,7 @@ async Task CreateNote() {
 Command Handler (NoteCommandHandler.cs in example)
 
 ```C#
-        public async Task<ICommandResult> Handle(CreateNoteCommand command)
+        public async Task<ICommandResult> HandleCommandAsync(CreateNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
@@ -59,7 +59,7 @@ Command Handler (NoteCommandHandler.cs in example)
             return new CommandResult(newNote.CurrentVersion, task.IsFaulted == false, task.Exception?.Message);
         }
 
-        public async Task<ICommandResult> Handle(EditNoteCommand command)
+        public async Task<ICommandResult> HandleCommandAsync(EditNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
             var loadedNote = await work.GetAsync<Note>(command.AggregateId, command.TargetVersion);
