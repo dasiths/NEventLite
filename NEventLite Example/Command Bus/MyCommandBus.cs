@@ -31,7 +31,7 @@ namespace NEventLite_Example.Command_Bus
             }
             else
             {
-                throw new Exception("Command handler not found");
+                throw new NullReferenceException($"Command handler not found for {typeof(T)}");
             }
         }
     }

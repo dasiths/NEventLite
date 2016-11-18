@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NEventLite.Command_Bus;
 using NEventLite.Command_Handlers;
+using NEventLite.Extensions;
 using NEventLite.Logger;
 using NEventLite.Repository;
 using NEventLite.Storage;
@@ -37,7 +38,7 @@ namespace NEventLite_Example
 
         private static async Task DoMockRun(DependencyResolver container)
         {
-            //Get ioc container to create our repository
+            //GetAsync ioc container to create our repository
             NoteRepository rep = container.Resolve<NoteRepository>();
             var commandBus = container.Resolve<ICommandBus>();
 
@@ -50,7 +51,7 @@ namespace NEventLite_Example
 
             if ((string.IsNullOrEmpty(strGuid) == false) && (Guid.TryParse(strGuid, out SavedItemID)))
             {
-                Note tmpNote = await rep.GetById<Note>(SavedItemID);
+                Note tmpNote = await rep.GetByIdAsync<Note>(SavedItemID);
 
                 if (tmpNote == null)
                 {
@@ -63,11 +64,11 @@ namespace NEventLite_Example
                 //Create new note
                 Guid newItemId = Guid.NewGuid();
 
-                await commandBus.ExecuteAsync(
-                    new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
-                    "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
+                (await commandBus.ExecuteAsync(
+                    new CreateNoteCommand(Guid.NewGuid(), newItemId, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing")))
+                    .EnsureSucess();
 
-                Note tmpNote = await rep.GetById<Note>(newItemId);
+                Note tmpNote = await rep.GetByIdAsync<Note>(newItemId);
 
                 LogManager.Log("After Creation: This is version 0 of the AggregateRoot.", LogSeverity.Information);
                 LogManager.Log(Newtonsoft.Json.JsonConvert.SerializeObject(tmpNote) + "\n", LogSeverity.Debug);
@@ -78,17 +79,18 @@ namespace NEventLite_Example
             LogManager.Log("Doing some changes now... \n", LogSeverity.Debug);
 
             //Reload and do some changes
-            int LastVersion = (await rep.GetById<Note>(SavedItemID)).CurrentVersion;
+            int LastVersion = (await rep.GetByIdAsync<Note>(SavedItemID)).CurrentVersion;
 
             //Do 12 events cycle to check snapshots too.
             for (int i = 1; i <= 12; i++)
             {
                 LogManager.Log($"Applying Changes For Cycle {i}", LogSeverity.Debug);
 
-                var result = await commandBus.ExecuteAsync(
+                var result = (await commandBus.ExecuteAsync(
                                 new EditNoteCommand(Guid.NewGuid(), SavedItemID, LastVersion,
                                     $"Test Note 123 Event ({LastVersion + 1})",
-                                    $"Event Sourcing in .NET Example. Event ({LastVersion + 2})"));
+                                    $"Event Sourcing in .NET Example. Event ({LastVersion + 2})")))
+                                    .EnsureSucess();
 
                 LastVersion = result.AggregateVersion;
             }
@@ -96,7 +98,7 @@ namespace NEventLite_Example
             LogManager.Log("Finished applying changes. \n", LogSeverity.Debug);
 
             //Load to display
-            Note noteToLoad = await rep.GetById<Note>(SavedItemID);
+            Note noteToLoad = await rep.GetByIdAsync<Note>(SavedItemID);
 
             LogManager.Log("After Committing Events:", LogSeverity.Information);
             LogManager.Log(Newtonsoft.Json.JsonConvert.SerializeObject(noteToLoad) + "\n", LogSeverity.Debug);

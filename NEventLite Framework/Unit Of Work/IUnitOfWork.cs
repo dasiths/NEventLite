@@ -9,10 +9,10 @@ namespace NEventLite.Unit_Of_Work
 {
     public interface IUnitOfWork
     {
-        Task<T> Get<T>(Guid id, int? expectedVersion = null) where T:AggregateRoot;
+        Task<T> GetAsync<T>(Guid id, int? expectedVersion = null) where T:AggregateRoot;
 
-        Task Add<T>(T aggregate) where T : AggregateRoot;
+        Task AddAsync<T>(T aggregate) where T : AggregateRoot;
 
-        Task Commit();
+        Task CommitAsync();
     }
 }

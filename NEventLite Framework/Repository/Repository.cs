@@ -29,7 +29,7 @@ namespace NEventLite.Repository
             EventPublisher = eventPublisher;
         }
 
-        public virtual async Task<T> GetById<T>(Guid id) where T : AggregateRoot
+        public virtual async Task<T> GetByIdAsync<T>(Guid id) where T : AggregateRoot
         {
             T item = default(T);
 
@@ -62,7 +62,7 @@ namespace NEventLite.Repository
             return item;
         }
 
-        public virtual async Task Save<T>(T aggregate) where T : AggregateRoot
+        public virtual async Task SaveAsync<T>(T aggregate) where T : AggregateRoot
         {
             if (aggregate.HasUncommittedChanges())
             {
@@ -93,7 +93,7 @@ namespace NEventLite.Repository
                 DoPreCommitTasks(e);
             }
 
-            //Commit events to storage provider
+            //CommitAsync events to storage provider
             await EventStorageProvider.CommitChanges(aggregate);
 
             //Publish to event publisher asynchronously

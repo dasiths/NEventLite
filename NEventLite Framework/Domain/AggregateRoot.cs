@@ -48,7 +48,7 @@ namespace NEventLite.Domain
         public int LastCommittedVersion { get; protected set; }
 
         /// <summary>
-        /// Get the current state of this Aggregate
+        /// GetAsync the current state of this Aggregate
         /// </summary>
         /// <returns>StreamState</returns>
         public StreamState GetStreamState()
@@ -87,7 +87,7 @@ namespace NEventLite.Domain
         }
 
         /// <summary>
-        /// Get the events that have been applied but not commited to storage
+        /// GetAsync the events that have been applied but not commited to storage
         /// </summary>
         /// <returns>The uncommited events</returns>
         public IEnumerable<IEvent> GetUncommittedChanges()
@@ -201,7 +201,7 @@ namespace NEventLite.Domain
             }
             else
             {
-                throw new EventHandlerApplyMethodMissingException($"No event handler specified for {@event.GetType()} on {this.GetType()}");
+                throw new AggregateEventOnApplyMethodMissingException($"No event handler specified for {@event.GetType()} on {this.GetType()}");
             }
 
             CurrentVersion++;

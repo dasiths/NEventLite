@@ -18,20 +18,20 @@ namespace NEventLite_Example.Repository
         {
         }
 
-        public override async Task<T> GetById<T>(Guid Id)
+        public override async Task<T> GetByIdAsync<T>(Guid Id)
         {
             BeforeLoadAggregate(Id);
-            var result = await base.GetById<T>(Id);
+            var result = await base.GetByIdAsync<T>(Id);
             AfterLoadingAggregate(Id, result);
             return result;
         }
 
-        public override async Task Save<T>(T aggregate)
+        public override async Task SaveAsync<T>(T aggregate)
         {
             var events = aggregate.GetUncommittedChanges().ToList();
 
             BeforeSaveAggregate(aggregate, events);
-            await base.Save(aggregate);
+            await base.SaveAsync(aggregate);
             AfterSavingAggregate(aggregate, events);
         }
 

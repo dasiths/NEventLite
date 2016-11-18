@@ -24,8 +24,11 @@ namespace NEventLite_Example.Domain
     public class Note : AggregateRoot, ISnapshottable
     {
         public DateTime CreatedDate { get; private set; }
+
         public string Title { get; private set; }
+
         public string Description { get; private set; }
+
         public string Category { get; private set; }
 
         #region "Constructor and Methods"

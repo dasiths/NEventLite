@@ -25,7 +25,7 @@ namespace NEventLite.Extensions
             }
             else
             {
-                throw new EventHandlerApplyMethodMissingException($"No event Apply method found on {aggregate.GetType()} for {@event.GetType()}");
+                throw new AggregateEventOnApplyMethodMissingException($"No event Apply method found on {aggregate.GetType()} for {@event.GetType()}");
             }
         }
     }

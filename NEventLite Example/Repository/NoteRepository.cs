@@ -17,10 +17,10 @@ namespace NEventLite_Example.Repository
             
         }
 
-        public override async Task Save<T>(T aggregate)
+        public override async Task SaveAsync<T>(T aggregate)
         {
             LogManager.Log($"Saving {aggregate.GetType().Name}...", LogSeverity.Debug);
-            await base.Save(aggregate);
+            await base.SaveAsync(aggregate);
             LogManager.Log($"{aggregate.GetType().Name} Saved...", LogSeverity.Debug);
         }
     }

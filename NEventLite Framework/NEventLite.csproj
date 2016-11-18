@@ -54,8 +54,10 @@
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\AggregateCreationException.cs" />
     <Compile Include="Exceptions\AggregateStateMismatchException.cs" />
+    <Compile Include="Exceptions\CommandExecutionFailedException.cs" />
     <Compile Include="Exceptions\ConcurrencyException.cs" />
-    <Compile Include="Exceptions\EventHandlerApplyMethodMissingException.cs" />
+    <Compile Include="Exceptions\AggregateEventOnApplyMethodMissingException.cs" />
+    <Compile Include="Extensions\CommandExtensions.cs" />
     <Compile Include="Extensions\EventExtension.cs" />
     <Compile Include="Extensions\ReflectionHelper.cs" />
     <Compile Include="Logger\ILogger.cs" />

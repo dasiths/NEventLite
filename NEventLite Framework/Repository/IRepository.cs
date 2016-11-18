@@ -8,7 +8,7 @@ namespace NEventLite.Repository
 {
     public interface IRepository
     {
-        Task<T> GetById<T>(Guid id) where T : AggregateRoot;
-        Task Save<T>(T aggregate) where T : AggregateRoot;
+        Task<T> GetByIdAsync<T>(Guid id) where T : AggregateRoot;
+        Task SaveAsync<T>(T aggregate) where T : AggregateRoot;
     }
 }
