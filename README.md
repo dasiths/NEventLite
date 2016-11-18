@@ -56,7 +56,9 @@ Command Handler (NoteCommandHandler.cs in example)
 
             var task = await work.AddAsync(newNote).ContinueWith((o) => work.CommitAsync());
 
-            return new CommandResult(newNote.CurrentVersion, task.IsFaulted == false, task.Exception?.Message);
+            return new CommandResult(newNote.CurrentVersion, 
+                            task.Status == TaskStatus.RanToCompletion, 
+                            task.Exception?.Flatten().Message);
         }
 
         public async Task<ICommandResult> HandleCommandAsync(EditNoteCommand command)
@@ -70,7 +72,9 @@ Command Handler (NoteCommandHandler.cs in example)
             var task = work.CommitAsync();
             await task;
 
-            return new CommandResult(loadedNote.CurrentVersion, task.IsFaulted == false, task.Exception?.Message);
+            return new CommandResult(loadedNote.CurrentVersion, 
+                            task.Status == TaskStatus.RanToCompletion, 
+                            task.Exception?.Flatten().Message);
         }
 ```
 Aggregate (Note.cs in example)
