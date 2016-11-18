@@ -39,7 +39,8 @@ async Task CreateNote() {
                      new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
                      "Test Note", "Event Sourcing System Demo", "Event Sourcing"));	   
 
-		//This will throw and exception if commands hasn't succeeded
+		//This will throw an exception if commands hasn't succeeded
+		//You can have logic to retry the command here
 		result.EnsureSuccess();
     }
 }
