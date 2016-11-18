@@ -99,7 +99,7 @@ namespace NEventLite.Repository
             //Publish to event publisher asynchronously
             foreach (var e in changesToCommit)
             {
-                await PublishToEventBusAsync(e);
+                await EventPublisher.PublishAsync(e);
             }
 
             //If the Aggregate implements snaphottable
@@ -127,10 +127,6 @@ namespace NEventLite.Repository
         {
             e.EventCommittedTimestamp = DateTime.UtcNow;
         }
-
-        private async Task PublishToEventBusAsync(IEvent @event)
-        {
-            await EventPublisher.PublishAsync(@event);
-        }
+        
     }
 }
