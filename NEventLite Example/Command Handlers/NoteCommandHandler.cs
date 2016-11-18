@@ -29,8 +29,7 @@ namespace NEventLite_Example.Command_Handlers
             var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.title, command.desc, command.cat);
 
-            await work.Add(newNote);
-            await work.Commit();
+            await work.Add(newNote).ContinueWith((o) => work.Commit());
 
             return new CommandResult(newNote.CurrentVersion, true, "");
         }
