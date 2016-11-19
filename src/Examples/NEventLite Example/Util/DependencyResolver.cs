@@ -17,6 +17,7 @@ using NEventLite_Example.Domain;
 using NEventLite_Example.Events;
 using NEventLite_Example.Event_Bus;
 using NEventLite_Example.Logging;
+using NEventLite_Example.Read_Model;
 using NEventLite_Example.Repository;
 using NEventLite_Example.Storage;
 using NEventLite_Storage_Providers.InMemory;
@@ -74,6 +75,11 @@ namespace NEventLite_Example.Util
             //Register command bus
             builder.RegisterType<NoteCommandHandler>().InstancePerLifetimeScope();
             builder.RegisterType<MyCommandBus>().As<ICommandBus>().InstancePerLifetimeScope();
+
+            //Read model
+            builder.RegisterType<MyReadModelStorage>().InstancePerLifetimeScope();
+            builder.RegisterType<MyReadRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<MyEventSubscriber>().InstancePerLifetimeScope();
 
             Container = builder.Build();
         }

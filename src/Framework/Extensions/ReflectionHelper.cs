@@ -44,7 +44,7 @@ namespace NEventLite.Extensions
             return AggregateEventHandlerCache[aggregateType].ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        private static IEnumerable<MethodInfo> GetMethodsBySig(this Type type,
+        public static IEnumerable<MethodInfo> GetMethodsBySig(this Type type,
                                                                Type returnType,
                                                                Type customAttributeType,
                                                                bool matchParameterInheritence,

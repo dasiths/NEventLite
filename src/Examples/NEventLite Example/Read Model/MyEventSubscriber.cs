@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NEventLite.Events;
 using NEventLite.Event_Handlers;
+using NEventLite.Logger;
 using NEventLite_Example.Events;
 
 namespace NEventLite_Example.Read_Model
 {
-    public class MyEventSubscriber: IEventHandler<NoteCreatedEvent>,
+    public class MyEventSubscriber : IEventHandler<NoteCreatedEvent>,
                                     IEventHandler<NoteTitleChangedEvent>,
                                     IEventHandler<NoteDescriptionChangedEvent>,
                                     IEventHandler<NoteCategoryChangedEvent>
@@ -23,22 +25,29 @@ namespace NEventLite_Example.Read_Model
 
         public async Task HandleEventAsync(NoteCreatedEvent @event)
         {
-            throw new NotImplementedException();
+            LogEvent(@event);
         }
 
         public async Task HandleEventAsync(NoteTitleChangedEvent @event)
         {
-            throw new NotImplementedException();
+            LogEvent(@event);
         }
 
         public async Task HandleEventAsync(NoteDescriptionChangedEvent @event)
         {
-            throw new NotImplementedException();
+            LogEvent(@event);
         }
 
         public async Task HandleEventAsync(NoteCategoryChangedEvent @event)
         {
-            throw new NotImplementedException();
+            LogEvent(@event);
+        }
+
+        private void LogEvent(IEvent @event)
+        {
+            LogManager.Log(
+            $"Event #{@event.TargetVersion + 1} Received: {@event.GetType().Name} @ {DateTime.Now.ToLongTimeString()}",
+            LogSeverity.Information);
         }
     }
 }
