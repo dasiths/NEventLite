@@ -8,9 +8,9 @@ namespace NEventLite_Example.Read_Model
 {
     public class MyReadRepository
     {
-        private readonly MyReadModelStorage _stoage;
+        private readonly MyInMemoryReadModelStorage _stoage;
 
-        public MyReadRepository(MyReadModelStorage stoage)
+        public MyReadRepository(MyInMemoryReadModelStorage stoage)
         {
             _stoage = stoage;
         }

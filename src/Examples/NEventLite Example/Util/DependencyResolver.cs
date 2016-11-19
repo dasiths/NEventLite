@@ -77,7 +77,7 @@ namespace NEventLite_Example.Util
             builder.RegisterType<MyCommandBus>().As<ICommandBus>().InstancePerLifetimeScope();
 
             //Read model
-            builder.RegisterType<MyReadModelStorage>().InstancePerLifetimeScope();
+            builder.RegisterType<MyInMemoryReadModelStorage>().InstancePerLifetimeScope();
             builder.RegisterType<MyReadRepository>().InstancePerLifetimeScope();
             builder.RegisterType<MyEventSubscriber>().InstancePerLifetimeScope();
 

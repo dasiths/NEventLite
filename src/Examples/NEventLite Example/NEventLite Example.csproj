@@ -86,7 +86,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Read Model\MyEventSubscriber.cs" />
-    <Compile Include="Read Model\MyReadModelStorage.cs" />
+    <Compile Include="Read Model\MyInMemoryReadModelStorage.cs" />
     <Compile Include="Read Model\MyReadRepository.cs" />
     <Compile Include="Read Model\NoteReadModel.cs" />
     <Compile Include="Repository\MyRepositoryDecorator.cs" />

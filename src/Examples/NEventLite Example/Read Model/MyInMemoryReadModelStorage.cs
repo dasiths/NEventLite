@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NEventLite_Example.Read_Model
 {
-    public class MyReadModelStorage
+    public class MyInMemoryReadModelStorage
     {
         private readonly List<NoteReadModel> _allNotes = new List<NoteReadModel>();
 

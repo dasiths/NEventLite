@@ -110,11 +110,11 @@ namespace NEventLite_Example
 
             //Read model storage
             LogManager.Log("This is the read model loaded from read model storage:", LogSeverity.Information);
-            DumpReadModelStorageToScreen(container.Resolve<MyReadModelStorage>());
+            DumpReadModelStorageToScreen(container.Resolve<MyInMemoryReadModelStorage>());
 
         }
 
-        private static void DumpReadModelStorageToScreen(MyReadModelStorage storage)
+        private static void DumpReadModelStorageToScreen(MyInMemoryReadModelStorage storage)
         {
             foreach (var o in storage.GetAll())
             {
