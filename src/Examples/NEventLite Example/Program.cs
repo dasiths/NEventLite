@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NEventLite.Command_Bus;
@@ -10,6 +11,7 @@ using NEventLite.Storage;
 using NEventLite_Example.Commands;
 using NEventLite_Example.Command_Handlers;
 using NEventLite_Example.Domain;
+using NEventLite_Example.Read_Model;
 using NEventLite_Example.Repository;
 using NEventLite_Example.Util;
 
@@ -102,9 +104,22 @@ namespace NEventLite_Example
             //Load to display
             Note noteToLoad = await rep.GetByIdAsync<Note>(savedItemId);
 
-            LogManager.Log("After Committing Events:", LogSeverity.Information);
+            LogManager.Log("\n", LogSeverity.Debug);
+            LogManager.Log("This is the write model constructed from event storage:", LogSeverity.Information);
             LogManager.Log(Newtonsoft.Json.JsonConvert.SerializeObject(noteToLoad) + "\n", LogSeverity.Debug);
 
+            //Read model storage
+            LogManager.Log("This is the read model loaded from read model storage:", LogSeverity.Information);
+            DumpReadModelStorageToScreen(container.Resolve<MyReadModelStorage>());
+
+        }
+
+        private static void DumpReadModelStorageToScreen(MyReadModelStorage storage)
+        {
+            foreach (var o in storage.GetAll())
+            {
+                LogManager.Log(Newtonsoft.Json.JsonConvert.SerializeObject(o) + "\n", LogSeverity.Debug);
+            }
         }
     }
 }

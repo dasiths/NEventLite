@@ -26,21 +26,41 @@ namespace NEventLite_Example.Read_Model
         public async Task HandleEventAsync(NoteCreatedEvent @event)
         {
             LogEvent(@event);
+
+            _repository.AddNote(new NoteReadModel(@event.AggregateId, @event.CreatedTime, @event.Title, @event.Desc, @event.Cat));
         }
 
         public async Task HandleEventAsync(NoteTitleChangedEvent @event)
         {
             LogEvent(@event);
+
+            var note = _repository.GetNote(@event.AggregateId);
+            note.CurrentVersion = @event.TargetVersion + 1;
+            note.Title = @event.Title;
+
+            _repository.SaveNote(note);
         }
 
         public async Task HandleEventAsync(NoteDescriptionChangedEvent @event)
         {
             LogEvent(@event);
+
+            var note = _repository.GetNote(@event.AggregateId);
+            note.CurrentVersion = @event.TargetVersion + 1;
+            note.Description = @event.Description;
+
+            _repository.SaveNote(note);
         }
 
         public async Task HandleEventAsync(NoteCategoryChangedEvent @event)
         {
             LogEvent(@event);
+
+            var note = _repository.GetNote(@event.AggregateId);
+            note.CurrentVersion = @event.TargetVersion + 1;
+            note.Category = @event.Cat;
+
+            _repository.SaveNote(note);
         }
 
         private void LogEvent(IEvent @event)
