@@ -30,6 +30,7 @@ namespace NEventLite_Example_MVC
         protected void Application_End()
         {
             _applicationContainerInstance?.Dispose();
+            _applicationContainerInstance = null;
         }
     }
 }
