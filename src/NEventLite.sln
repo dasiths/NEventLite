@@ -12,9 +12,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite Storage Providers", "Storage Providers\NEventLite Storage Providers.csproj", "{14FDA88E-B5A0-4BE0-8B49-1828B9A3A4F2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3D61E601-20DE-4E01-A483-EA4D961213F6}"
-	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite Example MVC", "Examples\NEventLite Example MVC\NEventLite Example MVC.csproj", "{471D49E3-A607-4BA7-BE20-07A495497C2B}"
 EndProject
