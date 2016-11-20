@@ -16,7 +16,7 @@ namespace NEventLite_Example_MVC
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                defaults: new { controller = "NoteDto", action = "Index", id = UrlParameter.Optional }
             );
         }
     }
