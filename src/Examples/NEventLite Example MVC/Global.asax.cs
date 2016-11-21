@@ -16,8 +16,7 @@ namespace NEventLite_Example_MVC
 
         public DependencyResolver GetDependencyResolver()
         {
-            string inMemoryStoragePath = Server.MapPath(@"~/App_Data/");
-            return _applicationContainerInstance ?? (_applicationContainerInstance = new DependencyResolver(inMemoryStoragePath));
+            return _applicationContainerInstance ?? (_applicationContainerInstance = new DependencyResolver());
         }
 
         protected void Application_Start()

@@ -22,11 +22,8 @@ namespace NEventLite_Example
 
         static void Main(string[] args)
         {
-            //This path is used to save in memory storage
-            string inMemoryStoragePath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
-
             //Load dependency resolver
-            using (var container = new DependencyResolver(inMemoryStoragePath))
+            using (var container = new DependencyResolver())
             {
                 //Set logger
                 LogManager.AddLogger(container.Resolve<ILogger>());

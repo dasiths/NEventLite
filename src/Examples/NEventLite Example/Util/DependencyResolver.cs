@@ -34,10 +34,13 @@ namespace NEventLite_Example.Util
         private readonly string _inMemorySnapshotStorePath;
         private readonly string _inMemoryReadModelStorePath;
 
-        public DependencyResolver(string strTempDataFolderPath)
+        public DependencyResolver()
         {
             // Create your builder.
             var builder = new ContainerBuilder();
+
+            //This path is used to save in memory storage
+            string strTempDataFolderPath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
 
             //create temp directory if it doesn't exist
             new FileInfo(strTempDataFolderPath).Directory.Create();
@@ -46,7 +49,7 @@ namespace NEventLite_Example.Util
             _inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";
             _inMemoryReadModelStorePath = $@"{strTempDataFolderPath}events.readmodel.dump";
 
-            //Comment following line to preserve cache
+            //Comment following line to clear cache for every new run
             //ClearInMemoryCache();
 
             //-------- Event Stores ------------
