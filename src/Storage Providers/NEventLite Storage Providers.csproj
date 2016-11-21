@@ -72,6 +72,7 @@
     <Compile Include="InMemory\InMemorySnapshotStorageProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Redis\RedisSnapshotStorageProvider.cs" />
+    <Compile Include="Util\SerializerHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Framework\NEventLite.csproj">

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Autofac;
@@ -21,6 +22,7 @@ using NEventLite_Example.Read_Model;
 using NEventLite_Example.Repository;
 using NEventLite_Example.Storage;
 using NEventLite_Storage_Providers.InMemory;
+using ServiceStack.Text.Controller;
 
 namespace NEventLite_Example.Util
 {
@@ -28,18 +30,33 @@ namespace NEventLite_Example.Util
     {
         private IContainer Container { get; }
 
-        public DependencyResolver()
+        private readonly string _inMemoryEventStorePath;
+        private readonly string _inMemorySnapshotStorePath;
+        private readonly string _inMemoryReadModelStorePath;
+
+        public DependencyResolver(string strTempDataFolderPath)
         {
             // Create your builder.
             var builder = new ContainerBuilder();
-            
+
+            //create temp directory if it doesn't exist
+            new FileInfo(strTempDataFolderPath).Directory.Create();
+
+            _inMemoryEventStorePath = $@"{strTempDataFolderPath}events.stream.dump";
+            _inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";
+            _inMemoryReadModelStorePath = $@"{strTempDataFolderPath}events.readmodel.dump";
+
+            //Comment following line to preserve cache
+            //ClearInMemoryCache();
+
             //-------- Event Stores ------------
 
             //Event store connection settings are in EventstoreEventStorageProvider class
             //If you don't have eventstore installed comment our the line below
             //builder.RegisterType<MyEventstoreEventStorageProvider>().As<IEventStorageProvider>().InstancePerLifetimeScope();
 
-            builder.RegisterType<InMemoryEventStorageProvider>().As<IEventStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
+            builder.Register(o => new InMemoryEventStorageProvider(_inMemoryEventStorePath))
+                .As<IEventStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
             //----------------------------------
 
             //-------- Snapshot Stores ----------
@@ -53,7 +70,8 @@ namespace NEventLite_Example.Util
             //Redis connection settings are in RedisConnection class
             //builder.Register(o => new MyRedisSnapshotStorageProvider(snapshotFrequency)).As<ISnapshotStorageProvider>().InstancePerLifetimeScope();
 
-            builder.Register(o => new InMemorySnapshotStorageProvider(snapshotFrequency)).As<ISnapshotStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
+            builder.Register(o => new InMemorySnapshotStorageProvider(snapshotFrequency, _inMemorySnapshotStorePath))
+                .As<ISnapshotStorageProvider>().PreserveExistingDefaults().InstancePerLifetimeScope();
             //----------------------------------
 
             //Event Bus
@@ -71,13 +89,13 @@ namespace NEventLite_Example.Util
 
             //Register NoteRepository
             builder.RegisterType<NoteRepository>().InstancePerLifetimeScope();
-            
+
             //Register command bus
             builder.RegisterType<NoteCommandHandler>().InstancePerLifetimeScope();
             builder.RegisterType<MyCommandBus>().As<ICommandBus>().InstancePerLifetimeScope();
 
             //Read model
-            builder.RegisterType<MyInMemoryReadModelStorage>().InstancePerLifetimeScope();
+            builder.Register(o => new MyInMemoryReadModelStorage(_inMemoryReadModelStorePath)).InstancePerLifetimeScope();
             builder.RegisterType<MyReadRepository>().InstancePerLifetimeScope();
             builder.RegisterType<MyEventSubscriber>().InstancePerLifetimeScope();
 
@@ -92,6 +110,19 @@ namespace NEventLite_Example.Util
         public void Dispose()
         {
             Container.Dispose();
+        }
+
+        private void ClearInMemoryCache()
+        {
+            string[] files = new string[] {_inMemoryEventStorePath, _inMemorySnapshotStorePath, _inMemoryReadModelStorePath};
+
+            foreach (var o in files)
+            {
+                if (File.Exists(o))
+                {
+                    File.Delete(o);
+                }
+            }
         }
     }
 }

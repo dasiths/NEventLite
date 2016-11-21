@@ -1,0 +1,1 @@
+{"$type":"System.Collections.Generic.List`1[[System.Object, mscorlib]], mscorlib","$values":[{"$type":"NEventLite_Example.Read_Model.NoteReadModel, NEventLite_Example","Id":"fecf18df-5333-4678-853e-ca8711cd6045","CurrentVersion":1,"CreatedDate":"2016-11-21T15:25:43.1015402+11:00","Title":"test","Description":"test 123","Category":"test category 123"}]}

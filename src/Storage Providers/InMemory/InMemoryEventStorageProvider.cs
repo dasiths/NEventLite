@@ -1,17 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NEventLite.Domain;
 using NEventLite.Events;
 using NEventLite.Exceptions;
 using NEventLite.Storage;
+using NEventLite_Storage_Providers.Util;
 
 namespace NEventLite_Storage_Providers.InMemory
 {
     public class InMemoryEventStorageProvider : IEventStorageProvider
     {
+        private readonly string _memoryDumpFile;
         private Dictionary<Guid, List<IEvent>> _eventStream = new Dictionary<Guid, List<IEvent>>();
+
+        public InMemoryEventStorageProvider(string memoryDumpFile)
+        {
+            _memoryDumpFile = memoryDumpFile;
+
+            if (File.Exists(_memoryDumpFile))
+            {
+                _eventStream = SerializerHelper.LoadListFromFile<Dictionary<Guid, List<IEvent>>>(_memoryDumpFile).First();
+            }
+        }
 
         public async Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count)
         {
@@ -37,7 +50,7 @@ namespace NEventLite_Storage_Providers.InMemory
                 {
                     return new List<IEvent>();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -73,6 +86,8 @@ namespace NEventLite_Storage_Providers.InMemory
                     _eventStream[aggregate.Id].AddRange(events);
                 }
             }
+
+            SerializerHelper.SaveListToFile(_memoryDumpFile, new[] {_eventStream});
 
         }
     }
