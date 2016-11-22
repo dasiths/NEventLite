@@ -29,7 +29,9 @@ namespace NEventLite_Example.Command_Bus
 
                 //You can publish this to a Message Bus here
                 //We will just call our command handler directly here to demonstrate async command publish via a bus
-                await Task.Run(() => handler.HandleCommandAsync(command));
+
+                //Important: I am not awaiting on the task to simulate a message bus publish
+                Task.Run(() => handler.HandleCommandAsync(command)).ConfigureAwait(false);
 
                 return new CommandPublishResult(true, "");
             }

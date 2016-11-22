@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using NEventLite.Command_Bus;
+using NEventLite.Extensions;
 using NEventLite_Example.Commands;
 using NEventLite_Example.Read_Model;
 using NEventLite_Example_MVC.Models;
@@ -34,11 +35,14 @@ namespace NEventLite_Example_MVC.Controllers
 
             if (ModelState.IsValid)
             {
-                await GetCommandBus().ExecuteAsync(
+                var result = await GetCommandBus().ExecuteAsync(
                     new CreateNoteCommand(Guid.NewGuid(), Guid.NewGuid(), -1, collection["Title"],
                         collection["Description"], collection["Category"]));
 
+                result.EnsurePublished();
 
+                //Let events commit
+                Thread.Sleep(200);
             }
 
             return RedirectToAction("Index");
@@ -59,11 +63,14 @@ namespace NEventLite_Example_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                await GetCommandBus().ExecuteAsync(
+                var result = await GetCommandBus().ExecuteAsync(
                     new EditNoteCommand(Guid.NewGuid(), id, CurrentVersion, collection["Title"],
                         collection["Description"], collection["Category"]));
 
+                result.EnsurePublished();
 
+                //Let events commit
+                Thread.Sleep(200);
             }
 
             return RedirectToAction("Index");
