@@ -54,8 +54,7 @@ Command Handler (NoteCommandHandler.cs in example)
             var newNote = new Note(command.AggregateId, command.Title, command.Desc, command.Cat);
             work.Add(newNote);
 
-            var task = work.CommitAsync();
-            await task;
+            await work.CommitAsync();
         }
 
         public async Task HandleCommandAsync(EditNoteCommand command)
@@ -67,8 +66,7 @@ Command Handler (NoteCommandHandler.cs in example)
             loadedNote.ChangeDescription(command.Description);
             loadedNote.ChangeCategory(command.Cat);
 
-            var task = work.CommitAsync();
-            await task;
+            await work.CommitAsync();
         }
 ```
 Aggregate (Note.cs in example)
