@@ -30,8 +30,7 @@ namespace NEventLite_Example.Command_Handlers
             var newNote = new Note(command.AggregateId, command.Title, command.Desc, command.Cat);
             work.Add(newNote);
 
-            var task = work.CommitAsync();
-            await task;
+            await work.CommitAsync();
         }
 
         public async Task HandleCommandAsync(EditNoteCommand command)
@@ -43,8 +42,7 @@ namespace NEventLite_Example.Command_Handlers
             loadedNote.ChangeDescription(command.Description);
             loadedNote.ChangeCategory(command.Cat);
 
-            var task = work.CommitAsync();
-            await task;
+            await work.CommitAsync();
         }
 
     }
