@@ -16,7 +16,15 @@ namespace NEventLite_Example_MVC
 
         public DependencyResolver GetDependencyResolver()
         {
-            return _applicationContainerInstance ?? (_applicationContainerInstance = new DependencyResolver());
+            if (_applicationContainerInstance == null)
+            {
+                _applicationContainerInstance = new DependencyResolver();
+
+                //Comment following line to stop clearing cache for every new run
+                //_applicationContainerInstance.ClearInMemoryCache();
+            }
+
+            return _applicationContainerInstance;
         }
 
         protected void Application_Start()
