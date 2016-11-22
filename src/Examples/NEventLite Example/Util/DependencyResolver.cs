@@ -49,8 +49,6 @@ namespace NEventLite_Example.Util
             _inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";
             _inMemoryReadModelStorePath = $@"{strTempDataFolderPath}events.readmodel.dump";
 
-            //Comment following line to clear cache for every new run
-            //ClearInMemoryCache();
 
             //-------- Event Stores ------------
 
@@ -115,7 +113,7 @@ namespace NEventLite_Example.Util
             Container.Dispose();
         }
 
-        private void ClearInMemoryCache()
+        public void ClearInMemoryCache()
         {
             string[] files = new string[] {_inMemoryEventStorePath, _inMemorySnapshotStorePath, _inMemoryReadModelStorePath};
 

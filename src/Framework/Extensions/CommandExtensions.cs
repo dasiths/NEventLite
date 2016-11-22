@@ -10,14 +10,12 @@ namespace NEventLite.Extensions
 {
     public static class CommandExtensions
     {
-        public static ICommandResult EnsureSuccess(this ICommandResult commandResult)
+        public static void EnsurePublished(this ICommandPublishResult commandPublishResult)
         {
-            if (commandResult.IsSucess == false)
+            if (commandPublishResult.IsSucess == false)
             {
-                throw new CommandExecutionFailedException($"Command failed with message: {commandResult.RejectReason}");
+                throw new CommandExecutionFailedException($"Command failed with message: {commandPublishResult.FailReason}");
             }
-
-            return commandResult;
         }
     }
 }

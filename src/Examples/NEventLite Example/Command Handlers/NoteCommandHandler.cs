@@ -24,7 +24,7 @@ namespace NEventLite_Example.Command_Handlers
             _repository = repository;
         }
 
-        public async Task<ICommandResult> HandleCommandAsync(CreateNoteCommand command)
+        public async Task HandleCommandAsync(CreateNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.Title, command.Desc, command.Cat);
@@ -32,13 +32,9 @@ namespace NEventLite_Example.Command_Handlers
 
             var task = work.CommitAsync();
             await task;
-
-            return new CommandResult(newNote.CurrentVersion, 
-                                     task.Status == TaskStatus.RanToCompletion, 
-                                     task.Exception?.Flatten().Message);
         }
 
-        public async Task<ICommandResult> HandleCommandAsync(EditNoteCommand command)
+        public async Task HandleCommandAsync(EditNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
             var loadedNote = await work.GetAsync<Note>(command.AggregateId, command.TargetVersion);
@@ -49,10 +45,6 @@ namespace NEventLite_Example.Command_Handlers
 
             var task = work.CommitAsync();
             await task;
-
-            return new CommandResult(loadedNote.CurrentVersion, 
-                                     task.Status == TaskStatus.RanToCompletion, 
-                                     task.Exception?.Flatten().Message);
         }
 
     }

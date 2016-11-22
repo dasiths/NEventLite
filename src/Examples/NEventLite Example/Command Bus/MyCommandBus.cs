@@ -11,7 +11,7 @@ using NEventLite_Example.Command_Handlers;
 
 namespace NEventLite_Example.Command_Bus
 {
-    public class MyCommandBus:ICommandBus
+    public class MyCommandBus : ICommandBus
     {
         private readonly NoteCommandHandler _noteCommandHandler;
 
@@ -20,14 +20,18 @@ namespace NEventLite_Example.Command_Bus
             _noteCommandHandler = noteCommandHandler;
         }
 
-        public async Task<ICommandResult> ExecuteAsync<T>(T command) where T:ICommand
+        public async Task<ICommandPublishResult> ExecuteAsync<T>(T command) where T : ICommand
         {
             var handler = _noteCommandHandler as ICommandHandler<T>;
 
             if (handler != null)
             {
-                var result = await Task.Run(()=> handler.HandleCommandAsync(command));
-                return result;
+
+                //You can publish this to a Message Bus here
+                //We will just call our command handler directly here to demonstrate async command publish via a bus
+                await Task.Run(() => handler.HandleCommandAsync(command));
+
+                return new CommandPublishResult(true, "");
             }
             else
             {

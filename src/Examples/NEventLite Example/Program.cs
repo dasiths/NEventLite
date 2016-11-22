@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using NEventLite.Command_Bus;
 using NEventLite.Command_Handlers;
@@ -30,6 +31,9 @@ namespace NEventLite_Example
 
                 using (new MyLifeTimeScope())
                 {
+                    //Comment following line to stop clearing cache for every new run
+                    container.ClearInMemoryCache();
+
                     DoMockRunAsync(container).Wait();
                 }
             }
@@ -66,9 +70,14 @@ namespace NEventLite_Example
                 //Create new note
                 Guid newItemId = Guid.NewGuid();
 
-                (await commandBus.ExecuteAsync(
-                    new CreateNoteCommand(Guid.NewGuid(), newItemId, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing")))
-                    .EnsureSuccess();
+                var publishResult =  await commandBus.ExecuteAsync(
+                                new CreateNoteCommand(
+                                Guid.NewGuid(), newItemId, -1, "Test Note", "Event Sourcing System Demo", "Event Sourcing"));
+
+                publishResult.EnsurePublished();
+
+                //Let the events commit
+                Thread.Sleep(200);
 
                 Note tmpNote = await rep.GetByIdAsync<Note>(newItemId);
 
@@ -81,22 +90,24 @@ namespace NEventLite_Example
             LogManager.Log("Doing some changes now... \n", LogSeverity.Debug);
 
             //Reload and do some changes
-            int lastVersion = (await rep.GetByIdAsync<Note>(savedItemId)).CurrentVersion;
-
             //Do 5 events cycle to check snapshots too.
             for (int i = 1; i <= 5; i++)
             {
                 LogManager.Log($"Applying Changes For Cycle {i}", LogSeverity.Debug);
 
-                var result = (await commandBus.ExecuteAsync(
+                int lastVersion = (await rep.GetByIdAsync<Note>(savedItemId)).CurrentVersion;
+
+                var publishResult = await commandBus.ExecuteAsync(
                                 new EditNoteCommand(
                                     Guid.NewGuid(), savedItemId, lastVersion,
                                     $"Test Note 123 Event ({lastVersion + 1})",
                                     $"Event Sourcing System Demo ({lastVersion + 2})",
-                                    $"Event Sourcing in .NET Example. Event ({lastVersion + 3})")))
-                                    .EnsureSuccess();
+                                    $"Event Sourcing in .NET Example. Event ({lastVersion + 3})"));
 
-                lastVersion = result.AggregateVersion;
+                publishResult.EnsurePublished();
+
+                //Let the events commit
+                Thread.Sleep(200);
             }
 
             LogManager.Log("Finished applying changes. \n", LogSeverity.Debug);

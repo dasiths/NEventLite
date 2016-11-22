@@ -9,6 +9,6 @@ namespace NEventLite.Command_Bus
 {
     public interface ICommandBus
     {
-        Task<ICommandResult> ExecuteAsync<T>(T command) where T:ICommand;
+        Task<ICommandPublishResult> ExecuteAsync<T>(T command) where T:ICommand;
     }
 }

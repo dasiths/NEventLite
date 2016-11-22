@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace NEventLite.Commands
 {
-    public interface ICommandResult
+    public interface ICommandPublishResult
     {
-        int AggregateVersion { get; }
         bool IsSucess { get; }
-        string RejectReason { get; }
+        string FailReason { get; }
     }
 }

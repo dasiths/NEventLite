@@ -35,13 +35,13 @@ async Task CreateNote() {
         //Create new note by sending command to the Command Bus
         Guid itemId = Guid.NewGuid();
         
-        var result = await commandBus.ExecuteAsync(
+        var publishResult = await commandBus.ExecuteAsync(
                      new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
                      "Test Note", "Event Sourcing System Demo", "Event Sourcing"));	   
 
-		//This will throw an exception if command hasn't succeeded
+		//This will throw an exception if the command was not published
 		//You can add logic to retry the command as required
-		result.EnsureSuccess();
+		publishResult.EnsurePublished();
     }
 }
 
@@ -49,7 +49,7 @@ async Task CreateNote() {
 Command Handler (NoteCommandHandler.cs in example)
 
 ```C#
-        public async Task<ICommandResult> HandleCommandAsync(CreateNoteCommand command)
+        public async Task HandleCommandAsync(CreateNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
             var newNote = new Note(command.AggregateId, command.Title, command.Desc, command.Cat);
@@ -57,26 +57,19 @@ Command Handler (NoteCommandHandler.cs in example)
 
             var task = work.CommitAsync();
             await task;
-
-            return new CommandResult(newNote.CurrentVersion, 
-                                     task.Status == TaskStatus.RanToCompletion, 
-                                     task.Exception?.Flatten().Message);
         }
 
-        public async Task<ICommandResult> HandleCommandAsync(EditNoteCommand command)
+        public async Task HandleCommandAsync(EditNoteCommand command)
         {
             var work = new UnitOfWork(_repository);
             var loadedNote = await work.GetAsync<Note>(command.AggregateId, command.TargetVersion);
 
-            loadedNote.ChangeTitle(command.title);
-            loadedNote.ChangeCategory(command.cat);
+            loadedNote.ChangeTitle(command.Title);
+            loadedNote.ChangeDescription(command.Description);
+            loadedNote.ChangeCategory(command.Cat);
 
             var task = work.CommitAsync();
             await task;
-
-            return new CommandResult(loadedNote.CurrentVersion, 
-                            task.Status == TaskStatus.RanToCompletion, 
-                            task.Exception?.Flatten().Message);
         }
 ```
 Aggregate (Note.cs in example)
