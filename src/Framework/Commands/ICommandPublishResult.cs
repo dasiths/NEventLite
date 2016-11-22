@@ -10,5 +10,7 @@ namespace NEventLite.Commands
     {
         bool IsSucess { get; }
         string FailReason { get; }
+        Exception ResultException { get; }
+        void EnsurePublished();
     }
 }

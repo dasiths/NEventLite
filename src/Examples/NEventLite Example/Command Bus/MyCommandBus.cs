@@ -33,11 +33,12 @@ namespace NEventLite_Example.Command_Bus
                 //Important: I am not awaiting on the task to simulate a message bus publish
                 Task.Run(() => handler.HandleCommandAsync(command)).ConfigureAwait(false);
 
-                return new CommandPublishResult(true, "");
+                return new CommandPublishResult(true, "", null);
             }
             else
             {
-                throw new NullReferenceException($"Command handler not found for {typeof(T)}");
+                return new CommandPublishResult(false, "No command handler", 
+                    new NullReferenceException($"Command handler not found for {typeof(T)}"));
             }
         }
     }
