@@ -18,7 +18,7 @@ namespace NEventLite_Example_MVC.Controllers
         // GET: NoteDto
         public ActionResult Index()
         {
-            return View(GetReadRepository().GetAllNotes().OrderBy(o=> o.CreatedDate).Select(o => new NoteDto(o)));
+            return View(GetReadRepository().GetAllNotes().OrderBy(o => o.CreatedDate).Select(o => new NoteDto(o)));
         }
 
         // GET: NoteDto/Create
@@ -31,23 +31,18 @@ namespace NEventLite_Example_MVC.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(FormCollection collection)
         {
-            try
+
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    await GetCommandBus().ExecuteAsync(
-                        new CreateNoteCommand(Guid.NewGuid(), Guid.NewGuid(), -1, collection["Title"],
-                            collection["Description"], collection["Category"]));
+                await GetCommandBus().ExecuteAsync(
+                    new CreateNoteCommand(Guid.NewGuid(), Guid.NewGuid(), -1, collection["Title"],
+                        collection["Description"], collection["Category"]));
 
 
-                }
-
-                return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
-            }
+
+            return RedirectToAction("Index");
+
         }
 
         // GET: NoteDto/Edit/5
@@ -62,23 +57,16 @@ namespace NEventLite_Example_MVC.Controllers
         [HttpPost]
         public async Task<ActionResult> Edit(Guid id, int CurrentVersion, FormCollection collection)
         {
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    await GetCommandBus().ExecuteAsync(
-                        new EditNoteCommand(Guid.NewGuid(), id, CurrentVersion, collection["Title"],
-                            collection["Description"], collection["Category"]));
+                await GetCommandBus().ExecuteAsync(
+                    new EditNoteCommand(Guid.NewGuid(), id, CurrentVersion, collection["Title"],
+                        collection["Description"], collection["Category"]));
 
 
-                }
-
-                return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
-            }
+
+            return RedirectToAction("Index");
         }
 
         private MyReadRepository GetReadRepository()

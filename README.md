@@ -28,8 +28,7 @@ It's very easy to use once setup. Ideal for implementing the CQRS pattern.
 async Task CreateNote() {
     using (var container = new DependencyResolver())
     {
-        //Get ioc container to create our repository
-        NoteRepository rep = container.Resolve<NoteRepository>();
+        //Get ioc container to create our command bus
         var commandBus = container.Resolve<ICommandBus>();        
 
         //Create new note by sending command to the Command Bus
