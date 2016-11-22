@@ -42,7 +42,7 @@ namespace NEventLite_Example_MVC.Controllers
                 result.EnsurePublished();
 
                 //Let events commit
-                Thread.Sleep(200);
+                await Task.Delay(200);
             }
 
             return RedirectToAction("Index");
@@ -70,7 +70,7 @@ namespace NEventLite_Example_MVC.Controllers
                 result.EnsurePublished();
 
                 //Let events commit
-                Thread.Sleep(200);
+                await Task.Delay(200);
             }
 
             return RedirectToAction("Index");

@@ -77,7 +77,7 @@ namespace NEventLite_Example
                 publishResult.EnsurePublished();
 
                 //Let the events commit
-                Thread.Sleep(200);
+                await Task.Delay(200);
 
                 Note tmpNote = await rep.GetByIdAsync<Note>(newItemId);
 
@@ -107,7 +107,7 @@ namespace NEventLite_Example
                 publishResult.EnsurePublished();
 
                 //Let the events commit
-                Thread.Sleep(200);
+                await Task.Delay(200);
             }
 
             LogManager.Log("Finished applying changes. \n", LogSeverity.Debug);
