@@ -28,7 +28,7 @@ namespace NEventLite.Events
         /// <summary>
         /// Unique event ID
         /// </summary>
-        Guid Id { get; }
+        Guid CorrelationId { get; }
 
         /// <summary>
         /// This is used to timestamp the event when it get's committed

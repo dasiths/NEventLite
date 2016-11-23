@@ -4,13 +4,13 @@ namespace NEventLite.Commands
 {
     public class Command:ICommand
     {
-        public Guid Id { get; private set; }
+        public Guid CorrelationId { get; private set; }
         public Guid AggregateId { get; }
         public int TargetVersion { get; private set; }
 
-        public Command(Guid id, Guid aggregateId, int targetVersion)
+        public Command(Guid CorrelationId, Guid aggregateId, int targetVersion)
         {
-            Id = id;
+            this.CorrelationId = CorrelationId;
             AggregateId = aggregateId;
             TargetVersion = targetVersion;
         }

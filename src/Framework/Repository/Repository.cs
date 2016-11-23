@@ -78,11 +78,11 @@ namespace NEventLite.Repository
 
             if ((item != null) && (expectedVersion == (int)AggregateRoot.StreamState.NoStream))
             {
-                throw new AggregateCreationException($"Aggregate {item.Id} can't be created as it already exists with version {item.TargetVersion + 1}");
+                throw new AggregateCreationException($"Aggregate {item.CorrelationId} can't be created as it already exists with version {item.TargetVersion + 1}");
             }
             else if ((item != null) && ((item.TargetVersion + 1) != expectedVersion))
             {
-                throw new ConcurrencyException($"Aggregate {item.Id} has been modified externally and has an updated state. Can't commit changes.");
+                throw new ConcurrencyException($"Aggregate {item.CorrelationId} has been modified externally and has an updated state. Can't commit changes.");
             }
 
             var changesToCommit = aggregate.GetUncommittedChanges().ToList();

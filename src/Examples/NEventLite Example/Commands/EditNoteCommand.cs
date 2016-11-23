@@ -13,7 +13,7 @@ namespace NEventLite_Example.Commands
         public string Description { get; private set; }
         public string Cat { get; private set; }
 
-        public EditNoteCommand(Guid id, Guid aggregateId, int targetVersion, string title, string description, string cat) : base(id, aggregateId, targetVersion)
+        public EditNoteCommand(Guid correlationId, Guid aggregateId, int targetVersion, string title, string description, string cat) : base(correlationId, aggregateId, targetVersion)
         {
             this.Title = title;
             this.Description = description;

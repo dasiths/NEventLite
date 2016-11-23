@@ -20,7 +20,7 @@ namespace NEventLite.Events
     {
         public int TargetVersion { get; set; }
         public Guid AggregateId { get;  set; }
-        public Guid Id { get; }
+        public Guid CorrelationId { get; }
         public DateTime EventCommittedTimestamp { get; set; }
         public int ClassVersion { get; set; }
 
@@ -39,7 +39,7 @@ namespace NEventLite.Events
             this.AggregateId = aggregateId;
             this.TargetVersion = targetVersion;
             this.ClassVersion = eventClassVersion;
-            this.Id = Guid.NewGuid();
+            this.CorrelationId = Guid.NewGuid();
         }
     }
 

@@ -4,7 +4,7 @@ namespace NEventLite.Commands
 {
     public interface ICommand
     {
-        Guid Id { get; }
+        Guid CorrelationId { get; }
         Guid AggregateId { get; }
     }
 }

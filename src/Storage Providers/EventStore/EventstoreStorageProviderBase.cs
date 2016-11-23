@@ -50,7 +50,7 @@ namespace NEventLite_Storage_Providers.EventStore
                 CommitNumber = commitNumber
             };
 
-            return new EventData(@event.Id, @event.GetType().Name, true,
+            return new EventData(@event.CorrelationId, @event.GetType().Name, true,
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, GetSerializerSettings())),
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header, GetSerializerSettings())));
         }
