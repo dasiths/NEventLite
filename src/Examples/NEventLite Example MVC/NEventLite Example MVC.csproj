@@ -135,6 +135,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include=".ebextensions\NEventLiteExampleMVC.config" />
     <None Include="Properties\PublishProfiles\DasithTestWebApp - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\NEventLiteExampleMVC - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
