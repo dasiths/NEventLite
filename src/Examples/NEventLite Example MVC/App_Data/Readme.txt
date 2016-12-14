@@ -1,0 +1,1 @@
+﻿This is where events.readmodel.dump and event.stream.dump for InMemoryStorage will be saved.
