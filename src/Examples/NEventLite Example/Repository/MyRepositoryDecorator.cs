@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NEventLite.Domain;
-using NEventLite.Events;
+using NEventLite.Event;
 using NEventLite.Logger;
 using NEventLite.Repository;
 

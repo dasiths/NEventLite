@@ -93,10 +93,10 @@
     <Compile Include="Command\EditNoteCommand.cs" />
     <Compile Include="Domain\Note.cs" />
     <Compile Include="Event Bus\MyEventPublisher.cs" />
-    <Compile Include="Events\NoteCategoryChangedEvent.cs" />
-    <Compile Include="Events\NoteDescriptionChangedEvent.cs" />
-    <Compile Include="Events\NoteTitleChangedEvent.cs" />
-    <Compile Include="Events\NoteCreatedEvent.cs" />
+    <Compile Include="Event\NoteCategoryChangedEvent.cs" />
+    <Compile Include="Event\NoteDescriptionChangedEvent.cs" />
+    <Compile Include="Event\NoteTitleChangedEvent.cs" />
+    <Compile Include="Event\NoteCreatedEvent.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

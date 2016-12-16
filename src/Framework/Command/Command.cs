@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NEventLite.Commands
+namespace NEventLite.Command
 {
     public class Command:ICommand
     {

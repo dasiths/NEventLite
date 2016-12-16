@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NEventLite.Domain;
-using NEventLite.Events;
+using NEventLite.Event;
 
 namespace NEventLite.Storage
 {

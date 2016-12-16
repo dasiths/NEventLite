@@ -13,9 +13,9 @@ This way we can contruct the state for the aggregate to any point in time by rep
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NEventLite.Events;
-using NEventLite.Exceptions;
-using NEventLite.Extensions;
+using NEventLite.Event;
+using NEventLite.Exception;
+using NEventLite.Extension;
 
 namespace NEventLite.Domain
 {

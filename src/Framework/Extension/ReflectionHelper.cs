@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NEventLite.Custom_Attributes;
+using NEventLite.Custom_Attribute;
 using NEventLite.Domain;
-using NEventLite.Events;
+using NEventLite.Event;
 
-namespace NEventLite.Extensions
+namespace NEventLite.Extension
 {
     public static class ReflectionHelper
     {

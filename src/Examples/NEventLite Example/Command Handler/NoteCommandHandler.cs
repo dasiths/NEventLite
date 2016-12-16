@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NEventLite.Commands;
-using NEventLite.Command_Handlers;
-using NEventLite.Exceptions;
-using NEventLite.Extensions;
-using NEventLite.Repository;
+﻿using System.Threading.Tasks;
+using NEventLite.Command_Handler;
 using NEventLite.Unit_Of_Work;
-using NEventLite_Example.Commands;
+using NEventLite_Example.Command;
 using NEventLite_Example.Domain;
 using NEventLite_Example.Repository;
 
-namespace NEventLite_Example.Command_Handlers
+namespace NEventLite_Example.Command_Handler
 {
     public class NoteCommandHandler : ICommandHandler<CreateNoteCommand>,
                                       ICommandHandler<EditNoteCommand>

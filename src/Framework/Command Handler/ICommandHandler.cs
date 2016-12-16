@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using NEventLite.Commands;
+using NEventLite.Command;
 
-namespace NEventLite.Command_Handlers
+namespace NEventLite.Command_Handler
 {
     public interface ICommandHandler<T> where T:ICommand
     {

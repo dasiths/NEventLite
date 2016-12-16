@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace NEventLite.Exceptions
+﻿namespace NEventLite.Exception
 {
-    public class AggregateStateMismatchException: Exception
+    public class AggregateStateMismatchException: System.Exception
     {
         public AggregateStateMismatchException(string msg) : base(msg)
         {

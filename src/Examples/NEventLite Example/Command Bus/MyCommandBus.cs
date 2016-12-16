@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NEventLite.Commands;
+using NEventLite.Command;
 using NEventLite.Command_Bus;
-using NEventLite.Command_Handlers;
-using NEventLite_Example.Command_Handlers;
+using NEventLite.Command_Handler;
+using NEventLite_Example.Command_Handler;
 
 namespace NEventLite_Example.Command_Bus
 {

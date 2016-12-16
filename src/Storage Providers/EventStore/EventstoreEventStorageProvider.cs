@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using NEventLite.Domain;
-using NEventLite.Events;
+using NEventLite.Event;
 using NEventLite.Storage;
 
 namespace NEventLite_Storage_Providers.EventStore

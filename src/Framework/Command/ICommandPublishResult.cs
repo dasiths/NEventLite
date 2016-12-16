@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NEventLite.Commands
+﻿namespace NEventLite.Command
 {
     public interface ICommandPublishResult
     {
         bool IsSucess { get; }
         string FailReason { get; }
-        Exception ResultException { get; }
+        System.Exception ResultException { get; }
         void EnsurePublished();
     }
 }

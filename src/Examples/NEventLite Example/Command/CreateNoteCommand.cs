@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NEventLite.Commands;
 
-namespace NEventLite_Example.Commands
+namespace NEventLite_Example.Command
 {
-    public class CreateNoteCommand:Command
+    public class CreateNoteCommand:NEventLite.Command.Command
     {
         public string Title { get; private set; }
         public string Desc { get; private set; }

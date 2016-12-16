@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NEventLite.Domain;
-using NEventLite.Exceptions;
+using NEventLite.Exception;
 using NEventLite.Repository;
 
 namespace NEventLite.Unit_Of_Work

@@ -9,10 +9,10 @@ The "Note" is an AggregateRoot and implements event handlers and ISnapshottable 
 \***************************************************************************/
 
 using System;
-using NEventLite.Custom_Attributes;
+using NEventLite.Custom_Attribute;
 using NEventLite.Domain;
 using NEventLite.Snapshot;
-using NEventLite_Example.Events;
+using NEventLite_Example.Event;
 using NEventLite_Example.Snapshot;
 
 namespace NEventLite_Example.Domain

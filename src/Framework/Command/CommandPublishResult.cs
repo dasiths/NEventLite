@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NEventLite.Exceptions;
+﻿using NEventLite.Exception;
 
-namespace NEventLite.Commands
+namespace NEventLite.Command
 {
     public class CommandPublishResult:ICommandPublishResult
     {
         public bool IsSucess { get; }
         public string FailReason { get; }
-        public Exception ResultException { get; }
+        public System.Exception ResultException { get; }
 
-        public CommandPublishResult(bool isSucess, string failReason, Exception ex)
+        public CommandPublishResult(bool isSucess, string failReason, System.Exception ex)
         {
             this.IsSucess = isSucess;
             FailReason = failReason;

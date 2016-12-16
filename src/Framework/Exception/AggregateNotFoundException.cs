@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace NEventLite.Exceptions
+﻿namespace NEventLite.Exception
 {
-    public class AggregateNotFoundException: Exception
+    public class AggregateNotFoundException: System.Exception
     {
         public AggregateNotFoundException(string msg) : base(msg)
         {

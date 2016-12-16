@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NEventLite.Events;
+﻿using System.Threading.Tasks;
+using NEventLite.Event;
 
-namespace NEventLite.Event_Handlers
+namespace NEventLite.Event_Handler
 {
     public interface IEventHandler<T> where T:IEvent
     {

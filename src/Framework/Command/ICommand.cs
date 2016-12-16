@@ -1,7 +1,7 @@
-﻿using NEventLite.Message;
-using System;
+﻿using System;
+using NEventLite.Message;
 
-namespace NEventLite.Commands
+namespace NEventLite.Command
 {
     public interface ICommand: IMessage
     {

@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NEventLite.Domain;
-using NEventLite.Events;
-using NEventLite.Exceptions;
+using NEventLite.Event;
+using NEventLite.Exception;
 using NEventLite.Storage;
 using NEventLite_Storage_Providers.Util;
 

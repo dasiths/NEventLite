@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NEventLite.Domain;
-using NEventLite.Exceptions;
+using NEventLite.Event;
+using NEventLite.Exception;
 
-namespace NEventLite.Extensions
+namespace NEventLite.Extension
 {
     public static class EventExtension
     {
-        public static void InvokeOnAggregate(this Events.IEvent @event, AggregateRoot aggregate, string methodName)
+        public static void InvokeOnAggregate(this IEvent @event, AggregateRoot aggregate, string methodName)
         {
             var method = ReflectionHelper.GetMethod(aggregate.GetType(), methodName, new Type[] { @event.GetType() }); //Find the right method
 

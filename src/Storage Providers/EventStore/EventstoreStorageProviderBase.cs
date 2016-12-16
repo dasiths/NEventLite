@@ -2,7 +2,7 @@
 using System.Text;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
-using NEventLite.Events;
+using NEventLite.Event;
 using NEventLite.Snapshot;
 
 namespace NEventLite_Storage_Providers.EventStore

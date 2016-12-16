@@ -1,9 +1,8 @@
 ﻿using System;
-using NEventLite.Events;
 
-namespace NEventLite_Example.Events
+namespace NEventLite_Example.Event
 {
-    public class NoteCreatedEvent : Event
+    public class NoteCreatedEvent : NEventLite.Event.Event
     {
         private static int _currrentTypeVersion = 1;
 

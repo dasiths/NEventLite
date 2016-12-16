@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NEventLite.Exceptions
+﻿namespace NEventLite.Exception
 {
-    public class CommandExecutionFailedException:Exception
+    public class CommandExecutionFailedException:System.Exception
     {
         public CommandExecutionFailedException(string msg) : base(msg)
         {

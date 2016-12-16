@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NEventLite.Events;
 
-namespace NEventLite_Example.Events
+namespace NEventLite_Example.Event
 {
-    public class NoteDescriptionChangedEvent:Event
+    public class NoteDescriptionChangedEvent:NEventLite.Event.Event
     {
         private static int _currrentTypeVersion = 1;
 

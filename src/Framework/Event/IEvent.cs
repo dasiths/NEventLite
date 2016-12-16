@@ -6,10 +6,10 @@ Author:         Dasith Wijesiriwardena [https://github.com/dasiths]
 Interface for all events in the system. Requires an unique eventID
 \***************************************************************************/
 
-using NEventLite.Message;
 using System;
+using NEventLite.Message;
 
-namespace NEventLite.Events
+namespace NEventLite.Event
 {
     /// <summary>
     /// Interface for all events

@@ -10,7 +10,7 @@ Important: Events are immutable by design. I've left the property set methods pu
 
 using System;
 
-namespace NEventLite.Events
+namespace NEventLite.Event
 {
 
     /// <summary>

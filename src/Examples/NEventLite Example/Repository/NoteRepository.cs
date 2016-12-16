@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NEventLite.Events;
 using NEventLite.Logger;
 using NEventLite.Repository;
 using NEventLite_Example.Domain;

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NEventLite.Events;
+using NEventLite.Event;
 using NEventLite.Event_Bus;
-using NEventLite.Event_Handlers;
-using NEventLite.Extensions;
+using NEventLite.Extension;
 using NEventLite.Logger;
 using NEventLite_Example.Read_Model;
 
