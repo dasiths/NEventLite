@@ -88,9 +88,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command Bus\MyCommandBus.cs" />
-    <Compile Include="Command Handlers\NoteCommandHandler.cs" />
-    <Compile Include="Commands\CreateNoteCommand.cs" />
-    <Compile Include="Commands\EditNoteCommand.cs" />
+    <Compile Include="Command Handler\NoteCommandHandler.cs" />
+    <Compile Include="Command\CreateNoteCommand.cs" />
+    <Compile Include="Command\EditNoteCommand.cs" />
     <Compile Include="Domain\Note.cs" />
     <Compile Include="Event Bus\MyEventPublisher.cs" />
     <Compile Include="Events\NoteCategoryChangedEvent.cs" />
@@ -130,7 +130,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Exceptions\" />
+    <Folder Include="Exception\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">

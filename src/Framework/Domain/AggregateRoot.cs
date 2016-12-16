@@ -71,7 +71,7 @@ namespace NEventLite.Domain
             CurrentVersion = (int)StreamState.NoStream;
             LastCommittedVersion = (int)StreamState.NoStream;
             _uncommittedChanges = new List<IEvent>();
-            SetupEventHandlers();
+            SetupInternalEventHandlers();
         }
 
         /// <summary>
@@ -87,9 +87,9 @@ namespace NEventLite.Domain
         }
 
         /// <summary>
-        /// GetAsync the events that have been applied but not commited to storage
+        /// GetAsync the events that have been applied but not committed to storage
         /// </summary>
-        /// <returns>The uncommited events</returns>
+        /// <returns>The uncommitted events</returns>
         public IEnumerable<IEvent> GetUncommittedChanges()
         {
             lock (_uncommittedChanges)
@@ -99,7 +99,7 @@ namespace NEventLite.Domain
         }
 
         /// <summary>
-        /// This will mark all the new events as comitted to storage
+        /// This will mark all the new events as committed to storage
         /// </summary>
         public void MarkChangesAsCommitted()
         {
@@ -187,7 +187,6 @@ namespace NEventLite.Domain
         /// Applies an event and increments the version
         /// </summary>
         /// <param name="event">Event to apply</param>
-        /// <param name="isCreationEvent">Is this the event as a result of construction of the Aggregate</param>
         private void DoApply(IEvent @event)
         {
             if (GetStreamState() == StreamState.NoStream)
@@ -210,7 +209,7 @@ namespace NEventLite.Domain
         /// <summary>
         /// This will wireup the event handling methods to corresponding events
         /// </summary>
-        private void SetupEventHandlers()
+        private void SetupInternalEventHandlers()
         {
             _eventHandlerCache = ReflectionHelper.FindEventHandlerMethodsInAggregate(this.GetType());
         }

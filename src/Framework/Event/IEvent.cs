@@ -6,6 +6,7 @@ Author:         Dasith Wijesiriwardena [https://github.com/dasiths]
 Interface for all events in the system. Requires an unique eventID
 \***************************************************************************/
 
+using NEventLite.Message;
 using System;
 
 namespace NEventLite.Events
@@ -13,7 +14,7 @@ namespace NEventLite.Events
     /// <summary>
     /// Interface for all events
     /// </summary>
-    public interface IEvent
+    public interface IEvent: IMessage
     {
         /// <summary>
         /// Target version of the Aggregate this event will be applied against
@@ -24,11 +25,6 @@ namespace NEventLite.Events
         /// The aggregateID of the aggregate
         /// </summary>
         Guid AggregateId { get; set; }
-
-        /// <summary>
-        /// Unique event ID
-        /// </summary>
-        Guid CorrelationId { get; }
 
         /// <summary>
         /// This is used to timestamp the event when it get's committed
