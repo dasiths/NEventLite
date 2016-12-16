@@ -1,4 +1,4 @@
-# NEventLite - A lightweight .NET framework for Event Sourcing with support for custom Event and Snapshot Stores (EventStore, Redis, SQL Server or Custom) written in C#.
+﻿# NEventLite - A lightweight .NET framework for Event Sourcing with support for custom Event and Snapshot Stores (EventStore, Redis, SQL Server or Custom) written in C#.
 ---------------------------------
 NEventLite makes it easier to implement the event sourcing pattern in your .NET project. It is opinionated and enforces some patterns. The framework is built with support for custom storage providers and event bus architectures in mind. We also provide some popular event/snapshot storage provider implementations for NEventLite here. Feel free to use it as is or customize it to suit your needs.
 
@@ -87,9 +87,10 @@ Aggregate (Note.cs in example)
             ApplyEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
         }
         
-        //Applying Events
+        //Applying Events 
+        //Note how the framework identifies the internal event handler methods though a method attribute.
         
-        [OnApplyEvent]
+        [InternalEventHandler]
         public void OnNoteCreated(NoteCreatedEvent @event)
         {
             CreatedDate = @event.createdTime;
@@ -98,7 +99,7 @@ Aggregate (Note.cs in example)
             Category = @event.cat;
         }
 
-        [OnApplyEvent]
+        [InternalEventHandler]
         public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
             Title = @event.title;
