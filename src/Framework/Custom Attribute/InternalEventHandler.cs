@@ -3,7 +3,7 @@
 namespace NEventLite.Custom_Attribute
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = true)]
-    public class OnApplyEvent : Attribute
+    public class InternalEventHandler : Attribute
     {
     }
 }

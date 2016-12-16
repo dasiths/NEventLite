@@ -46,7 +46,7 @@
     <Compile Include="Command\CommandPublishResult.cs" />
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Command\ICommandPublishResult.cs" />
-    <Compile Include="Custom Attribute\OnApplyEvent.cs" />
+    <Compile Include="Custom Attribute\InternalEventHandler.cs" />
     <Compile Include="Domain\AggregateRoot.cs" />
     <Compile Include="Event Bus\IEventPublisher.cs" />
     <Compile Include="Event Handler\IEventHandler.cs" />

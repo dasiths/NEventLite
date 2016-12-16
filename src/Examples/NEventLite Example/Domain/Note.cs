@@ -81,10 +81,10 @@ namespace NEventLite_Example.Domain
         #region "Apply Events"
 
         //Important
-        //We mark the EventHandler method with the [OnApplyEvent()] marker
+        //We mark the EventHandler method with the [InternalEventHandler] marker
         //This way the framework knows which method to invoke when a event happens
 
-        [OnApplyEvent]
+        [InternalEventHandler]
         public void OnNoteCreated(NoteCreatedEvent @event)
         {
             CreatedDate = @event.CreatedTime;
@@ -93,19 +93,19 @@ namespace NEventLite_Example.Domain
             Category = @event.Cat;
         }
 
-        [OnApplyEvent]
+        [InternalEventHandler]
         public void OnTitleChanged(NoteTitleChangedEvent @event)
         {
             Title = @event.Title;
         }
 
-        [OnApplyEvent]
+        [InternalEventHandler]
         public void OnDescriptionChanged(NoteDescriptionChangedEvent @event)
         {
             Description = @event.Description;
         }
 
-        [OnApplyEvent]
+        [InternalEventHandler]
         public void OnCategoryChanged(NoteCategoryChangedEvent @event)
         {
             Category = @event.Cat;

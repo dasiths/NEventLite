@@ -20,7 +20,7 @@ namespace NEventLite.Extension
             {
                 var eventHandlers = new ConcurrentDictionary<Type, string>();
 
-                var methods = aggregateType.GetMethodsBySig(typeof(void), typeof(OnApplyEvent), true, typeof(IEvent)).ToList();
+                var methods = aggregateType.GetMethodsBySig(typeof(void), typeof(InternalEventHandler), true, typeof(IEvent)).ToList();
 
                 if (methods.Any())
                 {
