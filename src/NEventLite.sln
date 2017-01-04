@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite Example MVC", "Examples\NEventLite Example MVC\NEventLite Example MVC.csproj", "{471D49E3-A607-4BA7-BE20-07A495497C2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.Test", "NEventLite.Test\NEventLite.Test.csproj", "{BB7548A7-4905-4FC1-AF0F-4C77A949878A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.Test", "Unit Tests\NEventLite.Test.csproj", "{BB7548A7-4905-4FC1-AF0F-4C77A949878A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
