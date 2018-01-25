@@ -5,14 +5,13 @@ NEventLite makes it easier to implement the event sourcing pattern in your .NET 
 ####DISCLAIMER: You generally want to avoid "frameworks" when implementing CQRS or Event Sourcing but NEventLite will help get you on the rails. You can swap out every aspect of it if need be. Think of it as training wheels.
 
 • There is a seperate Repo for NEventLite targetting .NET Standard framework https://github.com/dasiths/NEventLite_Core
+• This purpose of this NEventLite is to demonstrate the Event Sourcing design pattern using .NET
 
 Author: Dasith Wijesiriwardena
 ----------------------------------
 Requirements:
 
 • A basic understanding of what Event Sourcing is. Start here https://dasith.me/2016/12/02/event-sourcing-examined-part-1-of-3/
-
-• This purpose of the example project is to demonstrate the Event Sourcing design pattern using .NET
 
 • Installation of EventStore (Optional, There is a built in InMemoryStorageProvider too)
 "Event Store stores your data as a series of immutable events over time, making it easy to build event-sourced applications" - https://geteventstore.com/)
