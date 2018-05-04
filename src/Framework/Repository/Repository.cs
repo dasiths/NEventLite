@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using NEventLite.Domain;
@@ -33,7 +34,7 @@ namespace NEventLite.Repository
         {
             T item = default(T);
 
-            var isSnapshottable = typeof(ISnapshottable).IsAssignableFrom(typeof(T));
+            var isSnapshottable = typeof(ISnapshottable).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo());
             Snapshot.Snapshot snapshot = null;
 
             if ((isSnapshottable) && (SnapshotStorageProvider != null))

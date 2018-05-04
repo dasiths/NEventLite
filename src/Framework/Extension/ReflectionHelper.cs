@@ -29,14 +29,14 @@ namespace NEventLite.Extension
                         var parameter = m.GetParameters().First();
                         if (eventHandlers.TryAdd(parameter.ParameterType, m.Name) == false)
                         {
-                            throw new TargetException($"Multiple methods found handling same event in {aggregateType.Name}");
+                            throw new System.Exception($"Multiple methods found handling same event in {aggregateType.Name}");
                         }
                     }
                 }
 
                 if (AggregateEventHandlerCache.TryAdd(aggregateType, eventHandlers) == false)
                 {
-                    throw new TargetException($"Error registering methods for handling events in {aggregateType.Name}");
+                    throw new System.Exception($"Error registering methods for handling events in {aggregateType.Name}");
                 }
             }
 
@@ -50,7 +50,7 @@ namespace NEventLite.Extension
                                                                bool matchParameterInheritence,
                                                                params Type[] parameterTypes)
         {
-            return type.GetMethods().Where((m) =>
+            return type.GetRuntimeMethods().Where((m) =>
             {
                 if (m.ReturnType != returnType) return false;
 
@@ -68,7 +68,7 @@ namespace NEventLite.Extension
                 for (int i = 0; i < parameterTypes.Length; i++)
                 {
                     if (((parameters[i].ParameterType == parameterTypes[i]) ||
-                    (matchParameterInheritence && parameterTypes[i].IsAssignableFrom(parameters[i].ParameterType))) == false)
+                    (matchParameterInheritence && parameterTypes[i].GetTypeInfo().IsAssignableFrom(parameters[i].ParameterType.GetTypeInfo()))) == false)
                         return false;
                 }
 
@@ -88,17 +88,17 @@ namespace NEventLite.Extension
 
         public static MethodInfo[] GetMethods(Type t)
         {
-            return t.GetMethods();
+            return t.GetTypeInfo().DeclaredMethods.ToArray();
         }
 
         public static MethodInfo GetMethod(Type t, string methodName, Type[] paramTypes)
         {
-            return t.GetMethod(methodName, paramTypes);
+            return t.GetRuntimeMethod(methodName, paramTypes);
         }
 
         public static MemberInfo[] GetMemebers(Type t)
         {
-            return t.GetMembers();
+            return t.GetTypeInfo().DeclaredMembers.ToArray();
         }
 
         public static T CreateInstance<T>() where T : AggregateRoot
