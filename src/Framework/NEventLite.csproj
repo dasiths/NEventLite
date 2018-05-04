@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Dasith Wijesiriwardena</Authors>
+    <Description>A lightweight .NET framework for Event Sourcing with support for custom Event and Snapshot Stores (EventStore, Redis, SQL Server or Custom) written in C#. NEventLite makes it easier to implement the event sourcing pattern in your .NET project. We also provide some popular event/snapshot storage provider implementations.</Description>
+    <PackageProjectUrl>https://github.com/dasiths/NEventLite</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dasiths/NEventLite</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+    <PackageTags>neventlite, event sourcing, cqrs, cqs</PackageTags>
+    <Product>NEventLite Event Sourcing Framework</Product>
+    <PackageLicenseUrl>https://github.com/dasiths/NEventLite</PackageLicenseUrl>
+    <PackageId>NEventLite</PackageId>
   </PropertyGroup>
 
 </Project>
