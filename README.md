@@ -5,7 +5,9 @@ NEventLite makes it easier to implement the event sourcing pattern in your .NET 
 ###DISCLAIMER: You generally want to avoid "frameworks" when implementing CQRS or Event Sourcing but NEventLite will merely help get you on the rails. You can swap out every aspect of it if need be. Think of it as training wheels.
 
 • The framework (NEventLite.csproj) targets netstandard 1.4
+
 • Example projects target .net framework 4.6.1
+
 • This purpose of this NEventLite is to demonstrate the Event Sourcing design pattern using .NET
 
 Author: Dasith Wijesiriwardena
