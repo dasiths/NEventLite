@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NEventLite.StorageProviders.InMemory\NEventLite.StorageProviders.InMemory.csproj" />
+    <ProjectReference Include="..\NEventLite\NEventLite.csproj" />
+  </ItemGroup>
+
+</Project>
