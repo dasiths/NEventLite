@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NEventLite.Exceptions;
 using NEventLite.Util;
@@ -17,6 +18,8 @@ namespace NEventLite.Core.Domain
 
         private readonly IList<IEvent<TEventKey, TAggregateKey>> _uncommittedChanges = new List<IEvent<TEventKey, TAggregateKey>>();
         private readonly Dictionary<Type, string> _eventHandlerCache;
+        private readonly SemaphoreSlim _loadLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _applyLock = new SemaphoreSlim(1, 1);
 
         protected AggregateRoot()
         {
@@ -35,7 +38,10 @@ namespace NEventLite.Core.Domain
 
         public ReadOnlyCollection<IEvent<TEventKey, TAggregateKey>> GetUncommittedChanges()
         {
-            return new ReadOnlyCollection<IEvent<TEventKey, TAggregateKey>>(_uncommittedChanges);
+            lock (_uncommittedChanges)
+            {
+                return new ReadOnlyCollection<IEvent<TEventKey, TAggregateKey>>(_uncommittedChanges);
+            }
         }
 
         public void MarkChangesAsCommitted()
@@ -49,23 +55,44 @@ namespace NEventLite.Core.Domain
 
         public async Task LoadsFromHistoryAsync(IEnumerable<IEvent<TEventKey, TAggregateKey>> history)
         {
-            foreach (var e in history)
+            await _loadLock.WaitAsync();
+
+            try
             {
-                //We call ApplyEvent with isNew parameter set to false as we are replaying a historical event
-                await ApplyEventAsync(e, false);
+                foreach (var e in history)
+                {
+                    //We call ApplyEvent with isNew parameter set to false as we are replaying a historical event
+                    await ApplyEventAsync(e, false);
+                }
+
+                LastCommittedVersion = CurrentVersion;
+            }
+            finally
+            {
+                _loadLock.Release();
             }
 
-            LastCommittedVersion = CurrentVersion;
         }
 
-        protected async Task ApplyEventAsync(IEvent<TEventKey, TAggregateKey> @event)
-        {
-            await ApplyEventAsync(@event, true);
-        }
 
         protected void ApplyEvent(IEvent<TEventKey, TAggregateKey> @event)
         {
-            ApplyEventAsync(@event, true).ConfigureAwait(false).GetAwaiter().GetResult();
+            ApplyEventAsync(@event).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        // This method is only used when applying new events
+        protected async Task ApplyEventAsync(IEvent<TEventKey, TAggregateKey> @event)
+        {
+            await _loadLock.WaitAsync();
+
+            try
+            {
+                await ApplyEventAsync(@event, true);
+            }
+            finally
+            {
+                _loadLock.Release();
+            }
         }
 
         private async Task ApplyEventAsync(IEvent<TEventKey, TAggregateKey> @event, bool isNew)
@@ -74,38 +101,40 @@ namespace NEventLite.Core.Domain
             //Make sure the right Apply method is called with the right type.
             //We can you use dynamic objects or reflection for this.
 
-            if (CanApply(@event))
-            {
-                await DoApplyAsync(@event);
+            await _applyLock.WaitAsync();
 
-                if (isNew)
+            try
+            {
+                if (CanApply(@event))
                 {
-                    lock (_uncommittedChanges)
+                    await DoApplyAsync(@event);
+
+                    if (isNew)
                     {
-                        _uncommittedChanges.Add(@event); //only add to the events collection if it's a new event
+                        lock (_uncommittedChanges)
+                        {
+                            _uncommittedChanges.Add(@event); //only add to the events collection if it's a new event
+                        }
                     }
                 }
+                else
+                {
+                    throw new AggregateStateMismatchException(
+                        $"The event target version is {@event.AggregateId}.(Version {@event.TargetVersion}) and " +
+                        $"AggregateRoot version is {this.Id}.(Version {CurrentVersion})");
+                }
             }
-            else
+            finally
             {
-                throw new AggregateStateMismatchException(
-                    $"The event target version is {@event.AggregateId}.(Version {@event.TargetVersion}) and " +
-                    $"AggregateRoot version is {this.Id}.(Version {CurrentVersion})");
+                _applyLock.Release();
             }
-
         }
 
         private bool CanApply(IEvent<TEventKey, TAggregateKey> @event)
         {
             //Check to see if event is applying against the right Aggregate and matches the target version
-            if (((StreamState == StreamState.NoStream) || (Id.Equals(@event.AggregateId))) && (CurrentVersion == @event.TargetVersion))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return ((StreamState == StreamState.NoStream || Id.Equals(@event.AggregateId))
+                    && (CurrentVersion == @event.TargetVersion));
         }
 
         private async Task DoApplyAsync(IEvent<TEventKey, TAggregateKey> @event)

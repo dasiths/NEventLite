@@ -25,7 +25,7 @@ namespace NEventLite.Util
                 var asyncMethods = aggregateType.GetMethodsBySig(typeof(Task), typeof(InternalEventHandler),
                     true, typeof(IEvent<TEventKey, TAggregateKey>)).ToList();
 
-                var methods = voidMethods.Union(asyncMethods);
+                var methods = voidMethods.Union(asyncMethods).ToList();
 
                 if (methods.Any())
                 {
@@ -39,10 +39,7 @@ namespace NEventLite.Util
                     }
                 }
 
-                if (AggregateEventHandlerCache.TryAdd(aggregateType, eventHandlers) == false)
-                {
-                    throw new Exception($"Error registering methods for handling events in {aggregateType.Name}");
-                }
+                AggregateEventHandlerCache.GetOrAdd(aggregateType, eventHandlers);
             }
 
 
@@ -70,14 +67,14 @@ namespace NEventLite.Util
                 if (parameters.Length != parameterTypes.Length)
                     return false;
 
-                for (int i = 0; i < parameterTypes.Length; i++)
+                return parameterTypes.Select((param, index) =>
                 {
-                    if (((parameters[i].ParameterType == parameterTypes[i]) ||
-                    (matchParameterInheritance && parameterTypes[i].GetTypeInfo().IsAssignableFrom(parameters[i].ParameterType.GetTypeInfo()))) == false)
-                        return false;
-                }
+                    var paramTypeMatched = parameters[index].ParameterType == param;
+                    var paramTypeIsAssignable = param.GetTypeInfo()
+                        .IsAssignableFrom(parameters[index].ParameterType.GetTypeInfo());
 
-                return true;
+                    return paramTypeMatched || (matchParameterInheritance && paramTypeIsAssignable);
+                }).All(r => r);
             });
         }
 

@@ -49,7 +49,7 @@ namespace NEventLite.Repository
         public async Task<TAggregate> GetByIdAsync(TAggregateKey id)
         {
             var item = default(TAggregate);
-            var isSnapshottable = ((item as ISnapshottable<TSnapshotKey, TAggregateKey>) == null);
+            var isSnapshottable = ((item as ISnapshottable<TSnapshotKey, TAggregateKey>) != null);
 
             Snapshot<TSnapshotKey, TAggregateKey> snapshot = null;
 
@@ -64,7 +64,7 @@ namespace NEventLite.Repository
                 (item as ISnapshottable<TSnapshotKey, TAggregateKey>).ApplySnapshot(snapshot);
 
                 var events = await _eventStorageProvider.GetEventsAsync(typeof(TAggregate), id, snapshot.Version + 1, int.MaxValue);
-                item.LoadsFromHistoryAsync(events);
+                await item.LoadsFromHistoryAsync(events);
             }
             else
             {
@@ -73,7 +73,7 @@ namespace NEventLite.Repository
                 if (events.Any())
                 {
                     item = new TAggregate();
-                    item.LoadsFromHistoryAsync(events);
+                    await item.LoadsFromHistoryAsync(events);
                 }
             }
 
