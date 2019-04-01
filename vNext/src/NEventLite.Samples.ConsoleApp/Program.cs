@@ -28,7 +28,7 @@ namespace NEventLite.Samples.ConsoleApp
             string strTempDataFolderPath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
 
             //create temp directory if it doesn't exist
-            new FileInfo(strTempDataFolderPath).Directory.Create();
+            new FileInfo(strTempDataFolderPath).Directory?.Create();
 
             var inMemoryEventStorePath = $@"{strTempDataFolderPath}events.stream.dump";
             var inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";

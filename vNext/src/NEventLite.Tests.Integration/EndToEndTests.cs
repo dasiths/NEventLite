@@ -26,7 +26,7 @@ namespace NEventLite.Tests.Integration
             string strTempDataFolderPath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
 
             //create temp directory if it doesn't exist
-            new FileInfo(strTempDataFolderPath).Directory.Create();
+            new FileInfo(strTempDataFolderPath).Directory?.Create();
 
             var inMemoryEventStorePath = $@"{strTempDataFolderPath}events.stream.dump";
             var inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";
@@ -60,5 +60,33 @@ namespace NEventLite.Tests.Integration
             events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
         }
 
+        [Fact]
+        public async Task WhenCreatingSchedule_AndDoingChanges_ItGetsSaved_AndCanBe_ReloadedFromTheRepository()
+        {
+            var scheduleName = "test schedule";
+            var schedule = new Schedule(scheduleName);
+            await _repository.SaveAsync(schedule);
+
+            Enumerable.Range(1, 5).ToList().ForEach(async i =>
+            {
+                var tmpSchedule = await _repository.GetByIdAsync(schedule.Id);
+                tmpSchedule.AddTodo($"Todo {i}");
+                await _repository.SaveAsync(tmpSchedule);
+            });
+
+            var reloadedSchedule = await _repository.GetByIdAsync(schedule.Id);
+            reloadedSchedule.Id.ShouldBe(schedule.Id);
+            reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
+            reloadedSchedule.Todos.Count.ShouldBe(5);
+            reloadedSchedule.Todos.All(t => t.Text == $"Todo {reloadedSchedule.Todos.IndexOf(t) + 1}").ShouldBeTrue();
+            reloadedSchedule.StreamState.ShouldBe(StreamState.HasStream);
+            reloadedSchedule.CurrentVersion.ShouldBe(5);
+            reloadedSchedule.LastCommittedVersion.ShouldBe(5);
+
+            var events = _eventPublisher.Events[reloadedSchedule.Id];
+            events.Count.ShouldBe(6);
+            events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
+            events.Last().EventCommittedTimestamp.ShouldBe(_clock.Value);
+        }
     }
 }
