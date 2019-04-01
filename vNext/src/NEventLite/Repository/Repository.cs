@@ -20,27 +20,10 @@ namespace NEventLite.Repository
         private readonly IEventPublisher<TEventKey, TAggregateKey> _eventPublisher;
         private readonly IClock _clock;
 
-        public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            IClock clock) : this(eventStorageProvider, clock, null, null)
-        {
-        }
-
-        public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            IClock clock,
-            IEventPublisher<TEventKey, TAggregateKey> eventPublisher) : this(eventStorageProvider, clock, null, eventPublisher)
-        {
-        }
-
-        public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            IClock clock,
-            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> snapshotStorageProvider) : this(eventStorageProvider, clock, snapshotStorageProvider, null)
-        {
-        }
-
-        public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            IClock clock,
-            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> snapshotStorageProvider,
-            IEventPublisher<TEventKey, TAggregateKey> eventPublisher)
+        public Repository(IClock clock,
+            IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
+            IEventPublisher<TEventKey, TAggregateKey> eventPublisher,
+            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> snapshotStorageProvider)
         {
             _eventStorageProvider = eventStorageProvider;
             _snapshotStorageProvider = snapshotStorageProvider;

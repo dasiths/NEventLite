@@ -38,14 +38,16 @@ namespace NEventLite.Samples.ConsoleApp
             File.Delete(inMemorySnapshotStorePath);
             File.Delete(inMemoryReadModelStorePath);
 
-            IEventStorageProvider<Guid, Guid> eventStorage = 
+            IEventStorageProvider<Guid, Guid> eventStorage =
                 new InMemoryEventStorageProvider<Guid, Guid>(inMemoryEventStorePath);
-            ISnapshotStorageProvider<Guid, Guid, ScheduleSnapshot> snapshotStorage = 
+            ISnapshotStorageProvider<Guid, Guid, ScheduleSnapshot> snapshotStorage =
                 new InMemorySnapshotStorageProvider<Guid, Guid, ScheduleSnapshot>(2, inMemorySnapshotStorePath);
             IClock clock = new MyClock();
             IEventPublisher<Guid, Guid> eventPublisher = new EventPublisher<Guid, Guid>();
-            IRepository<Schedule, Guid, Guid> repository = 
-                new Repository<Schedule, Guid, Guid, Guid, ScheduleSnapshot>(eventStorage, clock, snapshotStorage, eventPublisher);
+            IRepository<Schedule, Guid, Guid> repository =
+                new Repository<Schedule, Guid, Guid, Guid, ScheduleSnapshot>(clock, eventStorage, eventPublisher, snapshotStorage);
+
+            repository = new EventOnlyRepository<Schedule, Guid, Guid>(clock, eventStorage, eventPublisher);
 
             var schedule = new Schedule("test schedule");
             await repository.SaveAsync(schedule);
