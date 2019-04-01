@@ -6,6 +6,6 @@ namespace NEventLite.Storage
 {
     public interface IEventSnapshotStorageProvider<TSnapshotKey, TAggregateKey> : ISnapshotStorageProvider<TSnapshotKey, TAggregateKey>
     {
-        Task<Snapshot<TSnapshotKey, TAggregateKey>> GetSnapshotAsync(Type aggregateType, TAggregateKey aggregateId, int version);
+        Task<ISnapshot<TSnapshotKey, TAggregateKey>> GetSnapshotAsync(Type aggregateType, TAggregateKey aggregateId, int version);
     }
 }

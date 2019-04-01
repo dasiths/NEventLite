@@ -12,7 +12,7 @@ namespace NEventLite.StorageProviders.InMemory
     public class InMemoryEventStorageProvider<TEventKey, TAggregateKey> : IEventStorageProvider<TEventKey, TAggregateKey>
     {
         private readonly string _memoryDumpFile;
-        private readonly Dictionary<TAggregateKey, List<IEvent<TEventKey,TAggregateKey>>> _eventStream = new Dictionary<TAggregateKey, List<IEvent<TEventKey, TAggregateKey>>>();
+        private readonly Dictionary<TAggregateKey, List<IEvent<TEventKey, TAggregateKey>>> _eventStream = new Dictionary<TAggregateKey, List<IEvent<TEventKey, TAggregateKey>>>();
 
         public InMemoryEventStorageProvider(string memoryDumpFile)
         {
@@ -26,10 +26,12 @@ namespace NEventLite.StorageProviders.InMemory
             }
         }
 
-        public async Task<IEnumerable<IEvent<TEventKey, TAggregateKey>>> GetEventsAsync(Type aggregateType, TAggregateKey aggregateId, int start, int count)
+        public Task<IEnumerable<IEvent<TEventKey, TAggregateKey>>> GetEventsAsync(Type aggregateType, TAggregateKey aggregateId, int start, int count)
         {
             try
             {
+                IEnumerable<IEvent<TEventKey, TAggregateKey>> result = null;
+
                 if (_eventStream.ContainsKey(aggregateId))
                 {
 
@@ -39,8 +41,7 @@ namespace NEventLite.StorageProviders.InMemory
                         count = int.MaxValue - start;
                     }
 
-                    return
-                        _eventStream[aggregateId].Where(
+                    result = _eventStream[aggregateId].Where(
                             o =>
                                 (_eventStream[aggregateId].IndexOf(o) >= start) &&
                                 (_eventStream[aggregateId].IndexOf(o) < (start + count)))
@@ -48,9 +49,10 @@ namespace NEventLite.StorageProviders.InMemory
                 }
                 else
                 {
-                    return new List<IEvent<TEventKey, TAggregateKey>>();
+                    result = new List<IEvent<TEventKey, TAggregateKey>>();
                 }
 
+                return Task.FromResult(result);
             }
             catch (Exception ex)
             {
@@ -59,19 +61,17 @@ namespace NEventLite.StorageProviders.InMemory
 
         }
 
-        public async Task<IEvent<TEventKey, TAggregateKey>> GetLastEventAsync(Type aggregateType, TAggregateKey aggregateId)
+        public Task<IEvent<TEventKey, TAggregateKey>> GetLastEventAsync(Type aggregateType, TAggregateKey aggregateId)
         {
             if (_eventStream.ContainsKey(aggregateId))
             {
-                return _eventStream[aggregateId].Last();
+                return Task.FromResult(_eventStream[aggregateId].Last());
             }
-            else
-            {
-                return null;
-            }
+
+            return Task.FromResult((IEvent<TEventKey, TAggregateKey>)null);
         }
 
-        public async Task SaveAsync(AggregateRoot<TAggregateKey, TEventKey> aggregate)
+        public Task SaveAsync(AggregateRoot<TAggregateKey, TEventKey> aggregate)
         {
             var events = aggregate.GetUncommittedChanges();
 
@@ -87,8 +87,8 @@ namespace NEventLite.StorageProviders.InMemory
                 }
             }
 
-            SerializerHelper.SaveListToFile(_memoryDumpFile, new[] {_eventStream});
-
+            SerializerHelper.SaveListToFile(_memoryDumpFile, new[] { _eventStream });
+            return Task.CompletedTask;
         }
     }
 }

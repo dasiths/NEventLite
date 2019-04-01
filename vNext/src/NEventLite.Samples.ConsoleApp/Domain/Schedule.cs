@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using NEventLite.Core;
 using NEventLite.Core.Domain;
 using NEventLite.Samples.ConsoleApp.Domain.Events;
+using NEventLite.Samples.ConsoleApp.Domain.Snapshot;
 
 namespace NEventLite.Samples.ConsoleApp.Domain
 {
-    public class Schedule: AggregateRoot<Guid, Guid>
+    public class Schedule: AggregateRoot<Guid, Guid>, ISnapshottable<Guid, Guid>
     {
         public IList<Todo> Todos { get; private set; }
         public string ScheduleName { get; private set; }
@@ -74,6 +75,40 @@ namespace NEventLite.Samples.ConsoleApp.Domain
             var todo = Todos.Single(t => t.Id == @event.TodoId);
             todo.IsCompleted = true;
             await Task.CompletedTask;
+        }
+
+        public ISnapshot<Guid, Guid> TakeSnapshot()
+        {
+            return new ScheduleSnapshot(Guid.NewGuid(), Id, CurrentVersion)
+            {
+                ScheduleName = ScheduleName,
+                Todos = Todos.Select(t => new ScheduleSnapshot.TodoSnapshot()
+                {
+                    Id = t.Id,
+                    Text = t.Text,
+                    IsCompleted = t.IsCompleted
+                }).ToList()
+            };
+        }
+
+        public void ApplySnapshot(ISnapshot<Guid, Guid> snapshot)
+        {
+            var result = snapshot as ScheduleSnapshot;
+
+            if (result == null)
+            {
+                throw new ArgumentException($"Not typeof ${nameof(ScheduleSnapshot)}", nameof(snapshot));
+            }
+
+            HydrateFrom(result, () =>
+            {
+                ScheduleName = result.ScheduleName;
+                Todos = result.Todos.Select(t => new Todo(t.Id, t.Text)
+                {
+                    Text = t.Text
+                }).ToList();
+            });
+
         }
     }
 }

@@ -10,12 +10,10 @@ namespace NEventLite.StorageProviders.InMemory
     {
         private static void SaveToJson(string strFile, List<object> objects)
         {
-
             var serializerSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
             var content = JsonConvert.SerializeObject(objects, serializerSetting);
 
             File.WriteAllText(strFile, content);
-
         }
 
         private static List<Object> LoadFromJson(string strFile)
@@ -36,7 +34,6 @@ namespace NEventLite.StorageProviders.InMemory
         public static List<T> LoadListFromFile<T>(string file)
         {
             var results = LoadFromJson(file);
-
             return results.Select(o => (T)o).ToList();
         }
     }

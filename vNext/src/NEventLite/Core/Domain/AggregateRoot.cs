@@ -155,5 +155,14 @@ namespace NEventLite.Core.Domain
 
             CurrentVersion++;
         }
+
+        protected void HydrateFrom<TSnapshotKey>(ISnapshot<TSnapshotKey, TAggregateKey> snapshot, Action setOtherPropAction)
+        {
+            Id = snapshot.AggregateId;
+            CurrentVersion = snapshot.Version;
+            LastCommittedVersion = snapshot.Version;
+
+            setOtherPropAction();
+        }
     }
 }

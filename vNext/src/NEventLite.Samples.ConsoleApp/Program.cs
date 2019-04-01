@@ -32,10 +32,15 @@ namespace NEventLite.Samples.ConsoleApp
             var inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";
             var inMemoryReadModelStorePath = $@"{strTempDataFolderPath}events.readmodel.dump";
 
+            File.Delete(inMemoryEventStorePath);
+            File.Delete(inMemorySnapshotStorePath);
+            File.Delete(inMemoryReadModelStorePath);
+
             var eventStorage = new InMemoryEventStorageProvider<Guid, Guid>(inMemoryEventStorePath);
+            var snapshotStorage = new InMemorySnapshotStorageProvider<Guid, Guid>(2, inMemorySnapshotStorePath);
             var clock = new MyClock();
             var eventPublisher = new EventPublisher<Guid, Guid>();
-            var repository = new Repository<Schedule, Guid, Guid, Guid>(eventStorage, eventPublisher, clock);
+            var repository = new Repository<Schedule, Guid, Guid, Guid>(eventStorage, clock, snapshotStorage, eventPublisher);
 
             var schedule = new Schedule("test schedule");
             await repository.SaveAsync(schedule);

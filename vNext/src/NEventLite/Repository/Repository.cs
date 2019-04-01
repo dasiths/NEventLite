@@ -19,26 +19,26 @@ namespace NEventLite.Repository
         private readonly IClock _clock;
 
         public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            IClock clock) : this(eventStorageProvider, null, null, clock)
+            IClock clock) : this(eventStorageProvider, clock, null, null)
         {
         }
 
         public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            IEventPublisher<TEventKey, TAggregateKey> eventPublisher,
-            IClock clock) : this(eventStorageProvider, null, eventPublisher, clock)
+            IClock clock,
+            IEventPublisher<TEventKey, TAggregateKey> eventPublisher) : this(eventStorageProvider, clock, null, eventPublisher)
         {
         }
 
         public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
+            IClock clock,
+            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey> snapshotStorageProvider) : this(eventStorageProvider, clock, snapshotStorageProvider, null)
+        {
+        }
+
+        public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
+            IClock clock,
             ISnapshotStorageProvider<TSnapshotKey, TAggregateKey> snapshotStorageProvider,
-            IClock clock) : this(eventStorageProvider, snapshotStorageProvider, null, clock)
-        {
-        }
-
-        public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey> snapshotStorageProvider,
-            IEventPublisher<TEventKey, TAggregateKey> eventPublisher,
-            IClock clock)
+            IEventPublisher<TEventKey, TAggregateKey> eventPublisher)
         {
             _eventStorageProvider = eventStorageProvider;
             _snapshotStorageProvider = snapshotStorageProvider;
@@ -49,9 +49,10 @@ namespace NEventLite.Repository
         public async Task<TAggregate> GetByIdAsync(TAggregateKey id)
         {
             var item = default(TAggregate);
-            var isSnapshottable = ((item as ISnapshottable<TSnapshotKey, TAggregateKey>) != null);
+            var isSnapshottable =
+                typeof(ISnapshottable<TSnapshotKey, TAggregateKey>).IsAssignableFrom(typeof(TAggregate));
 
-            Snapshot<TSnapshotKey, TAggregateKey> snapshot = null;
+            ISnapshot<TSnapshotKey, TAggregateKey> snapshot = null;
 
             if ((isSnapshottable) && (_snapshotStorageProvider != null))
             {

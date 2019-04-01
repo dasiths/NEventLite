@@ -11,7 +11,7 @@ namespace NEventLite.StorageProviders.InMemory
     public class InMemorySnapshotStorageProvider<TSnapshotKey, TAggregateKey> : ISnapshotStorageProvider<TSnapshotKey, TAggregateKey>
     {
 
-        private readonly Dictionary<TAggregateKey, Snapshot<TSnapshotKey,TAggregateKey>> _items = new Dictionary<TAggregateKey, Snapshot<TSnapshotKey, TAggregateKey>>();
+        private readonly Dictionary<TAggregateKey, ISnapshot<TSnapshotKey, TAggregateKey>> _items = new Dictionary<TAggregateKey, ISnapshot<TSnapshotKey, TAggregateKey>>();
 
         private readonly string _memoryDumpFile;
         public int SnapshotFrequency { get; }
@@ -23,21 +23,19 @@ namespace NEventLite.StorageProviders.InMemory
 
             if (File.Exists(_memoryDumpFile))
             {
-                _items = SerializerHelper.LoadListFromFile<Dictionary<TAggregateKey, Snapshot<TSnapshotKey, TAggregateKey>>>(_memoryDumpFile).First();
+                _items = SerializerHelper.LoadListFromFile<Dictionary<TAggregateKey, ISnapshot<TSnapshotKey, TAggregateKey>>>(_memoryDumpFile).First();
             }
         }
-        public async Task<Snapshot<TSnapshotKey, TAggregateKey>> GetSnapshotAsync(Type aggregateType, TAggregateKey aggregateId)
+        public Task<ISnapshot<TSnapshotKey, TAggregateKey>> GetSnapshotAsync(Type aggregateType, TAggregateKey aggregateId)
         {
             if (_items.ContainsKey(aggregateId))
             {
-                return _items[aggregateId];
+                return Task.FromResult(_items[aggregateId]);
             }
-            else
-            {
-                return null;
-            }
+
+            return Task.FromResult((ISnapshot<TSnapshotKey, TAggregateKey>)null);
         }
-        public async Task SaveSnapshotAsync(Type aggregateType, Snapshot<TSnapshotKey, TAggregateKey> snapshot)
+        public Task SaveSnapshotAsync(Type aggregateType, ISnapshot<TSnapshotKey, TAggregateKey> snapshot)
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {
@@ -49,6 +47,8 @@ namespace NEventLite.StorageProviders.InMemory
             }
 
             SerializerHelper.SaveListToFile(_memoryDumpFile, new[] { _items });
+
+            return Task.CompletedTask;
         }
     }
 }

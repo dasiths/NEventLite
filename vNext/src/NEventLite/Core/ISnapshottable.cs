@@ -2,7 +2,7 @@
 {
     public interface ISnapshottable<TSnapshotKey, TAggregateKey>
     {
-        Snapshot<TSnapshotKey, TAggregateKey> TakeSnapshot();
-        void ApplySnapshot(Snapshot<TSnapshotKey, TAggregateKey> snapshot);
+        ISnapshot<TSnapshotKey, TAggregateKey> TakeSnapshot();
+        void ApplySnapshot(ISnapshot<TSnapshotKey, TAggregateKey> snapshot);
     }
 }
