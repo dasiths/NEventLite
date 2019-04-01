@@ -10,11 +10,13 @@ using NEventLite.Util;
 
 namespace NEventLite.Repository
 {
-    public class Repository<TAggregate, TAggregateKey, TEventKey, TSnapshotKey> :
-        IRepository<TAggregate, TAggregateKey, TEventKey, TSnapshotKey> where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
+    public class Repository<TAggregate, TAggregateKey, TEventKey, TSnapshotKey, TSnapshot> :
+        IRepository<TAggregate, TAggregateKey, TEventKey> 
+        where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new() 
+        where TSnapshot: ISnapshot<TSnapshotKey, TAggregateKey>
     {
         private readonly IEventStorageProvider<TEventKey, TAggregateKey> _eventStorageProvider;
-        private readonly ISnapshotStorageProvider<TSnapshotKey, TAggregateKey> _snapshotStorageProvider;
+        private readonly ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> _snapshotStorageProvider;
         private readonly IEventPublisher<TEventKey, TAggregateKey> _eventPublisher;
         private readonly IClock _clock;
 
@@ -31,13 +33,13 @@ namespace NEventLite.Repository
 
         public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
             IClock clock,
-            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey> snapshotStorageProvider) : this(eventStorageProvider, clock, snapshotStorageProvider, null)
+            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> snapshotStorageProvider) : this(eventStorageProvider, clock, snapshotStorageProvider, null)
         {
         }
 
         public Repository(IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
             IClock clock,
-            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey> snapshotStorageProvider,
+            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> snapshotStorageProvider,
             IEventPublisher<TEventKey, TAggregateKey> eventPublisher)
         {
             _eventStorageProvider = eventStorageProvider;
@@ -50,9 +52,9 @@ namespace NEventLite.Repository
         {
             var item = default(TAggregate);
             var isSnapshottable =
-                typeof(ISnapshottable<TSnapshotKey, TAggregateKey>).IsAssignableFrom(typeof(TAggregate));
+                typeof(ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot>).IsAssignableFrom(typeof(TAggregate));
 
-            ISnapshot<TSnapshotKey, TAggregateKey> snapshot = null;
+            var snapshot = default(TSnapshot);
 
             if ((isSnapshottable) && (_snapshotStorageProvider != null))
             {
@@ -62,7 +64,7 @@ namespace NEventLite.Repository
             if (snapshot != null)
             {
                 item = ReflectionHelper.CreateInstance<TAggregate, TAggregateKey, TEventKey>();
-                (item as ISnapshottable<TSnapshotKey, TAggregateKey>).ApplySnapshot(snapshot);
+                (item as ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot>).ApplySnapshot(snapshot);
 
                 var events = await _eventStorageProvider.GetEventsAsync(typeof(TAggregate), id, snapshot.Version + 1, int.MaxValue);
                 await item.LoadsFromHistoryAsync(events);
@@ -125,9 +127,8 @@ namespace NEventLite.Repository
             }
 
             //If the Aggregate implements snapshottable
-            var snapshottable = aggregate as ISnapshottable<TSnapshotKey, TAggregateKey>;
 
-            if ((snapshottable != null) && (_snapshotStorageProvider != null))
+            if ((aggregate is ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot> snapshottable) && (_snapshotStorageProvider != null))
             {
                 //Every N events we save a snapshot
                 if ((aggregate.CurrentVersion >= _snapshotStorageProvider.SnapshotFrequency) &&

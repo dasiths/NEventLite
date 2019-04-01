@@ -1,8 +1,8 @@
 ﻿namespace NEventLite.Core
 {
-    public interface ISnapshottable<TSnapshotKey, TAggregateKey>
+    public interface ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot> where TSnapshot: ISnapshot<TSnapshotKey, TAggregateKey>
     {
-        ISnapshot<TSnapshotKey, TAggregateKey> TakeSnapshot();
-        void ApplySnapshot(ISnapshot<TSnapshotKey, TAggregateKey> snapshot);
+        TSnapshot TakeSnapshot();
+        void ApplySnapshot(TSnapshot snapshot);
     }
 }

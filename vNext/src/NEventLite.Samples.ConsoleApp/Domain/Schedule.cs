@@ -10,7 +10,7 @@ using NEventLite.Samples.ConsoleApp.Domain.Snapshot;
 
 namespace NEventLite.Samples.ConsoleApp.Domain
 {
-    public class Schedule: AggregateRoot<Guid, Guid>, ISnapshottable<Guid, Guid>
+    public class Schedule: AggregateRoot<Guid, Guid>, ISnapshottable<Guid, Guid, ScheduleSnapshot>
     {
         public IList<Todo> Todos { get; private set; }
         public string ScheduleName { get; private set; }
@@ -77,7 +77,7 @@ namespace NEventLite.Samples.ConsoleApp.Domain
             await Task.CompletedTask;
         }
 
-        public ISnapshot<Guid, Guid> TakeSnapshot()
+        public ScheduleSnapshot TakeSnapshot()
         {
             return new ScheduleSnapshot(Guid.NewGuid(), Id, CurrentVersion)
             {
@@ -91,19 +91,12 @@ namespace NEventLite.Samples.ConsoleApp.Domain
             };
         }
 
-        public void ApplySnapshot(ISnapshot<Guid, Guid> snapshot)
+        public void ApplySnapshot(ScheduleSnapshot snapshot)
         {
-            var result = snapshot as ScheduleSnapshot;
-
-            if (result == null)
+            HydrateFrom(snapshot, () =>
             {
-                throw new ArgumentException($"Not typeof ${nameof(ScheduleSnapshot)}", nameof(snapshot));
-            }
-
-            HydrateFrom(result, () =>
-            {
-                ScheduleName = result.ScheduleName;
-                Todos = result.Todos.Select(t => new Todo(t.Id, t.Text)
+                ScheduleName = snapshot.ScheduleName;
+                Todos = snapshot.Todos.Select(t => new Todo(t.Id, t.Text)
                 {
                     Text = t.Text
                 }).ToList();

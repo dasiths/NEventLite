@@ -8,10 +8,11 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemorySnapshotStorageProvider<TSnapshotKey, TAggregateKey> : ISnapshotStorageProvider<TSnapshotKey, TAggregateKey>
+    public class InMemorySnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> : ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> 
+        where TSnapshot : ISnapshot<TSnapshotKey, TAggregateKey>
     {
 
-        private readonly Dictionary<TAggregateKey, ISnapshot<TSnapshotKey, TAggregateKey>> _items = new Dictionary<TAggregateKey, ISnapshot<TSnapshotKey, TAggregateKey>>();
+        private readonly Dictionary<TAggregateKey, TSnapshot> _items = new Dictionary<TAggregateKey, TSnapshot>();
 
         private readonly string _memoryDumpFile;
         public int SnapshotFrequency { get; }
@@ -23,19 +24,19 @@ namespace NEventLite.StorageProviders.InMemory
 
             if (File.Exists(_memoryDumpFile))
             {
-                _items = SerializerHelper.LoadListFromFile<Dictionary<TAggregateKey, ISnapshot<TSnapshotKey, TAggregateKey>>>(_memoryDumpFile).First();
+                _items = SerializerHelper.LoadListFromFile<Dictionary<TAggregateKey, TSnapshot>>(_memoryDumpFile).First();
             }
         }
-        public Task<ISnapshot<TSnapshotKey, TAggregateKey>> GetSnapshotAsync(Type aggregateType, TAggregateKey aggregateId)
+        public Task<TSnapshot> GetSnapshotAsync(Type aggregateType, TAggregateKey aggregateId)
         {
             if (_items.ContainsKey(aggregateId))
             {
                 return Task.FromResult(_items[aggregateId]);
             }
 
-            return Task.FromResult((ISnapshot<TSnapshotKey, TAggregateKey>)null);
+            return Task.FromResult(default(TSnapshot));
         }
-        public Task SaveSnapshotAsync(Type aggregateType, ISnapshot<TSnapshotKey, TAggregateKey> snapshot)
+        public Task SaveSnapshotAsync(Type aggregateType, TSnapshot snapshot)
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {

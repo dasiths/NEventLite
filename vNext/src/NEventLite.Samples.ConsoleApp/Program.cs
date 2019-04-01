@@ -3,8 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NEventLite.Core;
 using NEventLite.Repository;
 using NEventLite.Samples.ConsoleApp.Domain;
+using NEventLite.Samples.ConsoleApp.Domain.Snapshot;
 using NEventLite.Samples.ConsoleApp.Infrastructure;
 using NEventLite.Storage;
 using NEventLite.StorageProviders.InMemory;
@@ -36,11 +38,14 @@ namespace NEventLite.Samples.ConsoleApp
             File.Delete(inMemorySnapshotStorePath);
             File.Delete(inMemoryReadModelStorePath);
 
-            var eventStorage = new InMemoryEventStorageProvider<Guid, Guid>(inMemoryEventStorePath);
-            var snapshotStorage = new InMemorySnapshotStorageProvider<Guid, Guid>(2, inMemorySnapshotStorePath);
-            var clock = new MyClock();
-            var eventPublisher = new EventPublisher<Guid, Guid>();
-            var repository = new Repository<Schedule, Guid, Guid, Guid>(eventStorage, clock, snapshotStorage, eventPublisher);
+            IEventStorageProvider<Guid, Guid> eventStorage = 
+                new InMemoryEventStorageProvider<Guid, Guid>(inMemoryEventStorePath);
+            ISnapshotStorageProvider<Guid, Guid, ScheduleSnapshot> snapshotStorage = 
+                new InMemorySnapshotStorageProvider<Guid, Guid, ScheduleSnapshot>(2, inMemorySnapshotStorePath);
+            IClock clock = new MyClock();
+            IEventPublisher<Guid, Guid> eventPublisher = new EventPublisher<Guid, Guid>();
+            IRepository<Schedule, Guid, Guid> repository = 
+                new Repository<Schedule, Guid, Guid, Guid, ScheduleSnapshot>(eventStorage, clock, snapshotStorage, eventPublisher);
 
             var schedule = new Schedule("test schedule");
             await repository.SaveAsync(schedule);
