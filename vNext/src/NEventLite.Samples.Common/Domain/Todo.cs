@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NEventLite.Samples.ConsoleApp.Domain
+namespace NEventLite.Samples.Common.Domain
 {
     public class Todo
     {

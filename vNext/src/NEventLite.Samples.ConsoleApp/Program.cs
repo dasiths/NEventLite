@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NEventLite.Core;
 using NEventLite.Repository;
-using NEventLite.Samples.ConsoleApp.Domain;
-using NEventLite.Samples.ConsoleApp.Domain.Snapshot;
-using NEventLite.Samples.ConsoleApp.Infrastructure;
+using NEventLite.Samples.Common;
+using NEventLite.Samples.Common.Domain;
+using NEventLite.Samples.Common.Domain.Snapshot;
 using NEventLite.Storage;
 using NEventLite.StorageProviders.InMemory;
 
@@ -47,7 +47,7 @@ namespace NEventLite.Samples.ConsoleApp
             IRepository<Schedule, Guid, Guid> repository =
                 new Repository<Schedule, Guid, Guid, Guid, ScheduleSnapshot>(clock, eventStorage, eventPublisher, snapshotStorage);
 
-            repository = new EventOnlyRepository<Schedule, Guid, Guid>(clock, eventStorage, eventPublisher);
+            // repository = new EventOnlyRepository<Schedule, Guid, Guid>(clock, eventStorage, eventPublisher);
 
             var schedule = new Schedule("test schedule");
             await repository.SaveAsync(schedule);
@@ -74,6 +74,8 @@ namespace NEventLite.Samples.ConsoleApp
             await schedule.CompleteTodoAsync(todo.Id);
             await repository.SaveAsync(schedule);
 
+            Console.WriteLine();
+            Console.WriteLine("Schedule loaded from Repository:");
             Console.WriteLine(JsonConvert.SerializeObject(schedule, Formatting.Indented));
         }
     }

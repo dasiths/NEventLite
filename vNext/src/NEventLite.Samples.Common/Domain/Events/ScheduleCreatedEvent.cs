@@ -1,8 +1,7 @@
 ﻿using System;
-using NEventLite.Core;
 using NEventLite.Core.Domain;
 
-namespace NEventLite.Samples.ConsoleApp.Domain.Events
+namespace NEventLite.Samples.Common.Domain.Events
 {
     public class ScheduleCreatedEvent : Event<Guid, Guid>
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NEventLite.Samples.ConsoleApp.Infrastructure
+namespace NEventLite.Samples.Common
 {
     public class MyClock: IClock
     {

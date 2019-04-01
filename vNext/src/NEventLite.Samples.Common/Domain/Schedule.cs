@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NEventLite.Core;
 using NEventLite.Core.Domain;
-using NEventLite.Samples.ConsoleApp.Domain.Events;
-using NEventLite.Samples.ConsoleApp.Domain.Snapshot;
+using NEventLite.Samples.Common.Domain.Events;
+using NEventLite.Samples.Common.Domain.Snapshot;
 
-namespace NEventLite.Samples.ConsoleApp.Domain
+namespace NEventLite.Samples.Common.Domain
 {
     public class Schedule: AggregateRoot<Guid, Guid>, ISnapshottable<Guid, Guid, ScheduleSnapshot>
     {

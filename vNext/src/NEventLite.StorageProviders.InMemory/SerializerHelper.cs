@@ -16,11 +16,11 @@ namespace NEventLite.StorageProviders.InMemory
             File.WriteAllText(strFile, content);
         }
 
-        private static List<Object> LoadFromJson(string strFile)
+        private static IEnumerable<object> LoadFromJson(string strFile)
         {
             var serializerSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
             var content = File.ReadAllText(strFile);
-            var obj = JsonConvert.DeserializeObject<List<Object>>(content, serializerSetting);
+            var obj = JsonConvert.DeserializeObject<List<object>>(content, serializerSetting);
 
             return obj;
         }
@@ -31,7 +31,7 @@ namespace NEventLite.StorageProviders.InMemory
             SaveToJson(file, objects);
         }
 
-        public static List<T> LoadListFromFile<T>(string file)
+        public static IList<T> LoadListFromFile<T>(string file)
         {
             var results = LoadFromJson(file);
             return results.Select(o => (T)o).ToList();

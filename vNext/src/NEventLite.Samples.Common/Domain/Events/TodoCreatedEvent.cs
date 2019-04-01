@@ -1,7 +1,7 @@
 ﻿using System;
 using NEventLite.Core.Domain;
 
-namespace NEventLite.Samples.ConsoleApp.Domain.Events
+namespace NEventLite.Samples.Common.Domain.Events
 {
     public class TodoCreatedEvent : Event<Guid, Guid>
     {

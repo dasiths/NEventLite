@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using NEventLite.Core;
 
-namespace NEventLite.Samples.ConsoleApp.Domain.Snapshot
+namespace NEventLite.Samples.Common.Domain.Snapshot
 {
     public class ScheduleSnapshot : Snapshot<Guid, Guid>
     {
