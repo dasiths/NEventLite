@@ -11,9 +11,9 @@ using NEventLite.Util;
 namespace NEventLite.Repository
 {
     public class Repository<TAggregate, TAggregateKey, TEventKey, TSnapshotKey, TSnapshot> :
-        IRepository<TAggregate, TAggregateKey, TEventKey> 
-        where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new() 
-        where TSnapshot: ISnapshot<TSnapshotKey, TAggregateKey>
+        IRepository<TAggregate, TAggregateKey, TEventKey>
+        where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
+        where TSnapshot : ISnapshot<TSnapshotKey, TAggregateKey>
     {
         private readonly IEventStorageProvider<TEventKey, TAggregateKey> _eventStorageProvider;
         private readonly ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> _snapshotStorageProvider;
@@ -46,8 +46,16 @@ namespace NEventLite.Repository
 
             if (snapshot != null)
             {
-                item = ReflectionHelper.CreateInstance<TAggregate, TAggregateKey, TEventKey>();
-                (item as ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot>).ApplySnapshot(snapshot);
+                item = CreateNewInstance();
+                var snapshottableItem = (item as ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot>);
+
+                if (snapshottableItem == null)
+                {
+                    throw new NullReferenceException(nameof(snapshottableItem));
+                }
+
+                item.HydrateFromSnapshot(snapshot);
+                snapshottableItem.ApplySnapshot(snapshot);
 
                 var events = await _eventStorageProvider.GetEventsAsync(typeof(TAggregate), id, snapshot.Version + 1, int.MaxValue);
                 await item.LoadsFromHistoryAsync(events);
@@ -58,7 +66,7 @@ namespace NEventLite.Repository
 
                 if (events.Any())
                 {
-                    item = new TAggregate();
+                    item = CreateNewInstance();
                     await item.LoadsFromHistoryAsync(events);
                 }
             }
@@ -127,6 +135,11 @@ namespace NEventLite.Repository
             }
 
             aggregate.MarkChangesAsCommitted();
+        }
+
+        private TAggregate CreateNewInstance()
+        {
+            return new TAggregate();
         }
 
         private void DoPreCommitTasks(IEvent<TEventKey, TAggregateKey> e)

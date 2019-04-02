@@ -19,6 +19,7 @@ namespace NEventLite.Tests.Integration
         private readonly MockEventPublisher<Guid, Guid> _eventPublisher;
         private readonly MockClock _clock;
         private readonly IRepository<Schedule, Guid, Guid> _repository;
+        private readonly IRepository<Schedule, Guid, Guid> _eventOnlyRepository;
 
         public EndToEndTests()
         {
@@ -30,15 +31,19 @@ namespace NEventLite.Tests.Integration
 
             var inMemoryEventStorePath = $@"{strTempDataFolderPath}events.stream.dump";
             var inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";
-
+            
             File.Delete(inMemoryEventStorePath);
             File.Delete(inMemorySnapshotStorePath);
 
-            IEventStorageProvider<Guid, Guid> eventStorage = new InMemoryEventStorageProvider<Guid, Guid>(inMemoryEventStorePath);
-            ISnapshotStorageProvider<Guid, Guid, ScheduleSnapshot> snapshotStorage = new InMemorySnapshotStorageProvider<Guid, Guid, ScheduleSnapshot>(2, inMemorySnapshotStorePath);
+            IEventStorageProvider<Guid, Guid> eventStorage = 
+                new InMemoryEventStorageProvider<Guid, Guid>(inMemoryEventStorePath);
+            ISnapshotStorageProvider<Guid, Guid, ScheduleSnapshot> snapshotStorage = 
+                new InMemorySnapshotStorageProvider<Guid, Guid, ScheduleSnapshot>(2, inMemorySnapshotStorePath);
+
             _clock = new MockClock();
             _eventPublisher = new MockEventPublisher<Guid, Guid>();
             _repository = new Repository<Schedule, Guid, Guid, Guid, ScheduleSnapshot>(_clock, eventStorage, _eventPublisher, snapshotStorage);
+            _eventOnlyRepository = new EventOnlyRepository<Schedule, Guid, Guid>(_clock, eventStorage, _eventPublisher);
         }
 
         [Fact]
@@ -61,6 +66,35 @@ namespace NEventLite.Tests.Integration
         }
 
         [Fact]
+        public async Task WhenCreatingSchedule_AndDoingChanges_ItGetsSaved_AndCanBe_ReloadedFromTheEventOnlyRepository()
+        {
+            var scheduleName = "test schedule";
+            var schedule = new Schedule(scheduleName);
+            await _eventOnlyRepository.SaveAsync(schedule);
+
+            Enumerable.Range(1, 5).ToList().ForEach(async i =>
+            {
+                var tmpSchedule = await _eventOnlyRepository.GetByIdAsync(schedule.Id);
+                tmpSchedule.AddTodo($"Todo {i}");
+                await _eventOnlyRepository.SaveAsync(tmpSchedule);
+            });
+
+            var reloadedSchedule = await _eventOnlyRepository.GetByIdAsync(schedule.Id);
+            reloadedSchedule.Id.ShouldBe(schedule.Id);
+            reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
+            reloadedSchedule.Todos.Count.ShouldBe(5);
+            reloadedSchedule.Todos.All(t => t.Text == $"Todo {reloadedSchedule.Todos.IndexOf(t) + 1}").ShouldBeTrue();
+            reloadedSchedule.StreamState.ShouldBe(StreamState.HasStream);
+            reloadedSchedule.CurrentVersion.ShouldBe(5);
+            reloadedSchedule.LastCommittedVersion.ShouldBe(5);
+
+            var events = _eventPublisher.Events[reloadedSchedule.Id];
+            events.Count.ShouldBe(6);
+            events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
+            events.Last().EventCommittedTimestamp.ShouldBe(_clock.Value);
+        }
+
+        [Fact]
         public async Task WhenCreatingSchedule_AndDoingChanges_ItGetsSaved_AndCanBe_ReloadedFromTheRepository()
         {
             var scheduleName = "test schedule";
@@ -69,12 +103,12 @@ namespace NEventLite.Tests.Integration
 
             Enumerable.Range(1, 5).ToList().ForEach(async i =>
             {
-                var tmpSchedule = await _repository.GetByIdAsync(schedule.Id);
+                var tmpSchedule = await _eventOnlyRepository.GetByIdAsync(schedule.Id);
                 tmpSchedule.AddTodo($"Todo {i}");
-                await _repository.SaveAsync(tmpSchedule);
+                await _eventOnlyRepository.SaveAsync(tmpSchedule);
             });
 
-            var reloadedSchedule = await _repository.GetByIdAsync(schedule.Id);
+            var reloadedSchedule = await _eventOnlyRepository.GetByIdAsync(schedule.Id);
             reloadedSchedule.Id.ShouldBe(schedule.Id);
             reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
             reloadedSchedule.Todos.Count.ShouldBe(5);

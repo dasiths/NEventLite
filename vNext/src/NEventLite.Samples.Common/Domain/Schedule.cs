@@ -9,7 +9,7 @@ using NEventLite.Samples.Common.Domain.Snapshot;
 
 namespace NEventLite.Samples.Common.Domain
 {
-    public class Schedule: AggregateRoot<Guid, Guid>, ISnapshottable<Guid, Guid, ScheduleSnapshot>
+    public class Schedule : AggregateRoot<Guid, Guid>, ISnapshottable<Guid, Guid, ScheduleSnapshot>
     {
         public IList<Todo> Todos { get; private set; }
         public string ScheduleName { get; private set; }
@@ -92,15 +92,11 @@ namespace NEventLite.Samples.Common.Domain
 
         public void ApplySnapshot(ScheduleSnapshot snapshot)
         {
-            HydrateFrom(snapshot, () =>
+            ScheduleName = snapshot.ScheduleName;
+            Todos = snapshot.Todos.Select(t => new Todo(t.Id, t.Text)
             {
-                ScheduleName = snapshot.ScheduleName;
-                Todos = snapshot.Todos.Select(t => new Todo(t.Id, t.Text)
-                {
-                    Text = t.Text
-                }).ToList();
-            });
-
+                Text = t.Text
+            }).ToList();
         }
     }
 }

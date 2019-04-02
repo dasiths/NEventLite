@@ -71,7 +71,6 @@ namespace NEventLite.Core.Domain
             {
                 _loadLock.Release();
             }
-
         }
 
 
@@ -156,13 +155,11 @@ namespace NEventLite.Core.Domain
             CurrentVersion++;
         }
 
-        protected void HydrateFrom<TSnapshotKey>(ISnapshot<TSnapshotKey, TAggregateKey> snapshot, Action setOtherPropAction)
+        internal void HydrateFromSnapshot<TSnapshotKey>(ISnapshot<TSnapshotKey, TAggregateKey> snapshot)
         {
             Id = snapshot.AggregateId;
             CurrentVersion = snapshot.Version;
             LastCommittedVersion = snapshot.Version;
-
-            setOtherPropAction();
         }
     }
 }

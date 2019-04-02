@@ -102,10 +102,5 @@ namespace NEventLite.Util
         {
             return t.GetTypeInfo().DeclaredMembers.ToArray();
         }
-
-        public static T CreateInstance<T, TAggregateKey, TEventKey>() where T : AggregateRoot<TAggregateKey, TEventKey>
-        {
-            return (T)Activator.CreateInstance(typeof(T));
-        }
     }
 }
