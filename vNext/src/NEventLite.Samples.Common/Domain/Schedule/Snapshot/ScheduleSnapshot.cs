@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NEventLite.Core;
 
-namespace NEventLite.Samples.Common.Domain.Snapshot
+namespace NEventLite.Samples.Common.Domain.Schedule.Snapshot
 {
     public class ScheduleSnapshot : Snapshot<Guid, Guid>
     {

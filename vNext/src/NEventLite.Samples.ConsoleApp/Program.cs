@@ -8,7 +8,8 @@ using NEventLite.Core.Domain;
 using NEventLite.Repository;
 using NEventLite.Samples.Common;
 using NEventLite.Samples.Common.Domain;
-using NEventLite.Samples.Common.Domain.Snapshot;
+using NEventLite.Samples.Common.Domain.Schedule;
+using NEventLite.Samples.Common.Domain.Schedule.Snapshot;
 using NEventLite.Storage;
 using NEventLite.StorageProviders.InMemory;
 

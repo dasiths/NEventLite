@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NEventLite.Core;
+﻿using NEventLite.Core;
 using NEventLite.Core.Domain;
 using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class EventOnlyRepository<TAggregate, TAggregateKey, TEventKey> : Repository<TAggregate, TAggregateKey, TEventKey, IMockAggregateKeyType, IMockSnapShot<TAggregateKey>>
+    public class EventOnlyRepository<TAggregate, TAggregateKey, TEventKey> : Repository<TAggregate, TAggregateKey, TEventKey, IMockSnapShot<TAggregateKey>, IMockAggregateKeyType>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
     {
         public EventOnlyRepository(IClock clock,

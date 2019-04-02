@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NEventLite.Samples.Common.Domain
+namespace NEventLite.Samples.Common.Domain.Schedule
 {
     public class Todo
     {

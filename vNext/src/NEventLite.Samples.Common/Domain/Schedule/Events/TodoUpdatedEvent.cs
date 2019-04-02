@@ -1,7 +1,7 @@
 ﻿using System;
 using NEventLite.Core.Domain;
 
-namespace NEventLite.Samples.Common.Domain.Events
+namespace NEventLite.Samples.Common.Domain.Schedule.Events
 {
     public class TodoUpdatedEvent : Event<Guid, Schedule, Guid>
     {
