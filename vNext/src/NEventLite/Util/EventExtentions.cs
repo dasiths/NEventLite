@@ -8,7 +8,7 @@ namespace NEventLite.Util
 {
     public static class EventExtentions
     {
-        public static async Task InvokeOnAggregateAsync<TAggregateKey, TEventKey>(this IEvent<TEventKey, TAggregateKey> @event,
+        public static async Task InvokeOnAggregateAsync<TAggregateKey, TEventKey>(this IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey> @event,
             AggregateRoot<TAggregateKey, TEventKey> aggregate, string methodName)
         {
             var method = ReflectionHelper.GetMethod(aggregate.GetType(), methodName, new Type[] { @event.GetType() }); //Find the right method

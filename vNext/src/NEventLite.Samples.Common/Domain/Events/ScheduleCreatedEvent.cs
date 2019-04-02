@@ -3,7 +3,7 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.Samples.Common.Domain.Events
 {
-    public class ScheduleCreatedEvent : Event<Guid, Guid>
+    public class ScheduleCreatedEvent : Event<Guid, Schedule, Guid>
     {
         public string ScheduleName { get; set; }
 

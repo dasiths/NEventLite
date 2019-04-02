@@ -15,15 +15,15 @@ namespace NEventLite.Repository
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
         where TSnapshot : ISnapshot<TSnapshotKey, TAggregateKey>
     {
-        private readonly IEventStorageProvider<TEventKey, TAggregateKey> _eventStorageProvider;
-        private readonly ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> _snapshotStorageProvider;
-        private readonly IEventPublisher<TEventKey, TAggregateKey> _eventPublisher;
+        private readonly IEventStorageProvider<TEventKey, TAggregate, TAggregateKey> _eventStorageProvider;
+        private readonly ISnapshotStorageProvider<TSnapshot, TSnapshotKey, TAggregateKey> _snapshotStorageProvider;
+        private readonly IEventPublisher<TEventKey, TAggregate, TAggregateKey> _eventPublisher;
         private readonly IClock _clock;
 
         public Repository(IClock clock,
-            IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            IEventPublisher<TEventKey, TAggregateKey> eventPublisher,
-            ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> snapshotStorageProvider)
+            IEventStorageProvider<TEventKey, TAggregate, TAggregateKey> eventStorageProvider,
+            IEventPublisher<TEventKey, TAggregate, TAggregateKey> eventPublisher,
+            ISnapshotStorageProvider<TSnapshot, TSnapshotKey, TAggregateKey> snapshotStorageProvider)
         {
             _eventStorageProvider = eventStorageProvider;
             _snapshotStorageProvider = snapshotStorageProvider;
@@ -41,7 +41,7 @@ namespace NEventLite.Repository
 
             if ((isSnapshottable) && (_snapshotStorageProvider != null))
             {
-                snapshot = await _snapshotStorageProvider.GetSnapshotAsync(typeof(TAggregate), id);
+                snapshot = await _snapshotStorageProvider.GetSnapshotAsync(id);
             }
 
             if (snapshot != null)
@@ -57,12 +57,12 @@ namespace NEventLite.Repository
                 item.HydrateFromSnapshot(snapshot);
                 snapshottableItem.ApplySnapshot(snapshot);
 
-                var events = await _eventStorageProvider.GetEventsAsync(typeof(TAggregate), id, snapshot.Version + 1, int.MaxValue);
+                var events = await _eventStorageProvider.GetEventsAsync(id, snapshot.Version + 1, int.MaxValue);
                 await item.LoadsFromHistoryAsync(events);
             }
             else
             {
-                var events = (await _eventStorageProvider.GetEventsAsync(typeof(TAggregate), id, 0, int.MaxValue)).ToList();
+                var events = (await _eventStorageProvider.GetEventsAsync(id, 0, int.MaxValue)).ToList();
 
                 if (events.Any())
                 {
@@ -86,7 +86,7 @@ namespace NEventLite.Repository
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 
-            var item = await _eventStorageProvider.GetLastEventAsync(aggregate.GetType(), aggregate.Id);
+            var item = await _eventStorageProvider.GetLastEventAsync(aggregate.Id);
 
             if ((item != null) && (expectedVersion == (int)StreamState.NoStream))
             {
@@ -97,7 +97,10 @@ namespace NEventLite.Repository
                 throw new ConcurrencyException($"Aggregate {item.CorrelationId} has been modified externally and has an updated state. Can't commit changes.");
             }
 
-            var changesToCommit = aggregate.GetUncommittedChanges().ToList();
+            var changesToCommit = aggregate
+                .GetUncommittedChanges()
+                .Select(e => (IEvent<TEventKey, TAggregate, TAggregateKey>)e)
+                .ToList();
 
             //perform pre commit actions
             foreach (var e in changesToCommit)
@@ -130,7 +133,8 @@ namespace NEventLite.Repository
                         )
                     )
                 {
-                    await _snapshotStorageProvider.SaveSnapshotAsync(aggregate.GetType(), snapshottable.TakeSnapshot());
+                    var snapshot = snapshottable.TakeSnapshot();
+                    await _snapshotStorageProvider.SaveSnapshotAsync(snapshot);
                 }
             }
 
@@ -142,7 +146,7 @@ namespace NEventLite.Repository
             return new TAggregate();
         }
 
-        private void DoPreCommitTasks(IEvent<TEventKey, TAggregateKey> e)
+        private void DoPreCommitTasks(IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey> e)
         {
             e.EventCommittedTimestamp = _clock.Now();
         }

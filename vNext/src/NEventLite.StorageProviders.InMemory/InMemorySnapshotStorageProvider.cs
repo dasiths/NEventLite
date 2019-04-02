@@ -8,7 +8,7 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemorySnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> : ISnapshotStorageProvider<TSnapshotKey, TAggregateKey, TSnapshot> 
+    public class InMemorySnapshotStorageProvider<TSnapshot, TSnapshotKey, TAggregateKey> : ISnapshotStorageProvider<TSnapshot, TSnapshotKey, TAggregateKey> 
         where TSnapshot : ISnapshot<TSnapshotKey, TAggregateKey>
     {
 
@@ -27,7 +27,7 @@ namespace NEventLite.StorageProviders.InMemory
                 _items = SerializerHelper.LoadListFromFile<Dictionary<TAggregateKey, TSnapshot>>(_memoryDumpFile).First();
             }
         }
-        public Task<TSnapshot> GetSnapshotAsync(Type aggregateType, TAggregateKey aggregateId)
+        public Task<TSnapshot> GetSnapshotAsync(TAggregateKey aggregateId)
         {
             if (_items.ContainsKey(aggregateId))
             {
@@ -36,7 +36,7 @@ namespace NEventLite.StorageProviders.InMemory
 
             return Task.FromResult(default(TSnapshot));
         }
-        public Task SaveSnapshotAsync(Type aggregateType, TSnapshot snapshot)
+        public Task SaveSnapshotAsync(TSnapshot snapshot)
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {

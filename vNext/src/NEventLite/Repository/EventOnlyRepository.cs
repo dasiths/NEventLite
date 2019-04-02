@@ -11,8 +11,8 @@ namespace NEventLite.Repository
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
     {
         public EventOnlyRepository(IClock clock,
-            IEventStorageProvider<TEventKey, TAggregateKey> eventStorageProvider,
-            IEventPublisher<TEventKey, TAggregateKey> eventPublisher) : base(clock, eventStorageProvider, eventPublisher, null)
+            IEventStorageProvider<TEventKey, TAggregate, TAggregateKey> eventStorageProvider,
+            IEventPublisher<TEventKey, TAggregate, TAggregateKey> eventPublisher) : base(clock, eventStorageProvider, eventPublisher, null)
         {
         }
     }

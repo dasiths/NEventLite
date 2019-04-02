@@ -2,7 +2,7 @@
 
 namespace NEventLite.Core.Domain
 {
-    public abstract class Event<TKey, TAggregateKey> : IEvent<TKey, TAggregateKey>
+    public abstract class Event<TKey, TAggregate, TAggregateKey> : IEvent<TKey, TAggregate, TAggregateKey> where TAggregate : AggregateRoot<TAggregateKey, TKey>
     {
         protected Event(TKey id, TAggregateKey aggregateId) : this(id, aggregateId, (int) StreamState.NoStream)
         {

@@ -6,7 +6,7 @@
         public TAggregateKey AggregateId { get; private set; }
         public int Version { get; private set; }
 
-        protected Snapshot(TSnapshotKey id, TAggregateKey aggregateId, int version) : base()
+        protected Snapshot(TSnapshotKey id, TAggregateKey aggregateId, int version)
         {
             Id = id;
             AggregateId = aggregateId;
