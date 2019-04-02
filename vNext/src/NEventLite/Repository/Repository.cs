@@ -10,7 +10,7 @@ using NEventLite.Util;
 
 namespace NEventLite.Repository
 {
-    public class Repository<TAggregate, TAggregateKey, TEventKey, TSnapshotKey, TSnapshot> :
+    public class Repository<TAggregate, TAggregateKey, TEventKey, TSnapshot, TSnapshotKey> :
         IRepository<TAggregate, TAggregateKey, TEventKey>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
         where TSnapshot : ISnapshot<TSnapshotKey, TAggregateKey>

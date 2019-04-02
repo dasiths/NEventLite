@@ -42,7 +42,7 @@ namespace NEventLite.Tests.Integration
 
             _clock = new MockClock();
             _eventPublisher = new MockEventPublisher<Guid, Schedule, Guid>();
-            _repository = new Repository<Schedule, Guid, Guid, Guid, ScheduleSnapshot>(_clock, eventStorage, _eventPublisher, snapshotStorage);
+            _repository = new Repository<Schedule, Guid, Guid, ScheduleSnapshot, Guid>(_clock, eventStorage, _eventPublisher, snapshotStorage);
             _eventOnlyRepository = new EventOnlyRepository<Schedule, Guid, Guid>(_clock, eventStorage, _eventPublisher);
         }
 

@@ -50,7 +50,7 @@ namespace NEventLite.Samples.ConsoleApp
             IEventPublisher<Guid, Schedule, Guid> eventPublisher = new EventPublisher<Guid, Schedule, Guid>();
 
             IRepository<Schedule, Guid, Guid> repository =
-                new Repository<Schedule, Guid, Guid, Guid, ScheduleSnapshot>(clock, eventStorage, eventPublisher, snapshotStorage);
+                new Repository<Schedule, Guid, Guid, ScheduleSnapshot, Guid>(clock, eventStorage, eventPublisher, snapshotStorage);
 
             // repository = new EventOnlyRepository<Schedule, Guid, Guid>(clock, eventStorage, eventPublisher);
 
