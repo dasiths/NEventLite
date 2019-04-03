@@ -4,11 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NEventLite.Core;
+using NEventLite.Core.Domain;
 using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemorySnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> : ISnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> 
+    public class InMemorySnapshotStorageProvider<TSnapshot> : InMemorySnapshotStorageProvider<TSnapshot, Guid, Guid> where TSnapshot : ISnapshot<Guid, Guid>
+    {
+        public InMemorySnapshotStorageProvider(int frequency, string memoryDumpFile) : base(frequency, memoryDumpFile)
+        {
+        }
+    }
+
+    public class InMemorySnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> : ISnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey>
         where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
     {
 

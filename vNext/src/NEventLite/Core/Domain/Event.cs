@@ -2,6 +2,22 @@
 
 namespace NEventLite.Core.Domain
 {
+    public abstract class Event<TAggregate> : Event<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>
+    {
+        protected Event(Guid id, Guid aggregateId) : base(id, aggregateId)
+        {
+        }
+
+        protected Event(Guid id, Guid aggregateId, int targetVersion) : base(id, aggregateId, targetVersion)
+        {
+        }
+
+        protected Event(Guid id, Guid aggregateId, int targetVersion, int eventSchemaVersion, string correlationId) : 
+            base(id, aggregateId, targetVersion, eventSchemaVersion, correlationId)
+        {
+        }
+    }
+
     public abstract class Event<TAggregate, TAggregateKey, TEventKey> : IEvent<TAggregate, TAggregateKey, TEventKey> where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
     {
         protected Event(TEventKey id, TAggregateKey aggregateId) : this(id, aggregateId, (int) StreamState.NoStream)

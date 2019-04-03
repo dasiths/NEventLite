@@ -6,7 +6,7 @@ using NEventLite.Core;
 using NEventLite.Repository;
 using NEventLite.Samples.Common.Domain;
 using NEventLite.Samples.Common.Domain.Schedule;
-using NEventLite.Samples.Common.Domain.Schedule.Snapshot;
+using NEventLite.Samples.Common.Domain.Schedule.Snapshots;
 using NEventLite.Storage;
 using NEventLite.StorageProviders.InMemory;
 using NEventLite.Tests.Integration.Mocks;
@@ -37,14 +37,15 @@ namespace NEventLite.Tests.Integration
             File.Delete(inMemorySnapshotStorePath);
 
             IEventStorageProvider<Schedule, Guid, Guid> eventStorage = 
-                new InMemoryEventStorageProvider<Schedule, Guid, Guid>(inMemoryEventStorePath);
+                new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath);
+
             ISnapshotStorageProvider<ScheduleSnapshot, Guid, Guid> snapshotStorage = 
-                new InMemorySnapshotStorageProvider<ScheduleSnapshot, Guid, Guid>(2, inMemorySnapshotStorePath);
+                new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath);
 
             _clock = new MockClock();
-            _eventPublisher = new MockEventPublisher<Schedule, Guid, Guid>();
-            _repository = new Repository<Schedule, ScheduleSnapshot, Guid, Guid, Guid>(_clock, eventStorage, _eventPublisher, snapshotStorage);
-            _eventOnlyRepository = new EventOnlyRepository<Schedule, Guid, Guid>(_clock, eventStorage, _eventPublisher);
+            _eventPublisher = new MockEventPublisher<Schedule>();
+            _repository = new Repository<Schedule, ScheduleSnapshot>(_clock, eventStorage, _eventPublisher, snapshotStorage);
+            _eventOnlyRepository = new EventOnlyRepository<Schedule>(_clock, eventStorage, _eventPublisher);
         }
 
         [Fact]

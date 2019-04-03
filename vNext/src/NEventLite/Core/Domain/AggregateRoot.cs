@@ -9,6 +9,10 @@ using NEventLite.Util;
 
 namespace NEventLite.Core.Domain
 {
+    public abstract class AggregateRoot : AggregateRoot<Guid, Guid>
+    {
+    }
+
     public abstract class AggregateRoot<TAggregateKey, TEventKey>
     {
         public TAggregateKey Id { get; private set; }

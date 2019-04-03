@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using NEventLite.Core;
 using NEventLite.Core.Domain;
 using NEventLite.Samples.Common.Domain.Schedule.Events;
-using NEventLite.Samples.Common.Domain.Schedule.Snapshot;
+using NEventLite.Samples.Common.Domain.Schedule.Snapshots;
 
 namespace NEventLite.Samples.Common.Domain.Schedule
 {
-    public partial class Schedule : AggregateRoot<Guid, Guid>, ISnapshottable<ScheduleSnapshot, Guid, Guid>
+    public partial class Schedule : AggregateRoot, ISnapshottable<ScheduleSnapshot>
     {
         public IList<Todo> Todos { get; private set; }
         public string ScheduleName { get; private set; }

@@ -9,6 +9,13 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
+    public class InMemoryEventStorageProvider<TAggregate> : InMemoryEventStorageProvider<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>
+    {
+        public InMemoryEventStorageProvider(string memoryDumpFile) : base(memoryDumpFile)
+        {
+        }
+    }
+
     public class InMemoryEventStorageProvider<TAggregate, TAggregateKey, TEventKey> : IEventStorageProvider<TAggregate, TAggregateKey, TEventKey>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
     {

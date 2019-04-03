@@ -8,6 +8,10 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.Tests.Integration.Mocks
 {
+    public class MockEventPublisher<TAggregate> : MockEventPublisher<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>
+    {
+    }
+
     public class MockEventPublisher<TAggregate, TAggregateKey, TEventKey> : IEventPublisher<TAggregate, TAggregateKey, TEventKey>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
     {

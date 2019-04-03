@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NEventLite.Core;
 using NEventLite.Samples.Common.Domain.Schedule.Events;
-using NEventLite.Samples.Common.Domain.Schedule.Snapshot;
+using NEventLite.Samples.Common.Domain.Schedule.Snapshots;
 
 namespace NEventLite.Samples.Common.Domain.Schedule
 {

@@ -2,6 +2,10 @@
 
 namespace NEventLite.Core.Domain
 {
+    public interface IEvent<out TAggregate> : IEvent<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>
+    {
+    }
+
     public interface IEvent<out TAggregate, TAggregateKey, TEventKey> where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
     {
         TEventKey Id { get; set; }
