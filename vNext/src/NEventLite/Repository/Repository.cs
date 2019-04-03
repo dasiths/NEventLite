@@ -10,20 +10,20 @@ using NEventLite.Util;
 
 namespace NEventLite.Repository
 {
-    public class Repository<TAggregate, TAggregateKey, TEventKey, TSnapshot, TSnapshotKey> :
+    public class Repository<TAggregate, TSnapshot, TAggregateKey, TEventKey, TSnapshotKey> :
         IRepository<TAggregate, TAggregateKey, TEventKey>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
-        where TSnapshot : ISnapshot<TSnapshotKey, TAggregateKey>
+        where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
     {
-        private readonly IEventStorageProvider<TEventKey, TAggregate, TAggregateKey> _eventStorageProvider;
-        private readonly ISnapshotStorageProvider<TSnapshot, TSnapshotKey, TAggregateKey> _snapshotStorageProvider;
-        private readonly IEventPublisher<TEventKey, TAggregate, TAggregateKey> _eventPublisher;
+        private readonly IEventStorageProvider<TAggregate, TAggregateKey, TEventKey> _eventStorageProvider;
+        private readonly ISnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> _snapshotStorageProvider;
+        private readonly IEventPublisher<TAggregate, TAggregateKey, TEventKey> _eventPublisher;
         private readonly IClock _clock;
 
         public Repository(IClock clock,
-            IEventStorageProvider<TEventKey, TAggregate, TAggregateKey> eventStorageProvider,
-            IEventPublisher<TEventKey, TAggregate, TAggregateKey> eventPublisher,
-            ISnapshotStorageProvider<TSnapshot, TSnapshotKey, TAggregateKey> snapshotStorageProvider)
+            IEventStorageProvider<TAggregate, TAggregateKey, TEventKey> eventStorageProvider,
+            IEventPublisher<TAggregate, TAggregateKey, TEventKey> eventPublisher,
+            ISnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> snapshotStorageProvider)
         {
             _eventStorageProvider = eventStorageProvider;
             _snapshotStorageProvider = snapshotStorageProvider;
@@ -35,7 +35,7 @@ namespace NEventLite.Repository
         {
             var item = default(TAggregate);
             var isSnapshottable =
-                typeof(ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot>).IsAssignableFrom(typeof(TAggregate));
+                typeof(ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey>).IsAssignableFrom(typeof(TAggregate));
 
             var snapshot = default(TSnapshot);
 
@@ -47,7 +47,7 @@ namespace NEventLite.Repository
             if (snapshot != null)
             {
                 item = CreateNewInstance();
-                var snapshottableItem = (item as ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot>);
+                var snapshottableItem = (item as ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey>);
 
                 if (snapshottableItem == null)
                 {
@@ -99,7 +99,7 @@ namespace NEventLite.Repository
 
             var changesToCommit = aggregate
                 .GetUncommittedChanges()
-                .Select(e => (IEvent<TEventKey, TAggregate, TAggregateKey>)e)
+                .Select(e => (IEvent<TAggregate, TAggregateKey, TEventKey>)e)
                 .ToList();
 
             //perform pre commit actions
@@ -122,7 +122,7 @@ namespace NEventLite.Repository
 
             //If the Aggregate implements snapshottable
 
-            if ((aggregate is ISnapshottable<TSnapshotKey, TAggregateKey, TSnapshot> snapshottable) && (_snapshotStorageProvider != null))
+            if ((aggregate is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottable) && (_snapshotStorageProvider != null))
             {
                 //Every N events we save a snapshot
                 if ((aggregate.CurrentVersion >= _snapshotStorageProvider.SnapshotFrequency) &&
@@ -146,7 +146,7 @@ namespace NEventLite.Repository
             return new TAggregate();
         }
 
-        private void DoPreCommitTasks(IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey> e)
+        private void DoPreCommitTasks(IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> e)
         {
             e.EventCommittedTimestamp = _clock.Now();
         }

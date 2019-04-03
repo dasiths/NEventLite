@@ -16,8 +16,8 @@ namespace NEventLite.Core.Domain
         public int LastCommittedVersion { get; private set; }
         public StreamState StreamState => (CurrentVersion == -1) ? StreamState.NoStream : StreamState.HasStream;
 
-        private readonly IList<IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey>> _uncommittedChanges = 
-            new List<IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey>>();
+        private readonly IList<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> _uncommittedChanges = 
+            new List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>();
         private readonly Dictionary<Type, string> _eventHandlerCache;
         private readonly SemaphoreSlim _loadLock = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim _applyLock = new SemaphoreSlim(1, 1);
@@ -37,11 +37,11 @@ namespace NEventLite.Core.Domain
             }
         }
 
-        public ReadOnlyCollection<IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey>> GetUncommittedChanges()
+        public ReadOnlyCollection<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetUncommittedChanges()
         {
             lock (_uncommittedChanges)
             {
-                return new ReadOnlyCollection<IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey>>(_uncommittedChanges);
+                return new ReadOnlyCollection<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>(_uncommittedChanges);
             }
         }
 
@@ -54,7 +54,7 @@ namespace NEventLite.Core.Domain
             }
         }
 
-        public async Task LoadsFromHistoryAsync(IEnumerable<IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey>> history)
+        public async Task LoadsFromHistoryAsync(IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> history)
         {
             await _loadLock.WaitAsync();
 
@@ -74,13 +74,13 @@ namespace NEventLite.Core.Domain
             }
         }
 
-        protected void ApplyEvent<TAggregate>(IEvent<TEventKey, TAggregate, TAggregateKey> @event) where TAggregate: AggregateRoot<TAggregateKey, TEventKey>
+        protected void ApplyEvent<TAggregate>(IEvent<TAggregate, TAggregateKey, TEventKey> @event) where TAggregate: AggregateRoot<TAggregateKey, TEventKey>
         {
             ApplyEventAsync(@event).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         // This method is only used when applying new events
-        protected async Task ApplyEventAsync<TAggregate>(IEvent<TEventKey, TAggregate, TAggregateKey> @event) where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
+        protected async Task ApplyEventAsync<TAggregate>(IEvent<TAggregate, TAggregateKey, TEventKey> @event) where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             await _loadLock.WaitAsync();
 
@@ -94,7 +94,7 @@ namespace NEventLite.Core.Domain
             }
         }
 
-        private async Task ApplyEventAsync(IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey> @event, bool isNew)
+        private async Task ApplyEventAsync(IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> @event, bool isNew)
         {
             //All state changes to AggregateRoot must happen via the Apply method
             //Make sure the right Apply method is called with the right type.
@@ -129,14 +129,14 @@ namespace NEventLite.Core.Domain
             }
         }
 
-        private bool CanApply(IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey> @event)
+        private bool CanApply(IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> @event)
         {
             //Check to see if event is applying against the right Aggregate and matches the target version
             return ((StreamState == StreamState.NoStream || Id.Equals(@event.AggregateId))
                     && (CurrentVersion == @event.TargetVersion));
         }
 
-        private async Task DoApplyAsync(IEvent<TEventKey, AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey> @event)
+        private async Task DoApplyAsync(IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> @event)
         {
             if (StreamState == StreamState.NoStream)
             {
@@ -155,7 +155,7 @@ namespace NEventLite.Core.Domain
             CurrentVersion++;
         }
 
-        internal void HydrateFromSnapshot<TSnapshotKey>(ISnapshot<TSnapshotKey, TAggregateKey> snapshot)
+        internal void HydrateFromSnapshot<TSnapshotKey>(ISnapshot<TAggregateKey, TSnapshotKey> snapshot)
         {
             Id = snapshot.AggregateId;
             CurrentVersion = snapshot.Version;

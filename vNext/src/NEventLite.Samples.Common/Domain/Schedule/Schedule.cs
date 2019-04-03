@@ -8,7 +8,7 @@ using NEventLite.Samples.Common.Domain.Schedule.Snapshot;
 
 namespace NEventLite.Samples.Common.Domain.Schedule
 {
-    public partial class Schedule : AggregateRoot<Guid, Guid>, ISnapshottable<Guid, Guid, ScheduleSnapshot>
+    public partial class Schedule : AggregateRoot<Guid, Guid>, ISnapshottable<ScheduleSnapshot, Guid, Guid>
     {
         public IList<Todo> Todos { get; private set; }
         public string ScheduleName { get; private set; }

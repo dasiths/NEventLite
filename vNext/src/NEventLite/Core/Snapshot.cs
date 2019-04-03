@@ -1,6 +1,6 @@
 ﻿namespace NEventLite.Core
 {
-    public abstract class Snapshot<TSnapshotKey, TAggregateKey> : ISnapshot<TSnapshotKey, TAggregateKey>
+    public abstract class Snapshot<TAggregateKey, TSnapshotKey> : ISnapshot<TAggregateKey, TSnapshotKey>
     {
         public TSnapshotKey Id { get; private set; }
         public TAggregateKey AggregateId { get; private set; }

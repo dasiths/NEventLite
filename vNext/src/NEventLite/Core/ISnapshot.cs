@@ -1,6 +1,6 @@
 ﻿namespace NEventLite.Core
 {
-    public interface ISnapshot<out TSnapshotKey, out TAggregateKey>
+    public interface ISnapshot<out TAggregateKey, out TSnapshotKey>
     {
         TSnapshotKey Id { get; }
         TAggregateKey AggregateId { get; }

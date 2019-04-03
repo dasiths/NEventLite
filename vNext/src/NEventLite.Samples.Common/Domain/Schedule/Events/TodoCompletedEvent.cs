@@ -3,7 +3,7 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.Samples.Common.Domain.Schedule.Events
 {
-    public class TodoCompletedEvent : Event<Guid, Schedule, Guid>
+    public class TodoCompletedEvent : Event<Schedule, Guid, Guid>
     {
         public Guid TodoId { get; set; }
 

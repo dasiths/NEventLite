@@ -6,10 +6,10 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.Samples.ConsoleApp
 {
-    public class EventPublisher<TEventKey, TAggregate, TAggregateKey> : IEventPublisher<TEventKey, TAggregate, TAggregateKey>
+    public class EventPublisher<TAggregate, TAggregateKey, TEventKey> : IEventPublisher<TAggregate, TAggregateKey, TEventKey>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
     {
-        public Task PublishAsync(IEvent<TEventKey, TAggregate, TAggregateKey> @event)
+        public Task PublishAsync(IEvent<TAggregate, TAggregateKey, TEventKey> @event)
         {
             var jsonString = JsonConvert.SerializeObject(@event, Formatting.Indented);
 

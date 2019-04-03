@@ -17,7 +17,7 @@ namespace NEventLite.Tests.Integration
 {
     public class EndToEndTests
     {
-        private readonly MockEventPublisher<Guid, Schedule, Guid> _eventPublisher;
+        private readonly MockEventPublisher<Schedule, Guid, Guid> _eventPublisher;
         private readonly MockClock _clock;
         private readonly IRepository<Schedule, Guid, Guid> _repository;
         private readonly IRepository<Schedule, Guid, Guid> _eventOnlyRepository;
@@ -36,14 +36,14 @@ namespace NEventLite.Tests.Integration
             File.Delete(inMemoryEventStorePath);
             File.Delete(inMemorySnapshotStorePath);
 
-            IEventStorageProvider<Guid, Schedule, Guid> eventStorage = 
-                new InMemoryEventStorageProvider<Guid, Schedule, Guid>(inMemoryEventStorePath);
+            IEventStorageProvider<Schedule, Guid, Guid> eventStorage = 
+                new InMemoryEventStorageProvider<Schedule, Guid, Guid>(inMemoryEventStorePath);
             ISnapshotStorageProvider<ScheduleSnapshot, Guid, Guid> snapshotStorage = 
                 new InMemorySnapshotStorageProvider<ScheduleSnapshot, Guid, Guid>(2, inMemorySnapshotStorePath);
 
             _clock = new MockClock();
-            _eventPublisher = new MockEventPublisher<Guid, Schedule, Guid>();
-            _repository = new Repository<Schedule, Guid, Guid, ScheduleSnapshot, Guid>(_clock, eventStorage, _eventPublisher, snapshotStorage);
+            _eventPublisher = new MockEventPublisher<Schedule, Guid, Guid>();
+            _repository = new Repository<Schedule, ScheduleSnapshot, Guid, Guid, Guid>(_clock, eventStorage, _eventPublisher, snapshotStorage);
             _eventOnlyRepository = new EventOnlyRepository<Schedule, Guid, Guid>(_clock, eventStorage, _eventPublisher);
         }
 

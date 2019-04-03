@@ -8,8 +8,8 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemorySnapshotStorageProvider<TSnapshot, TSnapshotKey, TAggregateKey> : ISnapshotStorageProvider<TSnapshot, TSnapshotKey, TAggregateKey> 
-        where TSnapshot : ISnapshot<TSnapshotKey, TAggregateKey>
+    public class InMemorySnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> : ISnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> 
+        where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
     {
 
         private readonly Dictionary<TAggregateKey, TSnapshot> _items = new Dictionary<TAggregateKey, TSnapshot>();

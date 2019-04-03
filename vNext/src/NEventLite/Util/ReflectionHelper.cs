@@ -20,7 +20,7 @@ namespace NEventLite.Util
             {
                 var eventHandlers = new ConcurrentDictionary<Type, string>();
 
-                var typeArgs = new [] { typeof(TAggregateKey), aggregateType, typeof(TEventKey) };
+                var typeArgs = new [] { aggregateType, typeof(TAggregateKey), typeof(TEventKey) };
                 var eventType = typeof(IEvent<,,>).MakeGenericType(typeArgs);
 
                 var voidMethods = aggregateType.GetMethodsBySig(typeof(void), typeof(InternalEventHandler),

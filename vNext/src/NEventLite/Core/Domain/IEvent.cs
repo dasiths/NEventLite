@@ -2,9 +2,9 @@
 
 namespace NEventLite.Core.Domain
 {
-    public interface IEvent<TKey, out TAggregate, TAggregateKey> where TAggregate : AggregateRoot<TAggregateKey, TKey>
+    public interface IEvent<out TAggregate, TAggregateKey, TEventKey> where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
     {
-        TKey Id { get; set; }
+        TEventKey Id { get; set; }
         TAggregateKey AggregateId { get; set; }
         int TargetVersion { get; set; }
         DateTimeOffset EventCommittedTimestamp { get; set; }

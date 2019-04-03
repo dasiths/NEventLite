@@ -4,17 +4,17 @@ using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class EventOnlyRepository<TAggregate, TAggregateKey, TEventKey> : Repository<TAggregate, TAggregateKey, TEventKey, IMockSnapShot<TAggregateKey>, IMockAggregateKeyType>
+    public class EventOnlyRepository<TAggregate, TAggregateKey, TEventKey> : Repository<TAggregate, IMockSnapShot<TAggregateKey>, TAggregateKey, TEventKey, IMockAggregateKeyType>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
     {
         public EventOnlyRepository(IClock clock,
-            IEventStorageProvider<TEventKey, TAggregate, TAggregateKey> eventStorageProvider,
-            IEventPublisher<TEventKey, TAggregate, TAggregateKey> eventPublisher) : base(clock, eventStorageProvider, eventPublisher, null)
+            IEventStorageProvider<TAggregate, TAggregateKey, TEventKey> eventStorageProvider,
+            IEventPublisher<TAggregate, TAggregateKey, TEventKey> eventPublisher) : base(clock, eventStorageProvider, eventPublisher, null)
         {
         }
     }
 
-    public interface IMockSnapShot<out TAggregateKey> : ISnapshot<IMockAggregateKeyType, TAggregateKey>
+    public interface IMockSnapShot<out TAggregateKey> : ISnapshot<TAggregateKey, IMockAggregateKeyType>
     {
     }
 

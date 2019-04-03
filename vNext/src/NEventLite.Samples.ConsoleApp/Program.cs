@@ -42,16 +42,16 @@ namespace NEventLite.Samples.ConsoleApp
 
             IClock clock = new MyClock();
 
-            IEventStorageProvider<Guid, Schedule, Guid> eventStorage =
-                new InMemoryEventStorageProvider<Guid, Schedule, Guid>(inMemoryEventStorePath);
+            IEventStorageProvider<Schedule, Guid, Guid> eventStorage =
+                new InMemoryEventStorageProvider<Schedule, Guid, Guid>(inMemoryEventStorePath);
 
             ISnapshotStorageProvider<ScheduleSnapshot, Guid, Guid> snapshotStorage =
                 new InMemorySnapshotStorageProvider<ScheduleSnapshot, Guid, Guid>(2, inMemorySnapshotStorePath);
 
-            IEventPublisher<Guid, Schedule, Guid> eventPublisher = new EventPublisher<Guid, Schedule, Guid>();
+            IEventPublisher<Schedule, Guid, Guid> eventPublisher = new EventPublisher<Schedule, Guid, Guid>();
 
             IRepository<Schedule, Guid, Guid> repository =
-                new Repository<Schedule, Guid, Guid, ScheduleSnapshot, Guid>(clock, eventStorage, eventPublisher, snapshotStorage);
+                new Repository<Schedule, ScheduleSnapshot, Guid, Guid, Guid>(clock, eventStorage, eventPublisher, snapshotStorage);
 
             // repository = new EventOnlyRepository<Schedule, Guid, Guid>(clock, eventStorage, eventPublisher);
 
