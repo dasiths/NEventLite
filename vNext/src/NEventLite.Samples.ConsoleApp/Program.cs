@@ -56,7 +56,7 @@ namespace NEventLite.Samples.ConsoleApp
             {
                 var schedule = new Schedule("test schedule");
                 session.Attach(schedule);
-                await session.CommitChangesAsync();
+                await session.SaveAsync();
                 id = schedule.Id;
             }
 
@@ -64,21 +64,21 @@ namespace NEventLite.Samples.ConsoleApp
             {
                 var schedule = await session.GetByIdAsync(id);
                 schedule.AddTodo("test todo 1");
-                await session.CommitChangesAsync();
+                await session.SaveAsync();
             }
 
             using (var session = NewSessionFunc())
             {
                 var schedule = await session.GetByIdAsync(id);
                 schedule.AddTodo("test todo 2");
-                await session.CommitChangesAsync();
+                await session.SaveAsync();
             }
 
             using (var session = NewSessionFunc())
             {
                 var schedule = await session.GetByIdAsync(id);
                 schedule.AddTodo("test todo 3");
-                await session.CommitChangesAsync();
+                await session.SaveAsync();
             }
 
             using (var session = NewSessionFunc())
@@ -86,7 +86,7 @@ namespace NEventLite.Samples.ConsoleApp
                 var schedule = await session.GetByIdAsync(id);
                 var todo = schedule.Todos.First();
                 schedule.UpdateTodo(todo.Id, todo.Text + " updated");
-                await session.CommitChangesAsync();
+                await session.SaveAsync();
             }
 
             using (var session = NewSessionFunc())
@@ -94,6 +94,7 @@ namespace NEventLite.Samples.ConsoleApp
                 var schedule = await session.GetByIdAsync(id);
                 var todo = schedule.Todos.Last();
                 await schedule.CompleteTodoAsync(todo.Id);
+                await session.SaveAsync();
                 result = schedule;
             }
 

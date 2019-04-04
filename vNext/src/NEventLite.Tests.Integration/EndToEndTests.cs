@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NEventLite.Core;
 using NEventLite.Repository;
-using NEventLite.Samples.Common.Domain;
 using NEventLite.Samples.Common.Domain.Schedule;
 using NEventLite.Samples.Common.Domain.Schedule.Snapshots;
 using NEventLite.Storage;
@@ -32,14 +31,14 @@ namespace NEventLite.Tests.Integration
 
             var inMemoryEventStorePath = $@"{strTempDataFolderPath}events.stream.dump";
             var inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";
-            
+
             File.Delete(inMemoryEventStorePath);
             File.Delete(inMemorySnapshotStorePath);
 
-            IEventStorageProvider<Schedule, Guid, Guid> eventStorage = 
+            IEventStorageProvider<Schedule, Guid, Guid> eventStorage =
                 new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath);
 
-            ISnapshotStorageProvider<ScheduleSnapshot, Guid, Guid> snapshotStorage = 
+            ISnapshotStorageProvider<ScheduleSnapshot, Guid, Guid> snapshotStorage =
                 new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath);
 
             _clock = new MockClock();
@@ -51,78 +50,96 @@ namespace NEventLite.Tests.Integration
         [Fact]
         public async Task WhenCreatingSchedule_ItGetsCreated_AndCanBe_ReloadedFromTheRepository()
         {
-            var scheduleName = "test schedule";
-            var schedule = new Schedule(scheduleName);
-            await _repository.SaveAsync(schedule);
+            using (var session = new Session<Schedule>(_repository))
+            {
+                var scheduleName = "test schedule";
+                var schedule = new Schedule(scheduleName);
+                session.Attach(schedule);
+                await session.SaveAsync();
+                session.DetachAll();
 
-            var reloadedSchedule = await _repository.GetByIdAsync(schedule.Id);
-            reloadedSchedule.Id.ShouldBe(schedule.Id);
-            reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
-            reloadedSchedule.StreamState.ShouldBe(StreamState.HasStream);
-            reloadedSchedule.CurrentVersion.ShouldBe(0);
-            reloadedSchedule.LastCommittedVersion.ShouldBe(0);
+                var reloadedSchedule = await session.GetByIdAsync(schedule.Id);
+                reloadedSchedule.Id.ShouldBe(schedule.Id);
+                reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
+                reloadedSchedule.StreamState.ShouldBe(StreamState.HasStream);
+                reloadedSchedule.CurrentVersion.ShouldBe(0);
+                reloadedSchedule.LastCommittedVersion.ShouldBe(0);
 
-            var events = _eventPublisher.Events[reloadedSchedule.Id];
-            events.Count.ShouldBe(1);
-            events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
+                var events = _eventPublisher.Events[reloadedSchedule.Id];
+                events.Count.ShouldBe(1);
+                events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
+            }
         }
 
         [Fact]
         public async Task WhenCreatingSchedule_AndDoingChanges_ItGetsSaved_AndCanBe_ReloadedFromTheEventOnlyRepository()
         {
-            var scheduleName = "test schedule";
-            var schedule = new Schedule(scheduleName);
-            await _eventOnlyRepository.SaveAsync(schedule);
-
-            Enumerable.Range(1, 5).ToList().ForEach(async i =>
+            using (var session = new Session<Schedule>(_eventOnlyRepository))
             {
-                var tmpSchedule = await _eventOnlyRepository.GetByIdAsync(schedule.Id);
-                tmpSchedule.AddTodo($"Todo {i}");
-                await _eventOnlyRepository.SaveAsync(tmpSchedule);
-            });
+                var scheduleName = "test schedule";
+                var schedule = new Schedule(scheduleName);
+                session.Attach(schedule);
+                await session.SaveAsync();
+                session.DetachAll();
 
-            var reloadedSchedule = await _eventOnlyRepository.GetByIdAsync(schedule.Id);
-            reloadedSchedule.Id.ShouldBe(schedule.Id);
-            reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
-            reloadedSchedule.Todos.Count.ShouldBe(5);
-            reloadedSchedule.Todos.All(t => t.Text == $"Todo {reloadedSchedule.Todos.IndexOf(t) + 1}").ShouldBeTrue();
-            reloadedSchedule.StreamState.ShouldBe(StreamState.HasStream);
-            reloadedSchedule.CurrentVersion.ShouldBe(5);
-            reloadedSchedule.LastCommittedVersion.ShouldBe(5);
+                foreach (var i in Enumerable.Range(1, 5).ToList())
+                {
+                    var tmpSchedule = await session.GetByIdAsync(schedule.Id);
+                    tmpSchedule.AddTodo($"Todo {i}");
+                    await session.SaveAsync();
+                    session.DetachAll();
+                }
 
-            var events = _eventPublisher.Events[reloadedSchedule.Id];
-            events.Count.ShouldBe(6);
-            events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
-            events.Last().EventCommittedTimestamp.ShouldBe(_clock.Value);
+                var reloadedSchedule = await session.GetByIdAsync(schedule.Id);
+                reloadedSchedule.Id.ShouldBe(schedule.Id);
+                reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
+                reloadedSchedule.Todos.Count.ShouldBe(5);
+                reloadedSchedule.Todos.All(t => t.Text == $"Todo {reloadedSchedule.Todos.IndexOf(t) + 1}").ShouldBeTrue();
+                reloadedSchedule.StreamState.ShouldBe(StreamState.HasStream);
+                reloadedSchedule.CurrentVersion.ShouldBe(5);
+                reloadedSchedule.LastCommittedVersion.ShouldBe(5);
+
+                var events = _eventPublisher.Events[reloadedSchedule.Id];
+                events.Count.ShouldBe(6);
+                events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
+                events.Last().EventCommittedTimestamp.ShouldBe(_clock.Value);
+            }
+
         }
 
         [Fact]
         public async Task WhenCreatingSchedule_AndDoingChanges_ItGetsSaved_AndCanBe_ReloadedFromTheRepository()
         {
-            var scheduleName = "test schedule";
-            var schedule = new Schedule(scheduleName);
-            await _repository.SaveAsync(schedule);
-
-            Enumerable.Range(1, 5).ToList().ForEach(async i =>
+            using (var session = new Session<Schedule>(_repository))
             {
-                var tmpSchedule = await _eventOnlyRepository.GetByIdAsync(schedule.Id);
-                tmpSchedule.AddTodo($"Todo {i}");
-                await _eventOnlyRepository.SaveAsync(tmpSchedule);
-            });
+                var scheduleName = "test schedule";
+                var schedule = new Schedule(scheduleName);
+                session.Attach(schedule);
+                await session.SaveAsync();
+                session.DetachAll();
 
-            var reloadedSchedule = await _eventOnlyRepository.GetByIdAsync(schedule.Id);
-            reloadedSchedule.Id.ShouldBe(schedule.Id);
-            reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
-            reloadedSchedule.Todos.Count.ShouldBe(5);
-            reloadedSchedule.Todos.All(t => t.Text == $"Todo {reloadedSchedule.Todos.IndexOf(t) + 1}").ShouldBeTrue();
-            reloadedSchedule.StreamState.ShouldBe(StreamState.HasStream);
-            reloadedSchedule.CurrentVersion.ShouldBe(5);
-            reloadedSchedule.LastCommittedVersion.ShouldBe(5);
+                foreach (var i in Enumerable.Range(1, 5).ToList())
+                {
+                    var tmpSchedule = await session.GetByIdAsync(schedule.Id);
+                    tmpSchedule.AddTodo($"Todo {i}");
+                    await session.SaveAsync();
+                    session.DetachAll();
+                }
 
-            var events = _eventPublisher.Events[reloadedSchedule.Id];
-            events.Count.ShouldBe(6);
-            events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
-            events.Last().EventCommittedTimestamp.ShouldBe(_clock.Value);
+                var reloadedSchedule = await session.GetByIdAsync(schedule.Id);
+                reloadedSchedule.Id.ShouldBe(schedule.Id);
+                reloadedSchedule.ScheduleName.ShouldBe(scheduleName);
+                reloadedSchedule.Todos.Count.ShouldBe(5);
+                reloadedSchedule.Todos.All(t => t.Text == $"Todo {reloadedSchedule.Todos.IndexOf(t) + 1}").ShouldBeTrue();
+                reloadedSchedule.StreamState.ShouldBe(StreamState.HasStream);
+                reloadedSchedule.CurrentVersion.ShouldBe(5);
+                reloadedSchedule.LastCommittedVersion.ShouldBe(5);
+
+                var events = _eventPublisher.Events[reloadedSchedule.Id];
+                events.Count.ShouldBe(6);
+                events.First().EventCommittedTimestamp.ShouldBe(_clock.Value);
+                events.Last().EventCommittedTimestamp.ShouldBe(_clock.Value);
+            }
         }
     }
 }

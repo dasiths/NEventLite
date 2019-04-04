@@ -70,7 +70,30 @@ namespace NEventLite.Repository
             }
         }
 
-        public async Task CommitChangesAsync()
+        public void Detach(TAggregate aggregate)
+        {
+            _syncLock.Wait();
+
+            try
+            {
+                var item = _trackedItems.FirstOrDefault(a => a.Id.Equals(aggregate.Id));
+
+                if (item != null)
+                {
+                    _trackedItems.Remove(aggregate);
+                }
+                else
+                {
+                    throw new ArgumentException("Item with the same id is not tracked", nameof(aggregate));
+                }
+            }
+            finally
+            {
+                _syncLock.Release();
+            }
+        }
+
+        public async Task SaveAsync()
         {
             await _syncLock.WaitAsync();
 
@@ -80,6 +103,20 @@ namespace NEventLite.Repository
                 {
                     await _repository.SaveAsync(trackedItem);
                 }
+            }
+            finally
+            {
+                _syncLock.Release();
+            }
+        }
+
+        public void DetachAll()
+        {
+            _syncLock.Wait();
+
+            try
+            {
+                _trackedItems.Clear();
             }
             finally
             {
