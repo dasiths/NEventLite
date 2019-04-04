@@ -6,7 +6,7 @@ using NEventLite.Exceptions;
 
 namespace NEventLite.Util
 {
-    public static class EventExtentions
+    public static class EventExtensions
     {
         public static async Task InvokeOnAggregateAsync<TAggregateKey, TEventKey>(this IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> @event,
             AggregateRoot<TAggregateKey, TEventKey> aggregate, string methodName)
