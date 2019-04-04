@@ -48,34 +48,58 @@ namespace NEventLite.Samples.ConsoleApp
 
             // repository = new EventOnlyRepository<Schedule>(clock, eventStorage, eventPublisher);
 
-            var schedule = new Schedule("test schedule");
-            await repository.SaveAsync(schedule);
+            Session<Schedule> NewSessionFunc() => new Session<Schedule>(repository);
+            Guid id;
+            Schedule result;
 
-            schedule = await repository.GetByIdAsync(schedule.Id);
-            schedule.AddTodo("test todo 1");
-            await repository.SaveAsync(schedule);
+            using (var session = NewSessionFunc())
+            {
+                var schedule = new Schedule("test schedule");
+                session.Attach(schedule);
+                await session.CommitChangesAsync();
+                id = schedule.Id;
+            }
 
-            schedule = await repository.GetByIdAsync(schedule.Id);
-            schedule.AddTodo("test todo 2");
-            await repository.SaveAsync(schedule);
+            using (var session = NewSessionFunc())
+            {
+                var schedule = await session.GetByIdAsync(id);
+                schedule.AddTodo("test todo 1");
+                await session.CommitChangesAsync();
+            }
 
-            schedule = await repository.GetByIdAsync(schedule.Id);
-            schedule.AddTodo("test todo 3");
-            await repository.SaveAsync(schedule);
+            using (var session = NewSessionFunc())
+            {
+                var schedule = await session.GetByIdAsync(id);
+                schedule.AddTodo("test todo 2");
+                await session.CommitChangesAsync();
+            }
 
-            schedule = await repository.GetByIdAsync(schedule.Id);
-            var todo = schedule.Todos.First();
-            schedule.UpdateTodo(todo.Id, todo.Text + " updated");
-            await repository.SaveAsync(schedule);
+            using (var session = NewSessionFunc())
+            {
+                var schedule = await session.GetByIdAsync(id);
+                schedule.AddTodo("test todo 3");
+                await session.CommitChangesAsync();
+            }
 
-            schedule = await repository.GetByIdAsync(schedule.Id);
-            todo = schedule.Todos.Last();
-            await schedule.CompleteTodoAsync(todo.Id);
-            await repository.SaveAsync(schedule);
+            using (var session = NewSessionFunc())
+            {
+                var schedule = await session.GetByIdAsync(id);
+                var todo = schedule.Todos.First();
+                schedule.UpdateTodo(todo.Id, todo.Text + " updated");
+                await session.CommitChangesAsync();
+            }
+
+            using (var session = NewSessionFunc())
+            {
+                var schedule = await session.GetByIdAsync(id);
+                var todo = schedule.Todos.Last();
+                await schedule.CompleteTodoAsync(todo.Id);
+                result = schedule;
+            }
 
             Console.WriteLine();
             Console.WriteLine("Schedule loaded from Repository:");
-            Console.WriteLine(JsonConvert.SerializeObject(schedule, Formatting.Indented));
+            Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         }
     }
 }
