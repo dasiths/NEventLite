@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NEventLite.Core;
 using NEventLite.Core.Domain;
@@ -15,6 +16,20 @@ namespace NEventLite.Samples.Common.Domain.Schedule
 
         public Schedule()
         {
+        }
+
+        public ScheduleSnapshot TakeSnapshot()
+        {
+            return new ScheduleSnapshot(Guid.NewGuid(), Id, CurrentVersion)
+            {
+                ScheduleName = ScheduleName,
+                Todos = Todos.Select(t => new ScheduleSnapshot.TodoSnapshot()
+                {
+                    Id = t.Id,
+                    Text = t.Text,
+                    IsCompleted = t.IsCompleted
+                }).ToList()
+            };
         }
 
         public Schedule(string scheduleName)

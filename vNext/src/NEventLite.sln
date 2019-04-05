@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Samples.ConsoleA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.StorageProviders.InMemory", "NEventLite.StorageProviders.InMemory\NEventLite.StorageProviders.InMemory.csproj", "{C868E915-A5E7-4AC4-9DBC-BB37B9C68116}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.Tests.Integration", "NEventLite.Tests.Integration\NEventLite.Tests.Integration.csproj", "{119A329E-6EE6-44F6-81D6-78206B1F8D70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Tests.Integration", "NEventLite.Tests.Integration\NEventLite.Tests.Integration.csproj", "{119A329E-6EE6-44F6-81D6-78206B1F8D70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.Samples.Common", "NEventLite.Samples.Common\NEventLite.Samples.Common.csproj", "{49720BF2-3BDA-4AB1-82D0-63C43DBE2623}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Samples.Common", "NEventLite.Samples.Common\NEventLite.Samples.Common.csproj", "{49720BF2-3BDA-4AB1-82D0-63C43DBE2623}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.StorageProviders.EventStore", "NEventLite.StorageProviders.EventStore\NEventLite.StorageProviders.EventStore.csproj", "{F040E6CE-2C15-4CAB-882F-411D79DD0485}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{49720BF2-3BDA-4AB1-82D0-63C43DBE2623}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49720BF2-3BDA-4AB1-82D0-63C43DBE2623}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49720BF2-3BDA-4AB1-82D0-63C43DBE2623}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F040E6CE-2C15-4CAB-882F-411D79DD0485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F040E6CE-2C15-4CAB-882F-411D79DD0485}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F040E6CE-2C15-4CAB-882F-411D79DD0485}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F040E6CE-2C15-4CAB-882F-411D79DD0485}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

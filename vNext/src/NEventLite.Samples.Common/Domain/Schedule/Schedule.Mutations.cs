@@ -41,20 +41,6 @@ namespace NEventLite.Samples.Common.Domain.Schedule
             await Task.CompletedTask;
         }
 
-        public ScheduleSnapshot TakeSnapshot()
-        {
-            return new ScheduleSnapshot(Guid.NewGuid(), Id, CurrentVersion)
-            {
-                ScheduleName = ScheduleName,
-                Todos = Todos.Select(t => new ScheduleSnapshot.TodoSnapshot()
-                {
-                    Id = t.Id,
-                    Text = t.Text,
-                    IsCompleted = t.IsCompleted
-                }).ToList()
-            };
-        }
-
         public void ApplySnapshot(ScheduleSnapshot snapshot)
         {
             ScheduleName = snapshot.ScheduleName;

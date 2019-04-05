@@ -3,14 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using NEventLite.Core;
-using NEventLite.Core.Domain;
 using NEventLite.Repository;
 using NEventLite.Samples.Common;
-using NEventLite.Samples.Common.Domain;
 using NEventLite.Samples.Common.Domain.Schedule;
 using NEventLite.Samples.Common.Domain.Schedule.Snapshots;
-using NEventLite.Storage;
+using NEventLite.StorageProviders.EventStore;
 using NEventLite.StorageProviders.InMemory;
 
 namespace NEventLite.Samples.ConsoleApp
@@ -19,7 +16,6 @@ namespace NEventLite.Samples.ConsoleApp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
             RunAsync().Wait();
             Console.ReadLine();
         }
@@ -40,67 +36,83 @@ namespace NEventLite.Samples.ConsoleApp
             File.Delete(inMemorySnapshotStorePath);
             File.Delete(inMemoryReadModelStorePath);
 
-            var clock = new MyClock();
-            var eventStorage = new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath);
-            var snapshotStorage = new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath);
-            var eventPublisher = new EventPublisher<Schedule>();
-            var repository = new Repository<Schedule, ScheduleSnapshot>(clock, eventStorage, eventPublisher, snapshotStorage);
-
-            // repository = new EventOnlyRepository<Schedule>(clock, eventStorage, eventPublisher);
-
-            Session<Schedule> NewSessionFunc() => new Session<Schedule>(repository);
-            Guid id;
-            Schedule result;
-
-            using (var session = NewSessionFunc())
+            using (var settings = new EventStoreSettings())
             {
-                var schedule = new Schedule("test schedule");
-                session.Attach(schedule);
-                await session.SaveAsync();
-                id = schedule.Id;
-            }
+                var clock = new MyClock();
+                var eventStorage = new EventStoreEventStorageProvider<Schedule, Guid>(settings);
+                    // new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath);
 
-            using (var session = NewSessionFunc())
-            {
-                var schedule = await session.GetByIdAsync(id);
-                schedule.AddTodo("test todo 1");
-                await session.SaveAsync();
-            }
+                var snapshotStorage = new EventStoreSnapshotStorageProvider<Schedule,ScheduleSnapshot,Guid>(settings);
+                    // new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath);
 
-            using (var session = NewSessionFunc())
-            {
-                var schedule = await session.GetByIdAsync(id);
-                schedule.AddTodo("test todo 2");
-                await session.SaveAsync();
-            }
+                var eventPublisher = new EventPublisher<Schedule>();
 
-            using (var session = NewSessionFunc())
-            {
-                var schedule = await session.GetByIdAsync(id);
-                schedule.AddTodo("test todo 3");
-                await session.SaveAsync();
-            }
+                var repository =
+                    new Repository<Schedule, ScheduleSnapshot>(clock, eventStorage, eventPublisher, snapshotStorage);
 
-            using (var session = NewSessionFunc())
-            {
-                var schedule = await session.GetByIdAsync(id);
-                var todo = schedule.Todos.First();
-                schedule.UpdateTodo(todo.Id, todo.Text + " updated");
-                await session.SaveAsync();
-            }
+                // repository = new EventOnlyRepository<Schedule>(clock, eventStorage, eventPublisher);
 
-            using (var session = NewSessionFunc())
-            {
-                var schedule = await session.GetByIdAsync(id);
-                var todo = schedule.Todos.Last();
-                await schedule.CompleteTodoAsync(todo.Id);
-                await session.SaveAsync();
-                result = schedule;
-            }
+                Session<Schedule> NewSessionFunc() => new Session<Schedule>(repository);
+                Guid id;
+                Schedule result;
 
-            Console.WriteLine();
-            Console.WriteLine("Schedule loaded from Repository:");
-            Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+                using (var session = NewSessionFunc())
+                {
+                    var schedule = new Schedule("test schedule");
+                    session.Attach(schedule);
+                    await session.SaveAsync();
+                    id = schedule.Id;
+                }
+
+                using (var session = NewSessionFunc())
+                {
+                    var schedule = await session.GetByIdAsync(id);
+                    schedule.AddTodo("test todo 1");
+                    await session.SaveAsync();
+                }
+
+                using (var session = NewSessionFunc())
+                {
+                    var schedule = await session.GetByIdAsync(id);
+                    schedule.AddTodo("test todo 2");
+                    await session.SaveAsync();
+                }
+
+                using (var session = NewSessionFunc())
+                {
+                    var schedule = await session.GetByIdAsync(id);
+                    schedule.AddTodo("test todo 3");
+                    await session.SaveAsync();
+                }
+
+                using (var session = NewSessionFunc())
+                {
+                    var schedule = await session.GetByIdAsync(id);
+                    var todo = schedule.Todos.First();
+                    schedule.UpdateTodo(todo.Id, todo.Text + " updated");
+                    await session.SaveAsync();
+                }
+
+                using (var session = NewSessionFunc())
+                {
+                    var schedule = await session.GetByIdAsync(id);
+                    var todo = schedule.Todos.Last();
+                    await schedule.CompleteTodoAsync(todo.Id);
+                    await session.SaveAsync();
+                    result = schedule;
+                }
+
+                Console.WriteLine("--------");
+                Console.WriteLine("Final result after applying all events...");
+                PrintToConsole(result, ConsoleColor.Green);
+            }
+        }
+
+        public static void PrintToConsole(object @object, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(JsonConvert.SerializeObject(@object, Formatting.Indented));
+            Console.ResetColor();
         }
     }
 }
