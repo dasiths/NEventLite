@@ -16,7 +16,7 @@ namespace NEventLite.Samples.ConsoleApp
     {
         static void Main(string[] args)
         {
-            RunAsync().Wait();
+            RunAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             Console.ReadLine();
         }
 
@@ -39,10 +39,10 @@ namespace NEventLite.Samples.ConsoleApp
             using (var connectionProvider = new EventStoreStorageConnectionProvider())
             {
                 var clock = new MyClock();
-                var eventStorage = new EventStoreEventStorageProvider<Schedule, Guid>(connectionProvider);
+                var eventStorage = new EventStoreEventStorageProvider<Schedule>(connectionProvider);
                 // new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath);
 
-                var snapshotStorage = new EventStoreSnapshotStorageProvider<Schedule, ScheduleSnapshot, Guid>(connectionProvider);
+                var snapshotStorage = new EventStoreSnapshotStorageProvider<Schedule, ScheduleSnapshot>(connectionProvider);
                 // new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath);
 
                 var eventPublisher = new EventPublisher<Schedule>();

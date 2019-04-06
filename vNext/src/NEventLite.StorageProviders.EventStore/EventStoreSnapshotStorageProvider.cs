@@ -1,16 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
-using Newtonsoft.Json;
 using NEventLite.Core;
 using NEventLite.Core.Domain;
 using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.EventStore
 {
+    public class EventStoreSnapshotStorageProvider<TAggregate, TSnapshot> : 
+        EventStoreSnapshotStorageProvider<TAggregate, TSnapshot, Guid> 
+        where TAggregate : AggregateRoot<Guid, Guid> where TSnapshot : ISnapshot<Guid, Guid>
+    {
+        public EventStoreSnapshotStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider) : base(eventStoreStorageConnectionProvider)
+        {
+        }
+    }
+
     public class EventStoreSnapshotStorageProvider<TAggregate, TSnapshot, TAggregateKey> : 
         EventStoreStorageProviderBase<TAggregate, TAggregateKey>, 
         ISnapshotStorageProvider<TSnapshot, TAggregateKey, Guid>

@@ -10,10 +10,12 @@ namespace NEventLite.Samples.ConsoleApp
     public class EventStoreStorageConnectionProvider : IEventStoreStorageConnectionProvider, IDisposable
     {
         private IEventStoreConnection _connection;
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(0, 0);
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
         public async Task<IEventStoreConnection> GetConnectionAsync()
         {
+            await _lock.WaitAsync();
+
             try
             {
                if (_connection == null) {
@@ -37,10 +39,10 @@ namespace NEventLite.Samples.ConsoleApp
 
         public void CloseConnection()
         {
+            _lock.Wait();
+
             try
             {
-                _lock.Wait();
-
                 if (_connection != null)
                 {
                     _connection.Close();
