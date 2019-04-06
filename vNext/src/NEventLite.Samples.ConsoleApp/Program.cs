@@ -36,14 +36,14 @@ namespace NEventLite.Samples.ConsoleApp
             File.Delete(inMemorySnapshotStorePath);
             File.Delete(inMemoryReadModelStorePath);
 
-            using (var settings = new EventStoreSettings())
+            using (var connectionProvider = new EventStoreStorageConnectionProvider())
             {
                 var clock = new MyClock();
-                var eventStorage = new EventStoreEventStorageProvider<Schedule, Guid>(settings);
-                    // new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath);
+                var eventStorage = new EventStoreEventStorageProvider<Schedule, Guid>(connectionProvider);
+                // new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath);
 
-                var snapshotStorage = new EventStoreSnapshotStorageProvider<Schedule,ScheduleSnapshot,Guid>(settings);
-                    // new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath);
+                var snapshotStorage = new EventStoreSnapshotStorageProvider<Schedule, ScheduleSnapshot, Guid>(connectionProvider);
+                // new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath);
 
                 var eventPublisher = new EventPublisher<Schedule>();
 

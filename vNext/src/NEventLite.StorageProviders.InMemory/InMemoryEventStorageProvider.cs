@@ -11,6 +11,10 @@ namespace NEventLite.StorageProviders.InMemory
 {
     public class InMemoryEventStorageProvider<TAggregate> : InMemoryEventStorageProvider<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>
     {
+        public InMemoryEventStorageProvider() : this(string.Empty)
+        {
+        }
+
         public InMemoryEventStorageProvider(string memoryDumpFile) : base(memoryDumpFile)
         {
         }
@@ -23,11 +27,15 @@ namespace NEventLite.StorageProviders.InMemory
         private readonly Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> _eventStream = 
             new Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>>();
 
+        public InMemoryEventStorageProvider() : this(string.Empty)
+        {
+        }
+
         public InMemoryEventStorageProvider(string memoryDumpFile)
         {
             _memoryDumpFile = memoryDumpFile;
 
-            if (File.Exists(_memoryDumpFile))
+            if (!string.IsNullOrWhiteSpace(_memoryDumpFile) && File.Exists(_memoryDumpFile))
             {
                 _eventStream = SerializerHelper.LoadListFromFile<
                     Dictionary<TAggregateKey, List<IEvent< AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>>
@@ -96,7 +104,11 @@ namespace NEventLite.StorageProviders.InMemory
                 }
             }
 
-            SerializerHelper.SaveListToFile(_memoryDumpFile, new[] { _eventStream });
+            if (!string.IsNullOrWhiteSpace(_memoryDumpFile) && File.Exists(_memoryDumpFile))
+            {
+                SerializerHelper.SaveListToFile(_memoryDumpFile, new[] { _eventStream });
+            }
+
             return Task.CompletedTask;
         }
     }

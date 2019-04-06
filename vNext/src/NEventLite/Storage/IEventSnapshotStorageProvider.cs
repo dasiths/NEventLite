@@ -4,6 +4,8 @@ using NEventLite.Core;
 
 namespace NEventLite.Storage
 {
+    // This class is for storing snapshots as a series of events
+
     public interface IEventSnapshotStorageProvider<TSnapshot> : IEventSnapshotStorageProvider<TSnapshot, Guid, Guid> where TSnapshot : ISnapshot<Guid, Guid>
     {
     }

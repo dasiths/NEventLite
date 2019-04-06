@@ -12,22 +12,20 @@ namespace NEventLite.StorageProviders.EventStore
         EventStoreStorageProviderBase<TAggregate, TAggregateKey>, IEventStorageProvider<TAggregate, TAggregateKey, Guid>
         where TAggregate : AggregateRoot<TAggregateKey, Guid>
     {
-        //There is a max limit of 4096 messages per read in eventstore so use paging
-        private const int EventStorePageSize = 200;
-        private readonly IEventStoreSettings _eventStoreSettings;
+        private readonly IEventStoreStorageConnectionProvider _eventStoreStorageConnectionProvider;
 
-        public EventStoreEventStorageProvider(IEventStoreSettings eventStoreSettings)
+        public EventStoreEventStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider)
         {
-            _eventStoreSettings = eventStoreSettings;
+            _eventStoreStorageConnectionProvider = eventStoreStorageConnectionProvider;
         }
 
-        private IEventStoreConnection GetEventStoreConnection() => _eventStoreSettings.GetConnection();
+        private Task<IEventStoreConnection> GetEventStoreConnectionAsync() => _eventStoreStorageConnectionProvider.GetConnectionAsync();
 
-        protected override string GetStreamNamePrefix() => _eventStoreSettings.EventStreamPrefix;
+        protected override string GetStreamNamePrefix() => _eventStoreStorageConnectionProvider.EventStreamPrefix;
 
         public async Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid>>> GetEventsAsync(TAggregateKey aggregateId, int start, int count)
         {
-            var connection = GetEventStoreConnection();
+            var connection = await GetEventStoreConnectionAsync();
             var events = await ReadEvents(typeof(TAggregate), connection, aggregateId, start, count);
 
             return events;
@@ -35,8 +33,7 @@ namespace NEventLite.StorageProviders.EventStore
 
         public async Task<IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid>> GetLastEventAsync(TAggregateKey aggregateId)
         {
-            var connection = GetEventStoreConnection();
-
+            var connection = await GetEventStoreConnectionAsync();
             var results = await connection.ReadStreamEventsBackwardAsync(
                 $"{AggregateIdToStreamName(typeof(TAggregate), aggregateId.ToString())}", StreamPosition.End, 1, false);
 
@@ -50,7 +47,7 @@ namespace NEventLite.StorageProviders.EventStore
 
         public async Task SaveAsync(AggregateRoot<TAggregateKey, Guid> aggregate)
         {
-            var connection = GetEventStoreConnection();
+            var connection = await GetEventStoreConnectionAsync();
             var events = aggregate.GetUncommittedChanges();
 
             if (events.Any())
@@ -83,9 +80,9 @@ namespace NEventLite.StorageProviders.EventStore
             {
                 var nextReadCount = count - streamEvents.Count();
 
-                if (nextReadCount > EventStorePageSize)
+                if (nextReadCount > _eventStoreStorageConnectionProvider.PageSize)
                 {
-                    nextReadCount = EventStorePageSize;
+                    nextReadCount = _eventStoreStorageConnectionProvider.PageSize;
                 }
 
                 currentSlice = await connection.ReadStreamEventsForwardAsync(
