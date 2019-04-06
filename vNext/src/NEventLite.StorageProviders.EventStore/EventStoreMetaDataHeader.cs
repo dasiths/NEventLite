@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NEventLite.StorageProviders.EventStore
+﻿namespace NEventLite.StorageProviders.EventStore
 {
     public class EventStoreMetaDataHeader
     {

@@ -3,14 +3,26 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
-using NEventLite.StorageProviders.EventStore;
 
-namespace NEventLite.Samples.ConsoleApp
+namespace NEventLite.StorageProviders.EventStore
 {
     public class EventStoreStorageConnectionProvider : IEventStoreStorageConnectionProvider, IDisposable
     {
         private IEventStoreConnection _connection;
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        public delegate IEventStoreConnection EventStoreConnectionFactoryMethod();
+        private readonly EventStoreConnectionFactoryMethod _eventStoreConnectionFactoryMethod;
+
+        public EventStoreStorageConnectionProvider()
+        {
+            _eventStoreConnectionFactoryMethod = () => EventStoreConnection
+                .Create(new IPEndPoint(IPAddress.Loopback, 1113));
+        }
+
+        public EventStoreStorageConnectionProvider(EventStoreConnectionFactoryMethod eventStoreConnectionFactoryMethod)
+        {
+            _eventStoreConnectionFactoryMethod = eventStoreConnectionFactoryMethod;
+        }
 
         public async Task<IEventStoreConnection> GetConnectionAsync()
         {
@@ -18,9 +30,9 @@ namespace NEventLite.Samples.ConsoleApp
 
             try
             {
-               if (_connection == null) {
-                    _connection = EventStoreConnection
-                        .Create(new IPEndPoint(IPAddress.Loopback, 1113));
+               if (_connection == null)
+               {
+                   _connection = _eventStoreConnectionFactoryMethod();
                     await _connection.ConnectAsync();
                }
 
