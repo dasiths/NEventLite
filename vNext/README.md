@@ -1,6 +1,5 @@
 # NEventLite [![NuGet](https://img.shields.io/nuget/v/NEventLite.svg)](https://www.nuget.org/packages/NEventLite)
-## A lightweight library for .NET that manages the Aggregate lifecycle in an Event Sourced system with fully customizable components.
-
+## An extensible lightweight library for .NET that manages the Aggregate lifecycle in an **Event Sourced** system.
 Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL Server. Built from ground up to support many form of event storage and is extensible.
 
 
@@ -65,6 +64,7 @@ Aggregate (`Schedule.cs` in the sample)
             var todo = new Todo(@event.TodoId, @event.Text);
             Todos.Add(todo);
         }
+    }
 ```
 
 Using the built in `Session` and `Repository` implementations to manage the Aggregate lifecycle.
