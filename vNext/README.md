@@ -1,20 +1,20 @@
 # NEventLite [![NuGet](https://img.shields.io/nuget/v/NEventLite.svg)](https://www.nuget.org/packages/NEventLite)
-## A lightweight library for .NET that manages the `Aggregate` lifecycle in an `Event Sourced` system with fully customizable components.
+## A lightweight library for .NET that manages the Aggregate lifecycle in an Event Sourced system with fully customizable components.
 
-### Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL Server. Built from ground up to support many form of event storage and is extensible.
+Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL Server. Built from ground up to support many form of event storage and is extensible.
 
----
+
 ## What is Event Sourcing?
 Start here https://dasith.me/2016/12/02/event-sourcing-examined-part-1-of-3/
 
 ## What does NEventLite solve?
 NEventLite makes it easier to implement the event sourcing pattern in your .NET project. The library is opinionated and introduces some patterns to manage the life cycle of your [Aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) in an event sourced system. It will manage Creating, Loading, Mutating and Persisting Aggregates and Events.
 
-## What it doesn't solve
+## What doesn't it solve?
 
 NEventLite is **not a framework** that manages your application end to end. It doesn't enforce ports and adapters pattern or any of the application level concerns. The aim is to do one thing (Manage aggregate lifecycle) and do that well. If you need to implement command and event handlers you can have a look at something like [SimpleMediator](https://github.com/dasiths/SimpleMediator) or [Brighter](https://github.com/BrighterCommand/Brighter) and NEventLite will complement them nicely.
 
-### Before you start
+## Before you start
 
 - The library targets .NET Standard 2.0
 - *Optional:* Installation of EventStore - https://geteventstore.com/ (You can use the in memory event and snapshot providers when developing)
@@ -23,7 +23,7 @@ NEventLite is **not a framework** that manages your application end to end. It d
 
 Aggregate (`Schedule.cs` in the sample)
 
-```C#
+```csharp
     public class Schedule : AggregateRoot
     {
         public IList<Todo> Todos { get; private set; }
@@ -69,7 +69,7 @@ Aggregate (`Schedule.cs` in the sample)
 
 Using the built in `Session` and `Repository` implementations to manage the Aggregate lifecycle.
 
-```C#
+```csharp
 // We recommend using a DI container to inject the Session. Keep it scoped (per request in a web application) 
 
     public class CreateScheduleHandler
@@ -109,24 +109,29 @@ Using the built in `Session` and `Repository` implementations to manage the Aggr
     }
 ```
 
-Implement `IEventStorageProvider` and `ISnapshotStorageProvider` for storage or use the ones we provide for popular stores. See "Storage Providers" project for ready to use implementations for EventStore and Redis. More will be added.
+## Storage providers
 
-```C#
-    public interface IEventStorageProvider
+The library contains storage provider implementation for [EventSore](https://eventstore.org/) and we plan to include a few more in the future. We have also included an in memory event and snapshot storage provider to get you up and running faster.
+
+It's very easy to implement your own as well. Implement `IEventStorageProvider` and `ISnapshotStorageProvider` interfaces an you're good to plug them in. If you need help look at the `NEventLite.StorageProviders.EventStore` project in the repository.
+
+```csharp
+    public interface IEventStorageProvider<TAggregate, TAggregateKey, TEventKey> where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
     {
-        Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count);
-        Task<IEvent> GetLastEventAsync(Type aggregateType, Guid aggregateId);
-        Task CommitChangesAsync(AggregateRoot aggregate);
+        Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync(TAggregateKey aggregateId, int start, int count);
+        Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync(TAggregateKey aggregateId);
+        Task SaveAsync(AggregateRoot<TAggregateKey, TEventKey> aggregate);
     }
 
-	public interface ISnapshotStorageProvider
+    public interface ISnapshotStorageProvider<TSnapshot, in TAggregateKey, TSnapshotKey> where TSnapshot: ISnapshot<TAggregateKey, TSnapshotKey>
     {
         int SnapshotFrequency { get; }
-        Task<Snapshot.Snapshot> GetSnapshotAsync(Type aggregateType, Guid aggregateId);
-        Task SaveSnapshotAsync(Type aggregateType, Snapshot.Snapshot snapshot);
+        Task<TSnapshot> GetSnapshotAsync(TAggregateKey aggregateId);
+        Task SaveSnapshotAsync(TSnapshot snapshot);
     }
 ```
 
-Notes
-------------------------------------
-Please feel free to contribute and improve the code as you see fit.
+There are more examples in the Samples if you need help figuring out how to put everything together.
+
+## Notes
+Please feel free to contribute and improve the code as you see fit. Please raise an issue if you find a bug or have an improvement idea. The repository is shared under the MIT license.
