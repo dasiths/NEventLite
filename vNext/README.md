@@ -1,7 +1,6 @@
 # NEventLite [![NuGet](https://img.shields.io/nuget/v/NEventLite.svg)](https://www.nuget.org/packages/NEventLite)
 ## An extensible lightweight library for .NET that manages the Aggregate lifecycle in an **Event Sourced** system.
-Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL Server. Built from ground up to support many form of event storage and is extensible.
-
+Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL Server. Built with dependency injection in mind and seamlessly integrates with AspNetCore.
 
 ## What is Event Sourcing?
 

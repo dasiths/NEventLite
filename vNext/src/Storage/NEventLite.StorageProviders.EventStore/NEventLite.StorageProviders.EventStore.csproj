@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>2.0.0</Version>
+    <Authors>Dasith Wijesiriwardena</Authors>
+    <Description>EventStore storage provider for NEventLite. An extensible lightweight library for .NET that manages the Aggregate lifecycle in an Event Sourced system.</Description>
+    <PackageLicenseUrl>https://github.com/dasiths/NEventLite/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/dasiths/NEventLite</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dasiths/NEventLite</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>event store, storage, event sourcing, aggregate, events, cqrs, cqs, snapshots</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
