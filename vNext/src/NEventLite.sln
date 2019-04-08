@@ -5,15 +5,15 @@ VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite", "NEventLite\NEventLite.csproj", "{5BD54FC7-70E4-45EF-9E7A-9F4620E9E1D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Samples.ConsoleApp", "NEventLite.Samples.ConsoleApp\NEventLite.Samples.ConsoleApp.csproj", "{12B8B0D7-247C-464B-93A1-28E8C5DA8660}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Samples.ConsoleApp", "Samples\NEventLite.Samples.ConsoleApp\NEventLite.Samples.ConsoleApp.csproj", "{12B8B0D7-247C-464B-93A1-28E8C5DA8660}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.StorageProviders.InMemory", "NEventLite.StorageProviders.InMemory\NEventLite.StorageProviders.InMemory.csproj", "{C868E915-A5E7-4AC4-9DBC-BB37B9C68116}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.StorageProviders.InMemory", "Storage\NEventLite.StorageProviders.InMemory\NEventLite.StorageProviders.InMemory.csproj", "{C868E915-A5E7-4AC4-9DBC-BB37B9C68116}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Tests.Integration", "NEventLite.Tests.Integration\NEventLite.Tests.Integration.csproj", "{119A329E-6EE6-44F6-81D6-78206B1F8D70}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Samples.Common", "NEventLite.Samples.Common\NEventLite.Samples.Common.csproj", "{49720BF2-3BDA-4AB1-82D0-63C43DBE2623}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Samples.Common", "Samples\NEventLite.Samples.Common\NEventLite.Samples.Common.csproj", "{49720BF2-3BDA-4AB1-82D0-63C43DBE2623}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.StorageProviders.EventStore", "NEventLite.StorageProviders.EventStore\NEventLite.StorageProviders.EventStore.csproj", "{F040E6CE-2C15-4CAB-882F-411D79DD0485}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.StorageProviders.EventStore", "Storage\NEventLite.StorageProviders.EventStore\NEventLite.StorageProviders.EventStore.csproj", "{F040E6CE-2C15-4CAB-882F-411D79DD0485}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

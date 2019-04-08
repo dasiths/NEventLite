@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NEventLite\NEventLite.csproj" />
+    <ProjectReference Include="..\..\NEventLite\NEventLite.csproj" />
   </ItemGroup>
 
 </Project>

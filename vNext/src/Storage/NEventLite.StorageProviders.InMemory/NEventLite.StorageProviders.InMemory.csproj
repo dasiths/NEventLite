@@ -5,7 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NEventLite\NEventLite.csproj" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\NEventLite\NEventLite.csproj" />
   </ItemGroup>
 
 </Project>

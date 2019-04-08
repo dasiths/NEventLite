@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NEventLite.Samples.Common\NEventLite.Samples.Common.csproj" />
-    <ProjectReference Include="..\NEventLite.StorageProviders.InMemory\NEventLite.StorageProviders.InMemory.csproj" />
     <ProjectReference Include="..\NEventLite\NEventLite.csproj" />
+    <ProjectReference Include="..\Samples\NEventLite.Samples.Common\NEventLite.Samples.Common.csproj" />
+    <ProjectReference Include="..\Storage\NEventLite.StorageProviders.InMemory\NEventLite.StorageProviders.InMemory.csproj" />
   </ItemGroup>
 
 </Project>
