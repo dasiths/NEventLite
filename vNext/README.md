@@ -4,6 +4,9 @@ Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL S
 
 
 ## What is Event Sourcing?
+
+> Use an append-only store to record the full series of events that describe actions taken on data in a domain, rather than storing just the current state.
+
 Start here https://dasith.me/2016/12/02/event-sourcing-examined-part-1-of-3/
 
 ## What does NEventLite solve?
@@ -20,8 +23,31 @@ NEventLite is **not a framework** that manages your application end to end. It d
 
 ## Using It
 
-Aggregate (`Schedule.cs` in the sample)
+Define the events. They are simple pocos that will be serialized and stored in `EventStorage` when changes are saved. Events use `Guid` for Id by *default* but they can be changed to use any data type as Id. See `Event<TAggregateKey, TEventKey>` for reference.
+```csharp
+    public class ScheduleCreatedEvent : Event<Schedule>
+    {
+        public string ScheduleName { get; set; }
 
+        public ScheduleCreatedEvent(Guid scheduleId, string scheduleName) : base(Guid.NewGuid(), scheduleId)
+        {
+            ScheduleName = scheduleName;
+        }
+    }
+
+    public class TodoCreatedEvent : Event<Schedule>
+    {
+        public Guid TodoId { get; set; }
+        public string Text { get; set; }
+
+        public TodoCreatedEvent(Guid aggregateId, int targetVersion, Guid todoId, string text) : base(Guid.NewGuid(), aggregateId, targetVersion)
+        {
+            TodoId = todoId;
+            Text = text;
+        }
+    }
+```
+Define the Aggregate (`Schedule.cs` in the sample). Aggregates use `Guid` as Id by *default* but just like the events, they can be changed to the Id type of your choice. See `AggregateRoot<TAggregateKey>` for reference.
 ```csharp
     public class Schedule : AggregateRoot
     {

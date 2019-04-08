@@ -9,7 +9,7 @@ namespace NEventLite.Samples.Common.Domain.Schedule.Events
 
         public ScheduleCreatedEvent(Guid scheduleId, string scheduleName) : base(Guid.NewGuid(), scheduleId)
         {
-            this.ScheduleName = scheduleName;
+            ScheduleName = scheduleName;
         }
     }
 }
