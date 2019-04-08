@@ -1,131 +1,165 @@
 # NEventLite [![NuGet](https://img.shields.io/nuget/v/NEventLite.svg)](https://www.nuget.org/packages/NEventLite)
-## A lightweight .NET framework for Event Sourcing with support for custom Event and Snapshot Stores (EventStore, Redis, SQL Server or Custom) written in C#.
+## An extensible lightweight library for .NET that manages the Aggregate lifecycle in an **Event Sourced** system.
+Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL Server. Built with dependency injection in mind and seamlessly integrates with AspNetCore.
 
-NEventLite makes it easier to implement the event sourcing pattern in your .NET project. It is opinionated and enforces some patterns. The framework is built with support for custom storage providers and event bus architectures in mind. We also provide some popular event/snapshot storage provider implementations for NEventLite here. Feel free to use it as is or customize it to suit your needs.
+## What is Event Sourcing?
 
-###DISCLAIMER: You generally want to avoid "frameworks" when implementing CQRS or Event Sourcing but NEventLite will merely help get you on the rails. You can swap out every aspect of it if need be. Think of it as training wheels.
+> Use an append-only store to record the full series of events that describe actions taken on data in a domain, rather than storing just the current state.
 
-• The framework (NEventLite.csproj) targets netstandard 1.4
+Start here https://dasith.me/2016/12/02/event-sourcing-examined-part-1-of-3/
 
-• Example projects target .net framework 4.6.1
+## What does NEventLite solve?
+NEventLite makes it easier to implement the event sourcing pattern in your .NET project. The library is opinionated and introduces some patterns to manage the life cycle of your [Aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) in an event sourced system. It will manage Creating, Loading, Mutating and Persisting Aggregates and Events.
 
-• This purpose of this NEventLite is to demonstrate the Event Sourcing design pattern using .NET
+## What doesn't it solve?
 
-Author: Dasith Wijesiriwardena
-----------------------------------
-Requirements:
+NEventLite is **not a framework** that manages your application end to end. It doesn't enforce ports and adapters pattern or any of the application level concerns. The aim is to do one thing (Manage aggregate lifecycle) and do that well. If you need to implement command and event handlers you can have a look at something like [SimpleMediator](https://github.com/dasiths/SimpleMediator) or [Brighter](https://github.com/BrighterCommand/Brighter) and NEventLite will complement them nicely.
 
-• A basic understanding of what Event Sourcing is. Start here https://dasith.me/2016/12/02/event-sourcing-examined-part-1-of-3/
+## What about v1.0? Wasn't it advertised as a framework? 
+*NEventLite V1.0 tried to solve simmilar problems but the scope of the project very large and it was decided to narrow down the scope. If you're still looking for reference it's hosted [here](https://github.com/dasiths/NEventLite/blob/master/legacy/v1.0).*
 
-• Installation of EventStore (Optional, There is a built in InMemoryStorageProvider too)
-"Event Store stores your data as a series of immutable events over time, making it easy to build event-sourced applications" - https://geteventstore.com/)
+## Before you start
 
-It's very easy to use once setup. Ideal for implementing the CQRS pattern.
-------------------------------------
-```C#
-//See how AggregateRoots, Events and StorageProviders have been setup in the Example project.
-//EventStorageProvider and SnapshotStorageProvider can be injected to the Repository.
-//Can be created per command or once per life time as follows.
+- The library targets .NET Standard 2.0
+- *Optional:* Installation of EventStore - https://geteventstore.com/ (You can use the in memory event and snapshot providers when developing)
 
-//Load dependency resolver
+## Using It
 
-async Task CreateNote() {
-    using (var container = new DependencyResolver())
+Define the events. They are simple pocos that will be serialized and stored in `EventStorage` when changes are saved. Events use `Guid` for Id by *default* but they can be changed to use any data type as Id. See `Event<TAggregateKey, TEventKey>` for reference.
+```csharp
+    public class ScheduleCreatedEvent : Event<Schedule>
     {
-        //Get ioc container to create our command bus
-        var commandBus = container.Resolve<ICommandBus>();        
+        public string ScheduleName { get; set; }
 
-        //Create new note by sending command to the Command Bus
-        Guid itemId = Guid.NewGuid();
-        
-        var publishResult = await commandBus.ExecuteAsync(
-                     new CreateNoteCommand(Guid.NewGuid(), newItemId, -1,
-                     "Test Note", "Event Sourcing System Demo", "Event Sourcing"));	   
-
-		//This will throw an exception if the command was not published
-		//You can add logic to retry the command as required
-		publishResult.EnsurePublished();
+        public ScheduleCreatedEvent(Guid scheduleId, string scheduleName) : base(Guid.NewGuid(), scheduleId)
+        {
+            ScheduleName = scheduleName;
+        }
     }
-}
 
-```
-Command Handler (NoteCommandHandler.cs in example)
+    public class TodoCreatedEvent : Event<Schedule>
+    {
+        public Guid TodoId { get; set; }
+        public string Text { get; set; }
 
-```C#
-        public async Task HandleCommandAsync(CreateNoteCommand command)
+        public TodoCreatedEvent(Guid aggregateId, int targetVersion, Guid todoId, string text) : base(Guid.NewGuid(), aggregateId, targetVersion)
         {
-            var work = new UnitOfWork(_repository);
-            var newNote = new Note(command.AggregateId, command.Title, command.Desc, command.Cat);
-            work.Add(newNote);
-
-            await work.CommitAsync();
+            TodoId = todoId;
+            Text = text;
         }
-
-        public async Task HandleCommandAsync(EditNoteCommand command)
-        {
-            var work = new UnitOfWork(_repository);
-            var loadedNote = await work.GetAsync<Note>(command.AggregateId, command.TargetVersion);
-
-            loadedNote.ChangeTitle(command.Title);
-            loadedNote.ChangeDescription(command.Description);
-            loadedNote.ChangeCategory(command.Cat);
-
-            await work.CommitAsync();
-        }
+    }
 ```
-Aggregate (Note.cs in example)
+Define the Aggregate (`Schedule.cs` in the sample). Aggregates use `Guid` as Id by *default* but just like the events, they can be changed to the Id type of your choice. See `AggregateRoot<TAggregateKey>` for reference.
+```csharp
+    public class Schedule : AggregateRoot
+    {
+        public IList<Todo> Todos { get; private set; }
+        public string ScheduleName { get; private set; }
 
-```C#
-        //Commands call the constructor or methods. Which creates an event and applies it to the Aggregate.
+        // To create or mutate, call the constructor or methods. 
         
-        public Note(Guid id, string title, string desc, string cat):this()
+        // Constructor
+        public Schedule(string scheduleName)
         {
-            //Pattern: Create the event and call ApplyEvent(Event)
-            ApplyEvent(new NoteCreatedEvent(id, this.CurrentVersion, title, desc, cat, DateTime.Now));
-        }    
+            // Pattern: Create an event and apply it
+            var newScheduleId = Guid.NewGuid();
+            var @event = new ScheduleCreatedEvent(newScheduleId, scheduleName);
+            ApplyEvent(@event);
+        }
 
-        public void ChangeTitle(string newTitle)
+        public Guid AddTodo(string text)
         {
-            ApplyEvent(new NoteTitleChangedEvent(this.Id, this.CurrentVersion, newTitle));
+            // Pattern: Create an event and apply it
+            var newTodoId = Guid.NewGuid();
+            var @event = new TodoCreatedEvent(Id, CurrentVersion, newTodoId, text);
+            ApplyEvent(@event);
+            return newTodoId;
         }
         
-        //Applying Events 
-        //Note how the framework identifies the internal event handler methods though a method attribute.
+        // ** Mutations happen through applying events **
+        // The library identifies the internal event handler methods though a special method attribute.
         
         [InternalEventHandler]
-        public void OnNoteCreated(NoteCreatedEvent @event)
+        public void OnScheduleCreated(ScheduleCreatedEvent @event)
         {
-            CreatedDate = @event.createdTime;
-            Title = @event.title;
-            Description = @event.desc;
-            Category = @event.cat;
+            ScheduleName = @event.ScheduleName;
+            Todos = new List<Todo>();
         }
 
         [InternalEventHandler]
-        public void OnTitleChanged(NoteTitleChangedEvent @event)
+        public void OnTodoCreated(TodoCreatedEvent @event)
         {
-            Title = @event.title;
+            var todo = new Todo(@event.TodoId, @event.Text);
+            Todos.Add(todo);
         }
+    }
 ```
 
-Implement IEventStorageProvider and ISnapshotStorage provider for storage or use the ones we provide for popular stores. See "Storage Providers" project for ready to use implementations for EventStore and Redis. More will be added.
+Using the built in `Session` and `Repository` implementations to manage the Aggregate lifecycle.
 
-```C#
-    public interface IEventStorageProvider
+```csharp
+// We recommend using a DI container to inject the Session. Keep it scoped (per request in a web application) 
+
+    public class CreateScheduleHandler
     {
-        Task<IEnumerable<IEvent>> GetEventsAsync(Type aggregateType, Guid aggregateId, int start, int count);
-        Task<IEvent> GetLastEventAsync(Type aggregateType, Guid aggregateId);
-        Task CommitChangesAsync(AggregateRoot aggregate);
+        private readonly Session<Schedule> _session;
+
+        public CreateScheduleCommandHandler(Session<Schedule> session)
+        {
+            _session = session;
+        }
+
+        public async Task<Guid> HandleAsync()
+        {
+            var schedule = new Schedule("my new schedule");
+            _session.Attach(schedule);
+            await _session.SaveAsync();
+            return schedule.Id;
+        }
     }
 
-	public interface ISnapshotStorageProvider
+    public class AddTodoHandler
+    {
+        private readonly Session<Schedule> _session;
+
+        public AddTodoCommandHandler(Session<Schedule> session)
+        {
+            _session = session;
+        }
+
+        public async Task<Guid> HandleAsync(Guid scheduleId)
+        {
+            var schedule = await _session.GetByIdAsync(scheduleId);
+            var id = schedule.AddTodo("test todo 1");
+            await _session.SaveAsync();
+            return id;
+        }
+    }
+```
+
+## Storage providers
+
+The library contains storage provider implementation for [EventSore](https://eventstore.org/) and we plan to include a few more in the future. We have also included an in memory event and snapshot storage provider to get you up and running faster.
+
+It's very easy to implement your own as well. Implement `IEventStorageProvider` and `ISnapshotStorageProvider` interfaces an you're good to plug them in. If you need help look at the `NEventLite.StorageProviders.EventStore` project in the repository.
+
+```csharp
+    public interface IEventStorageProvider<TAggregate, TAggregateKey, TEventKey> where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
+    {
+        Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync(TAggregateKey aggregateId, int start, int count);
+        Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync(TAggregateKey aggregateId);
+        Task SaveAsync(AggregateRoot<TAggregateKey, TEventKey> aggregate);
+    }
+
+    public interface ISnapshotStorageProvider<TSnapshot, in TAggregateKey, TSnapshotKey> where TSnapshot: ISnapshot<TAggregateKey, TSnapshotKey>
     {
         int SnapshotFrequency { get; }
-        Task<Snapshot.Snapshot> GetSnapshotAsync(Type aggregateType, Guid aggregateId);
-        Task SaveSnapshotAsync(Type aggregateType, Snapshot.Snapshot snapshot);
+        Task<TSnapshot> GetSnapshotAsync(TAggregateKey aggregateId);
+        Task SaveSnapshotAsync(TSnapshot snapshot);
     }
 ```
 
-Notes
-------------------------------------
-Please feel free to contribute and improve the code as you see fit.
+There are more examples in the Samples if you need help figuring out how to put everything together.
+
+## Notes
+Please feel free to contribute and improve the code as you see fit. Please raise an issue if you find a bug or have an improvement idea. The repository is shared under the MIT license.
