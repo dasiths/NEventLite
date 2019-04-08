@@ -11,6 +11,7 @@
     <RepositoryUrl>https://github.com/dasiths/NEventLite</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>in memory, event store, storage, event sourcing, aggregate, events, cqrs, cqs, snapshots</PackageTags>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
