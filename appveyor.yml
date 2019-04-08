@@ -19,5 +19,6 @@ before_build:
       cd src
       dotnet restore
 build:
+  project: NEventLite.sln
   publish_nuget: true
   verbosity: minimal

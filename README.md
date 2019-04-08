@@ -16,7 +16,7 @@ NEventLite makes it easier to implement the event sourcing pattern in your .NET 
 NEventLite is **not a framework** that manages your application end to end. It doesn't enforce ports and adapters pattern or any of the application level concerns. The aim is to do one thing (Manage aggregate lifecycle) and do that well. If you need to implement command and event handlers you can have a look at something like [SimpleMediator](https://github.com/dasiths/SimpleMediator) or [Brighter](https://github.com/BrighterCommand/Brighter) and NEventLite will complement them nicely.
 
 ## What about v1.0? Wasn't it advertised as a framework? 
-*NEventLite V1.0 tried to solve simmilar problems but the scope of the project very large and it was decided to narrow down the scope. If you're still looking for reference it's hosted [here](https://github.com/dasiths/NEventLite/blob/master/legacy/v1.0).*
+*NEventLite V1.0 tried to solve similar problems but the scope of the project very large and it was decided to narrow down the scope. If you're still looking for reference it's hosted [here](https://github.com/dasiths/NEventLite/blob/master/legacy/v1.0).*
 
 ## Before you start
 
