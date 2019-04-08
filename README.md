@@ -1,4 +1,4 @@
-# NEventLite [![NuGet](https://img.shields.io/nuget/v/NEventLite.svg)](https://www.nuget.org/packages/NEventLite)
+# NEventLite [![Build status](https://ci.appveyor.com/api/projects/status/yfc041h8uvt7u3dq?svg=true)](https://ci.appveyor.com/project/dasiths/neventlite) [![NuGet](https://img.shields.io/nuget/v/NEventLite.svg)](https://www.nuget.org/packages/NEventLite)
 ## An extensible lightweight library for .NET that manages the Aggregate lifecycle in an **Event Sourced** system.
 Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL Server. Built with dependency injection in mind and seamlessly integrates with AspNetCore.
 
