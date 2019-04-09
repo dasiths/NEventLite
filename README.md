@@ -102,9 +102,9 @@ Using the built in `Session` and `Repository` implementations to manage the Aggr
 
     public class CreateScheduleHandler
     {
-        private readonly Session<Schedule> _session;
+        private readonly ISession<Schedule> _session;
 
-        public CreateScheduleCommandHandler(Session<Schedule> session)
+        public CreateScheduleCommandHandler(ISession<Schedule> session)
         {
             _session = session;
         }
@@ -120,9 +120,9 @@ Using the built in `Session` and `Repository` implementations to manage the Aggr
 
     public class AddTodoHandler
     {
-        private readonly Session<Schedule> _session;
+        private readonly ISession<Schedule> _session;
 
-        public AddTodoCommandHandler(Session<Schedule> session)
+        public AddTodoCommandHandler(ISession<Schedule> session)
         {
             _session = session;
         }
