@@ -2,11 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using NEventLite.Core;
 using NEventLite.Repository;
 using NEventLite.Samples.Common;
 using NEventLite.Samples.Common.Domain.Schedule;
 using NEventLite.Samples.Common.Domain.Schedule.Snapshots;
+using NEventLite.Samples.ConsoleApp.Handlers;
+using NEventLite.Storage;
 using NEventLite.StorageProviders.EventStore;
 using NEventLite.StorageProviders.InMemory;
 
@@ -22,86 +26,51 @@ namespace NEventLite.Samples.ConsoleApp
 
         private static async Task RunAsync()
         {
-            //This path is used to save in memory storage
-            string strTempDataFolderPath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
+            var container = DependencyInjection.GetContainer(false);
 
-            //create temp directory if it doesn't exist
-            new FileInfo(strTempDataFolderPath).Directory?.Create();
+            Guid scheduleId;
+            Guid todoId;
 
-            var inMemoryEventStorePath = $@"{strTempDataFolderPath}events.stream.dump";
-            var inMemorySnapshotStorePath = $@"{strTempDataFolderPath}events.snapshot.dump";
-            var inMemoryReadModelStorePath = $@"{strTempDataFolderPath}events.readmodel.dump";
-
-            File.Delete(inMemoryEventStorePath);
-            File.Delete(inMemorySnapshotStorePath);
-            File.Delete(inMemoryReadModelStorePath);
-
-            using (var connectionProvider = new EventStoreStorageConnectionProvider())
+            using (var scope = container.CreateScope())
             {
-                var clock = new MyClock();
-                var eventStorage = // new EventStoreEventStorageProvider<Schedule>(connectionProvider);
-                new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath);
+                var handler = scope.ServiceProvider.GetService<CreateScheduleHandler>();
+                scheduleId = await handler.HandleAsync("test schedule");
+            }
 
-                var snapshotStorage = // new EventStoreSnapshotStorageProvider<Schedule, ScheduleSnapshot>(connectionProvider);
-                new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath);
+            using (var scope = container.CreateScope())
+            {
+                var handler = scope.ServiceProvider.GetService<CreateTodoHandler>();
+                todoId = await handler.HandleAsync(scheduleId, "todo item 1");
+            }
 
-                var eventPublisher = new EventPublisher<Schedule>();
+            using (var scope = container.CreateScope())
+            {
+                var handler = scope.ServiceProvider.GetService<CreateTodoHandler>();
+                await handler.HandleAsync(scheduleId, "todo item 2");
+            }
 
-                var repository =
-                    new Repository<Schedule, ScheduleSnapshot>(clock, eventStorage, eventPublisher, snapshotStorage);
+            using (var scope = container.CreateScope())
+            {
+                var handler = scope.ServiceProvider.GetService<CreateTodoHandler>();
+                await handler.HandleAsync(scheduleId, "todo item 3");
+            }
 
-                // repository = new EventOnlyRepository<Schedule>(clock, eventStorage, eventPublisher);
+            using (var scope = container.CreateScope())
+            {
+                var handler = scope.ServiceProvider.GetService<UpdateTodoNameHandler>();
+                await handler.HandleAsync(scheduleId, todoId, "todo item 1 updated");
+            }
 
-                Session<Schedule> NewSessionFunc() => new Session<Schedule>(repository);
-                Guid id;
-                Schedule result;
-
-                using (var session = NewSessionFunc())
-                {
-                    var schedule = new Schedule("test schedule");
-                    session.Attach(schedule);
-                    await session.SaveAsync();
-                    id = schedule.Id;
-                }
-
-                using (var session = NewSessionFunc())
-                {
-                    var schedule = await session.GetByIdAsync(id);
-                    schedule.AddTodo("test todo 1");
-                    await session.SaveAsync();
-                }
-
-                using (var session = NewSessionFunc())
-                {
-                    var schedule = await session.GetByIdAsync(id);
-                    schedule.AddTodo("test todo 2");
-                    await session.SaveAsync();
-                }
-
-                using (var session = NewSessionFunc())
-                {
-                    var schedule = await session.GetByIdAsync(id);
-                    schedule.AddTodo("test todo 3");
-                    await session.SaveAsync();
-                }
-
-                using (var session = NewSessionFunc())
-                {
-                    var schedule = await session.GetByIdAsync(id);
-                    var todo = schedule.Todos.First();
-                    schedule.UpdateTodo(todo.Id, todo.Text + " updated");
-                    await session.SaveAsync();
-                }
-
-                using (var session = NewSessionFunc())
-                {
-                    var schedule = await session.GetByIdAsync(id);
-                    var todo = schedule.Todos.Last();
-                    await schedule.CompleteTodoAsync(todo.Id);
-                    await session.SaveAsync();
-                    result = schedule;
-                }
-
+            using (var scope = container.CreateScope())
+            {
+                var handler = scope.ServiceProvider.GetService<CompleteTodoHandler>();
+                await handler.HandleAsync(scheduleId, todoId);
+            }
+            
+            using (var scope = container.CreateScope())
+            {
+                var session = scope.ServiceProvider.GetService<ISession<Schedule>>();
+                var result = await session.GetByIdAsync(scheduleId);
                 Console.WriteLine("--------");
                 Console.WriteLine("Final result after applying all events...");
                 PrintToConsole(result, ConsoleColor.Green);

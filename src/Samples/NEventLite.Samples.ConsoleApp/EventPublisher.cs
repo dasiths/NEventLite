@@ -5,7 +5,10 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.Samples.ConsoleApp
 {
-    public class EventPublisher<TAggregate> : EventPublisher<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>
+    public class EventPublisher<TAggregate> : 
+        EventPublisher<TAggregate, Guid, Guid>,
+        IEventPublisher<TAggregate> 
+        where TAggregate : AggregateRoot<Guid, Guid>
     {
     }
 

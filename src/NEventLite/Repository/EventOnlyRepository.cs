@@ -5,9 +5,17 @@ using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class EventOnlyRepository<TAggregate> : EventOnlyRepository<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>, new()
+    public class EventOnlyRepository<TAggregate> : 
+        EventOnlyRepository<TAggregate, Guid, Guid>,
+        IRepository<TAggregate> 
+        where TAggregate : AggregateRoot<Guid, Guid>, new()
     {
         public EventOnlyRepository(IClock clock, IEventStorageProvider<TAggregate, Guid, Guid> eventStorageProvider, IEventPublisher<TAggregate, Guid, Guid> eventPublisher) : 
+            base(clock, eventStorageProvider, eventPublisher)
+        {
+        }
+
+        public EventOnlyRepository(IClock clock, IEventStorageProvider<TAggregate> eventStorageProvider, IEventPublisher<TAggregate> eventPublisher) :
             base(clock, eventStorageProvider, eventPublisher)
         {
         }

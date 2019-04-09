@@ -1,22 +1,31 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using NEventLite.Core;
 using NEventLite.Core.Domain;
 using NEventLite.Exceptions;
 using NEventLite.Storage;
-using NEventLite.Util;
 
 namespace NEventLite.Repository
 {
-    public class Repository<TAggregate, TSnapshot> : Repository<TAggregate, TSnapshot, Guid, Guid, Guid> where
-        TAggregate : AggregateRoot<Guid, Guid>, new() where TSnapshot : ISnapshot<Guid, Guid>
+    public class Repository<TAggregate, TSnapshot> : 
+        Repository<TAggregate, TSnapshot, Guid, Guid, Guid>, 
+        IRepository<TAggregate> 
+        where TAggregate : AggregateRoot<Guid, Guid>, new() 
+        where TSnapshot : ISnapshot<Guid, Guid>
     {
         public Repository(IClock clock,
             IEventStorageProvider<TAggregate, Guid, Guid> eventStorageProvider,
             IEventPublisher<TAggregate, Guid, Guid> eventPublisher,
             ISnapshotStorageProvider<TSnapshot, Guid, Guid> snapshotStorageProvider) :
+            base(clock, eventStorageProvider, eventPublisher, snapshotStorageProvider)
+        {
+        }
+
+        public Repository(IClock clock,
+            IEventStorageProvider<TAggregate> eventStorageProvider,
+            IEventPublisher<TAggregate> eventPublisher,
+            ISnapshotStorageProvider<TSnapshot> snapshotStorageProvider) :
             base(clock, eventStorageProvider, eventPublisher, snapshotStorageProvider)
         {
         }

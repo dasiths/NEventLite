@@ -25,11 +25,12 @@ namespace NEventLite.Samples.Common.Domain.Schedule
             ApplyEvent(@event);
         }
 
-        public void AddTodo(string text)
+        public Guid AddTodo(string text)
         {
             var newTodoId = Guid.NewGuid();
             var @event = new TodoCreatedEvent(Id, CurrentVersion, newTodoId, text);
             ApplyEvent(@event);
+            return newTodoId;
         }
 
         public void UpdateTodo(Guid todoId, string text)

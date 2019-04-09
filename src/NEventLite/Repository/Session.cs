@@ -7,9 +7,16 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.Repository
 {
-    public class Session<TAggregate> : Session<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>, new()
+    public class Session<TAggregate> : 
+        Session<TAggregate, Guid, Guid>,
+        ISession<TAggregate> 
+        where TAggregate : AggregateRoot<Guid, Guid>, new()
     {
         public Session(IRepository<TAggregate, Guid, Guid> repository) : base(repository)
+        {
+        }
+
+        public Session(IRepository<TAggregate> repository) : base(repository)
         {
         }
     }

@@ -9,7 +9,9 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemorySnapshotStorageProvider<TSnapshot> : InMemorySnapshotStorageProvider<TSnapshot, Guid, Guid> where TSnapshot : ISnapshot<Guid, Guid>
+    public class InMemorySnapshotStorageProvider<TSnapshot> : 
+        InMemorySnapshotStorageProvider<TSnapshot, Guid, Guid>, ISnapshotStorageProvider<TSnapshot>
+        where TSnapshot : ISnapshot<Guid, Guid>
     {
         public InMemorySnapshotStorageProvider(int frequency, string memoryDumpFile) : base(frequency, memoryDumpFile)
         {
@@ -60,7 +62,7 @@ namespace NEventLite.StorageProviders.InMemory
                 _items.Add(snapshot.AggregateId, snapshot);
             }
 
-            if (!string.IsNullOrWhiteSpace(_memoryDumpFile) && File.Exists(_memoryDumpFile))
+            if (!string.IsNullOrWhiteSpace(_memoryDumpFile))
             {
                 SerializerHelper.SaveListToFile(_memoryDumpFile, new[] { _items });
             }

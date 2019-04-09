@@ -9,7 +9,9 @@ using NEventLite.Storage;
 namespace NEventLite.StorageProviders.EventStore
 {
     public class EventStoreEventStorageProvider<TAggregate> :
-        EventStoreEventStorageProvider<TAggregate, Guid> where TAggregate : AggregateRoot<Guid, Guid>
+        EventStoreEventStorageProvider<TAggregate, Guid>,
+        IEventStorageProvider<TAggregate>
+        where TAggregate : AggregateRoot<Guid, Guid>
     {
         public EventStoreEventStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider) : base(eventStoreStorageConnectionProvider)
         {

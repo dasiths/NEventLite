@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="EventStore.Client" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview3.19153.1" />
   </ItemGroup>
 
   <ItemGroup>

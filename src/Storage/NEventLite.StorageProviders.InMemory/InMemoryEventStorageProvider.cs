@@ -9,7 +9,8 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemoryEventStorageProvider<TAggregate> : InMemoryEventStorageProvider<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>
+    public class InMemoryEventStorageProvider<TAggregate> : InMemoryEventStorageProvider<TAggregate, Guid, Guid>, 
+        IEventStorageProvider<TAggregate> where TAggregate : AggregateRoot<Guid, Guid>
     {
         public InMemoryEventStorageProvider() : this(string.Empty)
         {
@@ -104,7 +105,7 @@ namespace NEventLite.StorageProviders.InMemory
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(_memoryDumpFile) && File.Exists(_memoryDumpFile))
+            if (!string.IsNullOrWhiteSpace(_memoryDumpFile))
             {
                 SerializerHelper.SaveListToFile(_memoryDumpFile, new[] { _eventStream });
             }
