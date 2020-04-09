@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.271
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite", "NEventLite\NEventLite.csproj", "{5BD54FC7-70E4-45EF-9E7A-9F4620E9E1D2}"
 EndProject
@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Tests.Integratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Samples.Common", "Samples\NEventLite.Samples.Common\NEventLite.Samples.Common.csproj", "{49720BF2-3BDA-4AB1-82D0-63C43DBE2623}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.StorageProviders.EventStore", "Storage\NEventLite.StorageProviders.EventStore\NEventLite.StorageProviders.EventStore.csproj", "{F040E6CE-2C15-4CAB-882F-411D79DD0485}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.StorageProviders.EventStore", "Storage\NEventLite.StorageProviders.EventStore\NEventLite.StorageProviders.EventStore.csproj", "{F040E6CE-2C15-4CAB-882F-411D79DD0485}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.Extensions.Microsoft.DependencyInjection", "Extensions\NEventLite.Extensions.Microsoft.DependencyInjection\NEventLite.Extensions.Microsoft.DependencyInjection.csproj", "{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{F040E6CE-2C15-4CAB-882F-411D79DD0485}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F040E6CE-2C15-4CAB-882F-411D79DD0485}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F040E6CE-2C15-4CAB-882F-411D79DD0485}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

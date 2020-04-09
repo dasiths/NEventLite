@@ -8,20 +8,14 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.Tests.Integration.Mocks
 {
-    public class MockEventPublisher<TAggregate> : MockEventPublisher<TAggregate, Guid, Guid> where TAggregate : AggregateRoot<Guid, Guid>
+    public class MockEventPublisher : IEventPublisher
     {
-    }
+        public readonly Dictionary<object, IList<IEvent>> Events = new Dictionary<object, IList<IEvent>>();
 
-    public class MockEventPublisher<TAggregate, TAggregateKey, TEventKey> : IEventPublisher<TAggregate, TAggregateKey, TEventKey>
-        where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
-    {
-        public readonly Dictionary<TAggregateKey, IList<IEvent<TAggregate, TAggregateKey, TEventKey>>> Events =
-            new Dictionary<TAggregateKey, IList<IEvent<TAggregate, TAggregateKey, TEventKey>>>();
-
-        public Task PublishAsync(IEvent<TAggregate, TAggregateKey, TEventKey> @event)
+        public Task PublishAsync<TAggregate, TAggregateKey, TEventKey>(IEvent<TAggregate, TAggregateKey, TEventKey> @event) where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             var list = Events.ContainsKey(@event.AggregateId) ? Events[@event.AggregateId].ToList() :
-                new List<IEvent<TAggregate, TAggregateKey, TEventKey>>();
+                new List<IEvent>();
 
             list.Add(@event);
             Events[@event.AggregateId] = list;

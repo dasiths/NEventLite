@@ -15,17 +15,17 @@ namespace NEventLite.Repository
         where TSnapshot : ISnapshot<Guid, Guid>
     {
         public Repository(IClock clock,
-            IEventStorageProvider<TAggregate, Guid, Guid> eventStorageProvider,
-            IEventPublisher<TAggregate, Guid, Guid> eventPublisher,
-            ISnapshotStorageProvider<TSnapshot, Guid, Guid> snapshotStorageProvider) :
+            IEventStorageProvider<Guid, Guid> eventStorageProvider,
+            IEventPublisher eventPublisher,
+            ISnapshotStorageProvider<Guid, Guid> snapshotStorageProvider) :
             base(clock, eventStorageProvider, eventPublisher, snapshotStorageProvider)
         {
         }
 
         public Repository(IClock clock,
-            IEventStorageProvider<TAggregate> eventStorageProvider,
-            IEventPublisher<TAggregate> eventPublisher,
-            ISnapshotStorageProvider<TSnapshot> snapshotStorageProvider) :
+            IEventStorageProvider eventStorageProvider,
+            IEventPublisher eventPublisher,
+            ISnapshotStorageProvider snapshotStorageProvider) :
             base(clock, eventStorageProvider, eventPublisher, snapshotStorageProvider)
         {
         }
@@ -36,15 +36,15 @@ namespace NEventLite.Repository
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
         where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
     {
-        private readonly IEventStorageProvider<TAggregate, TAggregateKey, TEventKey> _eventStorageProvider;
-        private readonly ISnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> _snapshotStorageProvider;
-        private readonly IEventPublisher<TAggregate, TAggregateKey, TEventKey> _eventPublisher;
+        private readonly IEventStorageProvider<TAggregateKey, TEventKey> _eventStorageProvider;
+        private readonly ISnapshotStorageProvider<TAggregateKey, TSnapshotKey> _snapshotStorageProvider;
+        private readonly IEventPublisher _eventPublisher;
         private readonly IClock _clock;
 
         public Repository(IClock clock,
-            IEventStorageProvider<TAggregate, TAggregateKey, TEventKey> eventStorageProvider,
-            IEventPublisher<TAggregate, TAggregateKey, TEventKey> eventPublisher,
-            ISnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> snapshotStorageProvider)
+            IEventStorageProvider<TAggregateKey, TEventKey> eventStorageProvider,
+            IEventPublisher eventPublisher,
+            ISnapshotStorageProvider<TAggregateKey, TSnapshotKey> snapshotStorageProvider)
         {
             _eventStorageProvider = eventStorageProvider;
             _snapshotStorageProvider = snapshotStorageProvider;
@@ -62,7 +62,7 @@ namespace NEventLite.Repository
 
             if ((isSnapshottable) && (_snapshotStorageProvider != null))
             {
-                snapshot = await _snapshotStorageProvider.GetSnapshotAsync(id);
+                snapshot = await _snapshotStorageProvider.GetSnapshotAsync<TSnapshot>(id);
             }
 
             if (snapshot != null)
@@ -78,12 +78,12 @@ namespace NEventLite.Repository
                 item.HydrateFromSnapshot(snapshot);
                 snapshottableItem.ApplySnapshot(snapshot);
 
-                var events = await _eventStorageProvider.GetEventsAsync(id, snapshot.Version + 1, int.MaxValue);
+                var events = await _eventStorageProvider.GetEventsAsync<TAggregate>(id, snapshot.Version + 1, int.MaxValue);
                 await item.LoadsFromHistoryAsync(events);
             }
             else
             {
-                var events = (await _eventStorageProvider.GetEventsAsync(id, 0, int.MaxValue)).ToList();
+                var events = (await _eventStorageProvider.GetEventsAsync<TAggregate>(id, 0, int.MaxValue)).ToList();
 
                 if (events.Any())
                 {
@@ -107,7 +107,7 @@ namespace NEventLite.Repository
         {
             var expectedVersion = aggregate.LastCommittedVersion;
 
-            var item = await _eventStorageProvider.GetLastEventAsync(aggregate.Id);
+            var item = await _eventStorageProvider.GetLastEventAsync<TAggregate>(aggregate.Id);
 
             if ((item != null) && (expectedVersion == (int)StreamState.NoStream))
             {

@@ -8,21 +8,18 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.EventStore
 {
-    public class EventStoreSnapshotStorageProvider<TAggregate, TSnapshot> : 
-        EventStoreSnapshotStorageProvider<TAggregate, TSnapshot, Guid>,
-        ISnapshotStorageProvider<TSnapshot>
-        where TAggregate : AggregateRoot<Guid, Guid> 
-        where TSnapshot : ISnapshot<Guid, Guid>
+    public class EventStoreSnapshotStorageProvider : 
+        EventStoreSnapshotStorageProvider<Guid>,
+        ISnapshotStorageProvider
     {
         public EventStoreSnapshotStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider) : base(eventStoreStorageConnectionProvider)
         {
         }
     }
 
-    public class EventStoreSnapshotStorageProvider<TAggregate, TSnapshot, TAggregateKey> : 
-        EventStoreStorageProviderBase<TAggregate, TAggregateKey>, 
-        ISnapshotStorageProvider<TSnapshot, TAggregateKey, Guid>
-        where TAggregate : AggregateRoot<TAggregateKey, Guid> where TSnapshot : ISnapshot<TAggregateKey, Guid>
+    public class EventStoreSnapshotStorageProvider<TAggregateKey> : 
+        EventStoreStorageProviderBase<TAggregateKey>, 
+        ISnapshotStorageProvider<TAggregateKey, Guid>
     {
         private readonly IEventStoreStorageConnectionProvider _eventStoreStorageConnectionProvider;
 
@@ -37,13 +34,13 @@ namespace NEventLite.StorageProviders.EventStore
 
         public int SnapshotFrequency => _eventStoreStorageConnectionProvider.SnapshotFrequency;
 
-        public async Task<TSnapshot> GetSnapshotAsync(TAggregateKey aggregateId)
+        public async Task<TSnapshot> GetSnapshotAsync<TSnapshot>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, Guid>
         {
             TSnapshot snapshot = default(TSnapshot);
             var connection = await GetEventStoreConnectionAsync();
 
             var streamEvents = await connection.ReadStreamEventsBackwardAsync(
-                $"{AggregateIdToStreamName(typeof(TAggregate), aggregateId.ToString())}", StreamPosition.End, 1, false);
+                $"{TypeToStreamName<TSnapshot>(aggregateId.ToString())}", StreamPosition.End, 1, false);
 
             if (streamEvents.Events.Any())
             {
@@ -54,12 +51,12 @@ namespace NEventLite.StorageProviders.EventStore
             return snapshot;
         }
 
-        public async Task SaveSnapshotAsync(TSnapshot snapshot)
+        public async Task SaveSnapshotAsync<TSnapshot>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, Guid>
         {
             var connection = await GetEventStoreConnectionAsync();
             var snapshotEvent = SerializeSnapshotEvent(snapshot, snapshot.Version);
 
-            await connection.AppendToStreamAsync($"{AggregateIdToStreamName(typeof(TAggregate), snapshot.AggregateId.ToString())}",
+            await connection.AppendToStreamAsync($"{TypeToStreamName<TSnapshot>(snapshot.AggregateId.ToString())}",
                 ExpectedVersion.Any, snapshotEvent);
         }
     }

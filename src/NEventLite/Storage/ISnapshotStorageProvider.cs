@@ -4,14 +4,14 @@ using NEventLite.Core;
 
 namespace NEventLite.Storage
 {
-    public interface ISnapshotStorageProvider<TSnapshot> : ISnapshotStorageProvider<TSnapshot, Guid, Guid> where TSnapshot : ISnapshot<Guid, Guid>
+    public interface ISnapshotStorageProvider : ISnapshotStorageProvider<Guid, Guid>
     {
     }
 
-    public interface ISnapshotStorageProvider<TSnapshot, in TAggregateKey, TSnapshotKey> where TSnapshot: ISnapshot<TAggregateKey, TSnapshotKey>
+    public interface ISnapshotStorageProvider<in TAggregateKey, in TSnapshotKey>
     {
         int SnapshotFrequency { get; }
-        Task<TSnapshot> GetSnapshotAsync(TAggregateKey aggregateId);
-        Task SaveSnapshotAsync(TSnapshot snapshot);
+        Task<TSnapshot> GetSnapshotAsync<TSnapshot>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>;
+        Task SaveSnapshotAsync<TSnapshot>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>;
     }
 }

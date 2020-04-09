@@ -5,13 +5,14 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Dasith Wijesiriwardena</Authors>
     <Description>InMemory/TextFile storage provider for NEventLite. An extensible lightweight library for .NET that manages the Aggregate lifecycle in an Event Sourced system.</Description>
-    <Copyright>Dasith Wijesiriwardena - 2019</Copyright>
-    <PackageLicenseUrl>https://github.com/dasiths/NEventLite/blob/master/LICENSE.md</PackageLicenseUrl>
+    <Copyright>Dasith Wijesiriwardena - 2020</Copyright>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/dasiths/NEventLite</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dasiths/NEventLite</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>in memory, event store, storage, event sourcing, aggregate, events, cqrs, cqs, snapshots</PackageTags>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

@@ -7,16 +7,16 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.StorageProviders.EventStore
 {
-    public abstract class EventStoreStorageProviderBase<TAggregate, TAggregateKey> where TAggregate : AggregateRoot<TAggregateKey, Guid>
+    public abstract class EventStoreStorageProviderBase<TAggregateKey>
     {
         protected abstract string GetStreamNamePrefix();
 
-        protected string AggregateIdToStreamName(Type t, string id)
+        protected string TypeToStreamName<T>(string id)
         {
             //Ensure first character of type name is in lower case
 
             var prefix = GetStreamNamePrefix();
-            return $"{char.ToLower(prefix[0])}{prefix.Substring(1)}{t.Name}{id}";
+            return $"{char.ToLower(prefix[0])}{prefix.Substring(1)}{typeof(T).Name}{id}";
         }
 
         private JsonSerializerSettings GetSerializerSettings()
@@ -27,7 +27,7 @@ namespace NEventLite.StorageProviders.EventStore
             };
         }
 
-        protected IEvent<TAggregate, TAggregateKey, Guid> DeserializeEvent(ResolvedEvent returnedEvent)
+        protected IEvent<TAggregate, TAggregateKey, Guid> DeserializeEvent<TAggregate>(ResolvedEvent returnedEvent) where TAggregate : AggregateRoot<TAggregateKey, Guid>
         {
             var header = JsonConvert.DeserializeObject<EventStoreMetaDataHeader>(
                 Encoding.UTF8.GetString(returnedEvent.Event.Metadata), GetSerializerSettings());

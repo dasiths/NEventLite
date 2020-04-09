@@ -13,7 +13,7 @@ namespace NEventLite.Core.Domain
     {
     }
 
-    public abstract class AggregateRoot<TAggregateKey, TEventKey>
+    public abstract class AggregateRoot<TAggregateKey, TEventKey> : IAggregateRoot
     {
         public TAggregateKey Id { get; private set; }
         public int CurrentVersion { get; private set; }
@@ -165,5 +165,9 @@ namespace NEventLite.Core.Domain
             CurrentVersion = snapshot.Version;
             LastCommittedVersion = snapshot.Version;
         }
+    }
+
+    public interface IAggregateRoot
+    {
     }
 }

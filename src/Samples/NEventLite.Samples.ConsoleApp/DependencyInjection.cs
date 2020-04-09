@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NEventLite.Core;
+using NEventLite.Core.Domain;
+using NEventLite.Extensions.Microsoft.DependencyInjection;
 using NEventLite.Repository;
 using NEventLite.Samples.Common;
 using NEventLite.Samples.Common.Domain.Schedule;
@@ -30,25 +34,29 @@ namespace NEventLite.Samples.ConsoleApp
             File.Delete(inMemorySnapshotStorePath);
 
             var services = new ServiceCollection();
-            services.AddSingleton<IClock, MyClock>();
-            services.AddSingleton<IEventPublisher<Schedule>, EventPublisher<Schedule>>();
+            services.AddSingleton<IClock, DefaultSystemClock>();
+            services.AddSingleton<IEventPublisher, MyEventPublisher>();
 
             if (useEventStore)
             {
                 services.AddScoped<IEventStoreStorageConnectionProvider, EventStoreStorageConnectionProvider>();
-                services.AddScoped<IEventStorageProvider<Schedule>, EventStoreEventStorageProvider<Schedule>>();
-                services.AddScoped<ISnapshotStorageProvider<ScheduleSnapshot>, EventStoreSnapshotStorageProvider<Schedule, ScheduleSnapshot>>();
+                services.AddScoped<IEventStorageProvider, EventStoreEventStorageProvider>();
+                services.AddScoped<ISnapshotStorageProvider, EventStoreSnapshotStorageProvider>();
             }
             else
             {
-                services.AddScoped<IEventStorageProvider<Schedule>>(
-                    provider => new InMemoryEventStorageProvider<Schedule>(inMemoryEventStorePath));
-                services.AddScoped<ISnapshotStorageProvider<ScheduleSnapshot>>(
-                    provider => new InMemorySnapshotStorageProvider<ScheduleSnapshot>(2, inMemorySnapshotStorePath));
+                services.AddScoped<IEventStorageProvider>(
+                    provider => new InMemoryEventStorageProvider(inMemoryEventStorePath));
+                services.AddScoped<ISnapshotStorageProvider>(
+                    provider => new InMemorySnapshotStorageProvider(2, inMemorySnapshotStorePath));
             }
 
-            services.AddScoped<IRepository<Schedule>, Repository<Schedule, ScheduleSnapshot>>();
-            services.AddScoped<ISession<Schedule>, Session<Schedule>>();
+            // Add the repository registration manually
+            // services.AddScoped<IRepository<Schedule>, Repository<Schedule, ScheduleSnapshot>>();
+            // services.AddScoped<ISession<Schedule>, Session<Schedule>>();
+
+            // or add the by scanning for all aggregate types
+            services.ScanAndRegisterAggregates();
 
             services.AddScoped<CreateScheduleHandler>();
             services.AddScoped<CreateTodoHandler>();

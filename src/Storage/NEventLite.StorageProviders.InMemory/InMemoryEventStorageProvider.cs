@@ -9,8 +9,7 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemoryEventStorageProvider<TAggregate> : InMemoryEventStorageProvider<TAggregate, Guid, Guid>, 
-        IEventStorageProvider<TAggregate> where TAggregate : AggregateRoot<Guid, Guid>
+    public class InMemoryEventStorageProvider : InMemoryEventStorageProvider<Guid, Guid>, IEventStorageProvider 
     {
         public InMemoryEventStorageProvider() : this(string.Empty)
         {
@@ -21,8 +20,7 @@ namespace NEventLite.StorageProviders.InMemory
         }
     }
 
-    public class InMemoryEventStorageProvider<TAggregate, TAggregateKey, TEventKey> : IEventStorageProvider<TAggregate, TAggregateKey, TEventKey>
-        where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
+    public class InMemoryEventStorageProvider<TAggregateKey, TEventKey> : IEventStorageProvider<TAggregateKey, TEventKey>
     {
         private readonly string _memoryDumpFile;
         private readonly Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> _eventStream = 
@@ -38,13 +36,15 @@ namespace NEventLite.StorageProviders.InMemory
 
             if (!string.IsNullOrWhiteSpace(_memoryDumpFile) && File.Exists(_memoryDumpFile))
             {
-                _eventStream = SerializerHelper.LoadListFromFile<
-                    Dictionary<TAggregateKey, List<IEvent< AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>>
-                >(_memoryDumpFile).First();
+                _eventStream =
+                    SerializerHelper.LoadFromFile(_memoryDumpFile) as 
+                        Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>>?? 
+                    new Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>>();
             }
         }
 
-        public Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync(TAggregateKey aggregateId, int start, int count)
+        public Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate>(TAggregateKey aggregateId, int start, int count)
+            where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             try
             {
@@ -79,7 +79,8 @@ namespace NEventLite.StorageProviders.InMemory
 
         }
 
-        public Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync(TAggregateKey aggregateId)
+        public Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync<TAggregate>(TAggregateKey aggregateId)
+            where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             if (_eventStream.ContainsKey(aggregateId))
             {
@@ -89,7 +90,8 @@ namespace NEventLite.StorageProviders.InMemory
             return Task.FromResult((IEvent<AggregateRoot < TAggregateKey, TEventKey >, TAggregateKey, TEventKey>)null);
         }
 
-        public Task SaveAsync(AggregateRoot<TAggregateKey, TEventKey> aggregate)
+        public Task SaveAsync<TAggregate>(TAggregate aggregate)
+            where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             var events = aggregate.GetUncommittedChanges();
 
@@ -107,7 +109,7 @@ namespace NEventLite.StorageProviders.InMemory
 
             if (!string.IsNullOrWhiteSpace(_memoryDumpFile))
             {
-                SerializerHelper.SaveListToFile(_memoryDumpFile, new[] { _eventStream });
+                SerializerHelper.SaveToFile(_memoryDumpFile, _eventStream);
             }
 
             return Task.CompletedTask;

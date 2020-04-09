@@ -5,18 +5,18 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>2.1.0</Version>
     <Authors>Dasith Wijesiriwardena</Authors>
-    <Description>EventStore storage provider for NEventLite. An extensible lightweight library for .NET that manages the Aggregate lifecycle in an Event Sourced system.</Description>
-    <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/dasiths/NEventLite</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/dasiths/NEventLite</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
-    <PackageTags>event store, storage, event sourcing, aggregate, events, cqrs, cqs, snapshots</PackageTags>
+    <Company>Dasith WijesiriwardenaDasith Wijesiriwardena</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dasiths/NEventLite</PackageProjectUrl>
+    <Description>Dependency injection support for NEventLite with Microsoft.Extensions.DependencyInjection</Description>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/dasiths/NEventLite</RepositoryUrl>
+    <PackageTags>NEventLite, event sourcing, dependency injection ,ioc</PackageTags>
     <Copyright>Dasith Wijesiriwardena - 2020</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventStore.Client" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>

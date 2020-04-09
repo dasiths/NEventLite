@@ -8,33 +8,32 @@ namespace NEventLite.StorageProviders.InMemory
 {
     public static class SerializerHelper
     {
-        private static void SaveToJson(string strFile, List<object> objects)
+        private static void SaveToJson(string strFile, object item)
         {
             var serializerSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
-            var content = JsonConvert.SerializeObject(objects, serializerSetting);
+            var content = JsonConvert.SerializeObject(item, serializerSetting);
 
             File.WriteAllText(strFile, content);
         }
 
-        private static IEnumerable<object> LoadFromJson(string strFile)
+        private static object LoadFromJson(string strFile)
         {
             var serializerSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
             var content = File.ReadAllText(strFile);
-            var obj = JsonConvert.DeserializeObject<List<object>>(content, serializerSetting);
+            var obj = JsonConvert.DeserializeObject<object>(content, serializerSetting);
 
             return obj;
         }
 
-        public static void SaveListToFile<T>(string file, IEnumerable<T> items)
+        public static void SaveToFile(string file, object items)
         {
-            var objects = items.Select(o => (object)o).ToList();
-            SaveToJson(file, objects);
+            SaveToJson(file, items);
         }
 
-        public static IList<T> LoadListFromFile<T>(string file)
+        public static object LoadFromFile(string file)
         {
             var results = LoadFromJson(file);
-            return results.Select(o => (T)o).ToList();
+            return results;
         }
     }
 }

@@ -9,19 +9,17 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemorySnapshotStorageProvider<TSnapshot> : 
-        InMemorySnapshotStorageProvider<TSnapshot, Guid, Guid>, ISnapshotStorageProvider<TSnapshot>
-        where TSnapshot : ISnapshot<Guid, Guid>
+    public class InMemorySnapshotStorageProvider : 
+        InMemorySnapshotStorageProvider<Guid, Guid>, ISnapshotStorageProvider
     {
         public InMemorySnapshotStorageProvider(int frequency, string memoryDumpFile) : base(frequency, memoryDumpFile)
         {
         }
     }
 
-    public class InMemorySnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey> : ISnapshotStorageProvider<TSnapshot, TAggregateKey, TSnapshotKey>
-        where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
+    public class InMemorySnapshotStorageProvider<TAggregateKey, TSnapshotKey> : ISnapshotStorageProvider<TAggregateKey, TSnapshotKey>
     {
-        private readonly Dictionary<TAggregateKey, TSnapshot> _items = new Dictionary<TAggregateKey, TSnapshot>();
+        private readonly Dictionary<TAggregateKey, object> _items = new Dictionary<TAggregateKey, object>();
 
         private readonly string _memoryDumpFile;
         public int SnapshotFrequency { get; }
@@ -37,21 +35,21 @@ namespace NEventLite.StorageProviders.InMemory
 
             if (!string.IsNullOrWhiteSpace(_memoryDumpFile) && File.Exists(_memoryDumpFile))
             {
-                _items = SerializerHelper.LoadListFromFile<Dictionary<TAggregateKey, TSnapshot>>(_memoryDumpFile).First();
+                _items = SerializerHelper.LoadFromFile(_memoryDumpFile) as Dictionary<TAggregateKey, object> ?? new Dictionary<TAggregateKey, object>();
             }
         }
 
-        public Task<TSnapshot> GetSnapshotAsync(TAggregateKey aggregateId)
+        public Task<TSnapshot> GetSnapshotAsync<TSnapshot>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
         {
             if (_items.ContainsKey(aggregateId))
             {
-                return Task.FromResult(_items[aggregateId]);
+                return Task.FromResult((TSnapshot)_items[aggregateId]);
             }
 
             return Task.FromResult(default(TSnapshot));
         }
 
-        public Task SaveSnapshotAsync(TSnapshot snapshot)
+        public Task SaveSnapshotAsync<TSnapshot>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {
@@ -64,7 +62,7 @@ namespace NEventLite.StorageProviders.InMemory
 
             if (!string.IsNullOrWhiteSpace(_memoryDumpFile))
             {
-                SerializerHelper.SaveListToFile(_memoryDumpFile, new[] { _items });
+                SerializerHelper.SaveToFile(_memoryDumpFile, _items);
             }
 
             return Task.CompletedTask;

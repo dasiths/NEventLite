@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Extensions\NEventLite.Extensions.Microsoft.DependencyInjection\NEventLite.Extensions.Microsoft.DependencyInjection.csproj" />
     <ProjectReference Include="..\NEventLite.Samples.Common\NEventLite.Samples.Common.csproj" />
     <ProjectReference Include="..\..\Storage\NEventLite.StorageProviders.EventStore\NEventLite.StorageProviders.EventStore.csproj" />
     <ProjectReference Include="..\..\Storage\NEventLite.StorageProviders.InMemory\NEventLite.StorageProviders.InMemory.csproj" />
