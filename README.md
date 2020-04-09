@@ -4,7 +4,7 @@
 
 Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL Server. Built with dependency injection in mind and seamlessly integrates with AspNetCore.
 
-## Give a star :star: if you appreciate the effort
+### Give a star :star: if you appreciate the effort
 
 ## What is Event Sourcing?
 
@@ -12,22 +12,22 @@ Supports `Event` and `Snapshot` storage providers like EventStore/Redis or SQL S
 
 Start here [https://dasith.me/2016/12/02/event-sourcing-examined-part-1-of-3/](https://dasith.me/2016/12/02/event-sourcing-examined-part-1-of-3/)
 
-## What does NEventLite solve? :goal_net:
+## :goal_net: What does NEventLite solve?
 NEventLite makes it easier to implement the event sourcing pattern in your .NET project. The library is opinionated and introduces some patterns to manage the life cycle of your [Aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) in an event sourced system. It will manage Creating, Loading, Mutating and Persisting Aggregates and Events.
 
-## What doesn't it solve? :warning:
+## :warning: What doesn't it solve?
 
 NEventLite is **not a framework** that manages your application end to end. It doesn't enforce ports and adapters pattern or any of the application level concerns. The aim is to do one thing (Manage aggregate lifecycle) and do that well. If you need to implement command and event handlers you can have a look at something like [SimpleMediator](https://github.com/dasiths/SimpleMediator) or [Brighter](https://github.com/BrighterCommand/Brighter) and NEventLite will complement them nicely.
 
 ## What about v1.0? Wasn't it advertised as a framework? 
 *NEventLite V1.0 tried to solve similar problems but the scope of the project very large and it was decided to narrow down the scope. If you're still looking for reference it's hosted [here](https://github.com/dasiths/NEventLite/blob/master/legacy/v1.0).*
 
-## Before you start
+## :eyes: Before you start
 
 - The library targets .NET Standard 2.0
 - *Optional:* Installation of EventStore - [https://eventstore.com/](https://eventstore.com/) (You can use the in memory event and snapshot providers when developing)
 
-## Using It
+## :hammer: Using It
 
 Define the events. They are simple pocos that will be serialized and stored in `EventStorage` when changes are saved. Events use `Guid` for Id by *default* but they can be changed to use any data type as Id. See `Event<TAggregateKey, TEventKey>` for reference.
 
@@ -144,7 +144,7 @@ Using the built in `Session` and `Repository` implementations to manage the Aggr
     }
 ```
 
-## Dependency Injection
+## :syringe: Dependency Injection
 
 The library is built with DI as a first class concept. Wiring it up is easy. This is an example of how you would do it with `Microsoft.Extensions.DependencyInjection`. You can find a detailed [example in the sample console app](https://github.com/dasiths/NEventLite/blob/master/src/Samples/NEventLite.Samples.ConsoleApp/DependencyInjection.cs).
 
@@ -166,9 +166,11 @@ The library is built with DI as a first class concept. Wiring it up is easy. Thi
         services.AddScoped<ISession<Schedule>, Session<Schedule>>();
 
         // Or
-        // Instead of specifying each Aggregate and Snapshot type you can use the convenience extension method "ScanAndRegisterAggregates()" in the "NEventLite.Extensions.Microsoft.DependencyInjection" nuget library as shown below
+        // Instead of specifying each Aggregate and Snapshot type you can use the convenience
+        // extension method "ScanAndRegisterAggregates()" in the
+        // "NEventLite.Extensions.Microsoft.DependencyInjection" nuget library as shown below
 
-        //services.ScanAndRegisterAggregates();
+        // services.ScanAndRegisterAggregates();
 
         // Use the defaults
         services.AddSingleton<IClock, DefaultSystemClock>();
@@ -184,7 +186,7 @@ The library is built with DI as a first class concept. Wiring it up is easy. Thi
     }
 ```
 
-If you want to use it with a different dependency injection framework, you can look at how the assembly scanning and registration is implemented for `Microsoft.Extensions.DependencyInjection` as an example and come up with your own implementation.
+If you want to use it with a different dependency injection framework, you can look at how the assembly scanning and registration is implemented for `Microsoft.Extensions.DependencyInjection` as an example and come up with your own implementation. The file is [located here](https://github.com/dasiths/NEventLite/blob/master/src/Extensions/NEventLite.Extensions.Microsoft.DependencyInjection/Extensions.cs)
 
 ```csharp
         public static void ScanAndRegisterAggregates(this ServiceCollection services, IList<Assembly> assemblies)
@@ -221,7 +223,7 @@ If you want to use it with a different dependency injection framework, you can l
         }
 ```
 
-## Storage providers
+## :ledger: Storage providers
 
 The library contains storage provider implementation for [EventSore](https://eventstore.com/) and we plan to include a few more in the future. We have also included an in memory event and snapshot storage provider to get you up and running faster.
 
@@ -258,3 +260,5 @@ There are more examples in the [Samples folder](https://github.com/dasiths/NEven
 ## Notes
 
 Please feel free to contribute and improve the code as you see fit. Please raise an issue if you find a bug or have an improvement idea. The repository is shared under the MIT license.
+
+**Share the :heart: and let your friends and colleagues know about this cool project. Thank you.**
