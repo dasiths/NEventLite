@@ -29,120 +29,130 @@ NEventLite is **not a framework** that manages your application end to end. It d
 
 ## :hammer: Using It
 
-Define the events. They are simple pocos that will be serialized and stored in `EventStorage` when changes are saved. Events use `Guid` for Id by *default* but they can be changed to use any data type as Id. See `Event<TAggregateKey, TEventKey>` for reference.
+1. Install and reference the Nuget `NEventLite`
 
-```csharp
-    public class ScheduleCreatedEvent : Event<Schedule>
-    {
-        public string ScheduleName { get; set; }
+    In the NuGet Package Manager Console, type:
 
-        public ScheduleCreatedEvent(Guid scheduleId, string scheduleName) : base(Guid.NewGuid(), scheduleId)
+    ```ps
+    Install-Package NEventLite
+    ```
+
+2. Define the events. They are simple pocos that will be serialized and stored in `EventStorage` when changes are saved. Events use `Guid` for Id by *default* but they can be changed to use any data type as Id. See `Event<TAggregateKey, TEventKey>` for reference.
+
+    ```csharp
+        public class ScheduleCreatedEvent : Event<Schedule>
         {
-            ScheduleName = scheduleName;
-        }
-    }
+            public string ScheduleName { get; set; }
 
-    public class TodoCreatedEvent : Event<Schedule>
-    {
-        public Guid TodoId { get; set; }
-        public string Text { get; set; }
-
-        public TodoCreatedEvent(Guid aggregateId, int targetVersion, Guid todoId, string text) : base(Guid.NewGuid(), aggregateId, targetVersion)
-        {
-            TodoId = todoId;
-            Text = text;
-        }
-    }
-```
-
-Define the Aggregate (`Schedule.cs` in the sample). Aggregates use `Guid` as Id by *default* but just like the events, they can be changed to the Id type of your choice. See `AggregateRoot<TAggregateKey>` for reference.
-
-```csharp
-    public class Schedule : AggregateRoot
-    {
-        public IList<Todo> Todos { get; private set; }
-        public string ScheduleName { get; private set; }
-
-        // To create or mutate, call the constructor or methods.
-
-        // Constructor
-        public Schedule(string scheduleName)
-        {
-            // Pattern: Create an event and apply it
-            var newScheduleId = Guid.NewGuid();
-            var @event = new ScheduleCreatedEvent(newScheduleId, scheduleName);
-            ApplyEvent(@event);
+            public ScheduleCreatedEvent(Guid scheduleId, string scheduleName) : base(Guid.NewGuid(), scheduleId)
+            {
+                ScheduleName = scheduleName;
+            }
         }
 
-        public Guid AddTodo(string text)
+        public class TodoCreatedEvent : Event<Schedule>
         {
-            // Pattern: Create an event and apply it
-            var newTodoId = Guid.NewGuid();
-            var @event = new TodoCreatedEvent(Id, CurrentVersion, newTodoId, text);
-            ApplyEvent(@event);
-            return newTodoId;
+            public Guid TodoId { get; set; }
+            public string Text { get; set; }
+
+            public TodoCreatedEvent(Guid aggregateId, int targetVersion, Guid todoId, string text) : base(Guid.NewGuid(), aggregateId, targetVersion)
+            {
+                TodoId = todoId;
+                Text = text;
+            }
+        }
+    ```
+
+3. Define the Aggregate (`Schedule.cs` in the sample). Aggregates use `Guid` as Id by *default* but just like the events, they can be changed to the Id type of your choice. See `AggregateRoot<TAggregateKey>` for reference.
+
+    ```csharp
+        public class Schedule : AggregateRoot
+        {
+            public IList<Todo> Todos { get; private set; }
+            public string ScheduleName { get; private set; }
+
+            // To create or mutate, call the constructor or methods.
+
+            // Constructor
+            public Schedule(string scheduleName)
+            {
+                // Pattern: Create an event and apply it
+                var newScheduleId = Guid.NewGuid();
+                var @event = new ScheduleCreatedEvent(newScheduleId, scheduleName);
+                ApplyEvent(@event);
+            }
+
+            public Guid AddTodo(string text)
+            {
+                // Pattern: Create an event and apply it
+                var newTodoId = Guid.NewGuid();
+                var @event = new TodoCreatedEvent(Id, CurrentVersion, newTodoId, text);
+                ApplyEvent(@event);
+                return newTodoId;
+            }
+
+            // ** Mutations happen through applying events **
+            // The library identifies the internal event handler methods though a special method attribute.
+
+            [InternalEventHandler]
+            public void OnScheduleCreated(ScheduleCreatedEvent @event)
+            {
+                ScheduleName = @event.ScheduleName;
+                Todos = new List<Todo>();
+            }
+
+            [InternalEventHandler]
+            public void OnTodoCreated(TodoCreatedEvent @event)
+            {
+                var todo = new Todo(@event.TodoId, @event.Text);
+                Todos.Add(todo);
+            }
+        }
+    ```
+
+4. Use the built in `Session` and `Repository` implementations to manage the Aggregate lifecycle.
+
+    ```csharp
+    // We recommend using a DI container to inject the Session. Keep it scoped (per request in a web application)
+
+        public class CreateScheduleHandler
+        {
+            private readonly ISession<Schedule> _session;
+
+            public CreateScheduleCommandHandler(ISession<Schedule> session)
+            {
+                _session = session;
+            }
+
+            public async Task<Guid> HandleAsync()
+            {
+                var schedule = new Schedule("my new schedule");
+                _session.Attach(schedule);
+                await _session.SaveAsync();
+                return schedule.Id;
+            }
         }
 
-        // ** Mutations happen through applying events **
-        // The library identifies the internal event handler methods though a special method attribute.
-
-        [InternalEventHandler]
-        public void OnScheduleCreated(ScheduleCreatedEvent @event)
+        public class AddTodoHandler
         {
-            ScheduleName = @event.ScheduleName;
-            Todos = new List<Todo>();
+            private readonly ISession<Schedule> _session;
+
+            public AddTodoCommandHandler(ISession<Schedule> session)
+            {
+                _session = session;
+            }
+
+            public async Task<Guid> HandleAsync(Guid scheduleId)
+            {
+                var schedule = await _session.GetByIdAsync(scheduleId);
+                var id = schedule.AddTodo("test todo 1");
+                await _session.SaveAsync();
+                return id;
+            }
         }
+    ```
 
-        [InternalEventHandler]
-        public void OnTodoCreated(TodoCreatedEvent @event)
-        {
-            var todo = new Todo(@event.TodoId, @event.Text);
-            Todos.Add(todo);
-        }
-    }
-```
-
-Using the built in `Session` and `Repository` implementations to manage the Aggregate lifecycle.
-
-```csharp
-// We recommend using a DI container to inject the Session. Keep it scoped (per request in a web application)
-
-    public class CreateScheduleHandler
-    {
-        private readonly ISession<Schedule> _session;
-
-        public CreateScheduleCommandHandler(ISession<Schedule> session)
-        {
-            _session = session;
-        }
-
-        public async Task<Guid> HandleAsync()
-        {
-            var schedule = new Schedule("my new schedule");
-            _session.Attach(schedule);
-            await _session.SaveAsync();
-            return schedule.Id;
-        }
-    }
-
-    public class AddTodoHandler
-    {
-        private readonly ISession<Schedule> _session;
-
-        public AddTodoCommandHandler(ISession<Schedule> session)
-        {
-            _session = session;
-        }
-
-        public async Task<Guid> HandleAsync(Guid scheduleId)
-        {
-            var schedule = await _session.GetByIdAsync(scheduleId);
-            var id = schedule.AddTodo("test todo 1");
-            await _session.SaveAsync();
-            return id;
-        }
-    }
-```
+5. If you are using it in ASPNET.CORE consider using the `NEventLite.Extensions.Microsoft.DependencyInjection` NuGet package to setup your container in the dependency injection example below.
 
 ## :syringe: Dependency Injection
 
@@ -225,9 +235,9 @@ If you want to use it with a different dependency injection framework, you can l
 
 ## :ledger: Storage providers
 
-The library contains storage provider implementation for [EventSore](https://eventstore.com/) and we plan to include a few more in the future. We have also included an in memory event and snapshot storage provider to get you up and running faster.
+The library contains storage provider implementation for **[EventStore](https://eventstore.com/)** and we plan to include a few more in the future. We have also included an in memory event and snapshot storage provider to get you up and running faster.
 
-It's very easy to implement your own as well. Implement `IEventStorageProvider` and `ISnapshotStorageProvider` interfaces an you're good to plug them in. If you need help look at the `NEventLite.StorageProviders.EventStore` project in the repository.
+It's very easy to implement your own as well. Implement `IEventStorageProvider` and `ISnapshotStorageProvider` interfaces shown below and register then in your DI. If you need help look at the `NEventLite.StorageProviders.EventStore` project in the repository.
 
 ```csharp
     // Interface for persisting and reading events
@@ -251,6 +261,11 @@ It's very easy to implement your own as well. Implement `IEventStorageProvider` 
 
         Task SaveSnapshotAsync<TSnapshot>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>;
     }
+
+    // Implement the interfaces
+    // Then register them in your DI
+    services.AddScoped<IEventStorageProvider, MyEventStorageProvider>();
+    services.AddScoped<ISnapshotStorageProvider, MySnapshotStorageProvider>();
 ```
 
 ## Examples
