@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,7 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemoryEventStorageProvider : InMemoryEventStorageProvider<Guid, Guid>, IEventStorageProvider 
+    public class InMemoryEventStorageProvider : InMemoryEventStorageProvider<Guid>, IEventStorageProvider
     {
         public InMemoryEventStorageProvider() : this(string.Empty)
         {
@@ -20,11 +21,11 @@ namespace NEventLite.StorageProviders.InMemory
         }
     }
 
-    public class InMemoryEventStorageProvider<TAggregateKey, TEventKey> : IEventStorageProvider<TAggregateKey, TEventKey>
+    public class InMemoryEventStorageProvider<TEventKey> : IEventStorageProvider<TEventKey>
     {
         private readonly string _memoryDumpFile;
-        private readonly Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> _eventStream = 
-            new Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>>();
+        private readonly Dictionary<object, List<object>> _eventStream =
+            new Dictionary<object, List<object>>();
 
         public InMemoryEventStorageProvider() : this(string.Empty)
         {
@@ -37,13 +38,13 @@ namespace NEventLite.StorageProviders.InMemory
             if (!string.IsNullOrWhiteSpace(_memoryDumpFile) && File.Exists(_memoryDumpFile))
             {
                 _eventStream =
-                    SerializerHelper.LoadFromFile(_memoryDumpFile) as 
-                        Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>>?? 
-                    new Dictionary<TAggregateKey, List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>>();
+                    SerializerHelper.LoadFromFile(_memoryDumpFile) as
+                        Dictionary<object, List<object>> ??
+                    new Dictionary<object, List<object>>();
             }
         }
 
-        public Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate>(TAggregateKey aggregateId, int start, int count)
+        public Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, int start, int count)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             try
@@ -60,9 +61,10 @@ namespace NEventLite.StorageProviders.InMemory
                     }
 
                     result = _eventStream[aggregateId].Where(
-                            o =>
-                                (_eventStream[aggregateId].IndexOf(o) >= start) &&
-                                (_eventStream[aggregateId].IndexOf(o) < (start + count)))
+                                o =>
+                                    (_eventStream[aggregateId].IndexOf(o) >= start) &&
+                                    (_eventStream[aggregateId].IndexOf(o) < (start + count)))
+                            .Cast<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>()
                             .ToArray();
                 }
                 else
@@ -79,18 +81,18 @@ namespace NEventLite.StorageProviders.InMemory
 
         }
 
-        public Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync<TAggregate>(TAggregateKey aggregateId)
+        public Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             if (_eventStream.ContainsKey(aggregateId))
             {
-                return Task.FromResult(_eventStream[aggregateId].Last());
+                return Task.FromResult((IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>)_eventStream[aggregateId].Last());
             }
 
-            return Task.FromResult((IEvent<AggregateRoot < TAggregateKey, TEventKey >, TAggregateKey, TEventKey>)null);
+            return Task.FromResult((IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>)null);
         }
 
-        public Task SaveAsync<TAggregate>(TAggregate aggregate)
+        public Task SaveAsync<TAggregate, TAggregateKey>(TAggregate aggregate)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             var events = aggregate.GetUncommittedChanges();
@@ -99,7 +101,7 @@ namespace NEventLite.StorageProviders.InMemory
             {
                 if (_eventStream.ContainsKey(aggregate.Id) == false)
                 {
-                    _eventStream.Add(aggregate.Id, events.ToList());
+                    _eventStream.Add(aggregate.Id, events.Cast<object>().ToList());
                 }
                 else
                 {

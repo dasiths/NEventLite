@@ -10,7 +10,7 @@ namespace NEventLite.Repository
         IRepository<TAggregate> 
         where TAggregate : AggregateRoot<Guid, Guid>, new()
     {
-        public EventOnlyRepository(IClock clock, IEventStorageProvider<Guid, Guid> eventStorageProvider, IEventPublisher eventPublisher) : 
+        public EventOnlyRepository(IClock clock, IEventStorageProvider<Guid> eventStorageProvider, IEventPublisher eventPublisher) : 
             base(clock, eventStorageProvider, eventPublisher)
         {
         }
@@ -25,7 +25,7 @@ namespace NEventLite.Repository
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
     {
         public EventOnlyRepository(IClock clock,
-            IEventStorageProvider<TAggregateKey, TEventKey> eventStorageProvider,
+            IEventStorageProvider<TEventKey> eventStorageProvider,
             IEventPublisher eventPublisher) : base(clock, eventStorageProvider, eventPublisher, null)
         {
         }

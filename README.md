@@ -37,7 +37,7 @@ NEventLite is **not a framework** that manages your application end to end. It d
     Install-Package NEventLite
     ```
 
-2. Define the events. They are simple pocos that will be serialized and stored in `EventStorage` when changes are saved. Events use `Guid` for Id by *default* but they can be changed to use any data type as Id. See `Event<TAggregateKey, TEventKey>` for reference.
+2. Define the events. They are simple pocos that will be serialized and stored in `EventStorage` when changes are saved. Events use `Guid` for Id by *default* but they can be changed to use any data type as Id. See `Event<TAggregate, TAggregateKey, TEventKey>` for reference.
 
     ```csharp
         public class ScheduleCreatedEvent : Event<Schedule>
@@ -110,12 +110,12 @@ NEventLite is **not a framework** that manages your application end to end. It d
         }
     ```
 
-4. Use the built in `Session` and `Repository` implementations to manage the Aggregate lifecycle.
+4. Use the built in `Session` and `Repository` implementations to manage the Aggregate lifecycle. This is an example of how you would create and update a `Schedule` in your domain layer using some sort of command handler.
 
     ```csharp
     // We recommend using a DI container to inject the Session. Keep it scoped (per request in a web application)
 
-        public class CreateScheduleHandler
+        public class CreateScheduleCommandHandler
         {
             private readonly ISession<Schedule> _session;
 
@@ -133,7 +133,7 @@ NEventLite is **not a framework** that manages your application end to end. It d
             }
         }
 
-        public class AddTodoHandler
+        public class AddTodoCommandHandler
         {
             private readonly ISession<Schedule> _session;
 
@@ -163,7 +163,10 @@ The library is built with DI as a first class concept. Wiring it up is easy. Thi
         var services = new ServiceCollection();
 
         // Wiring up the event storage provider. "https://eventstore.com/" in this example
+        services.AddScoped<IEventStoreSettings, EventStoreSettings>(
+            (sp) => new EventStoreSettings(SnapshotFrequency, PageSize));
         services.AddScoped<IEventStoreStorageConnectionProvider, EventStoreStorageConnectionProvider>();
+        services.AddScoped<IEventStoreStorageCore, EventStoreStorageCore>();
         services.AddScoped<IEventStorageProvider, EventStoreEventStorageProvider>();
         services.AddScoped<ISnapshotStorageProvider, EventStoreSnapshotStorageProvider>();
 
@@ -186,7 +189,7 @@ The library is built with DI as a first class concept. Wiring it up is easy. Thi
         services.AddSingleton<IClock, DefaultSystemClock>();
         services.AddSingleton<IEventPublisher, DefaultNoOpEventPublisher>();
 
-        // Or 
+        // Or
         // use your own implementation
         // services.AddSingleton<IClock, MyClock>();
         // services.AddSingleton<IEventPublisher, MyEventPublisher>();
@@ -241,25 +244,27 @@ It's very easy to implement your own as well. Implement `IEventStorageProvider` 
 
 ```csharp
     // Interface for persisting and reading events
-    public interface IEventStorageProvider<TAggregateKey, TEventKey>
+    public interface IEventStorageProvider<TEventKey>
     {
-        Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate>(TAggregateKey aggregateId, int start, int count)
+        Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, int start, int count)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>;
 
-        Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync<TAggregate>(TAggregateKey aggregateId)
+        Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>;
 
-        Task SaveAsync<TAggregate>(TAggregate aggregate) where TAggregate: AggregateRoot<TAggregateKey, TEventKey>;
+        Task SaveAsync<TAggregate, TAggregateKey>(TAggregate aggregate) where TAggregate: AggregateRoot<TAggregateKey, TEventKey>;
     }
 
     // Interface for persisting and reading snapshots
-    public interface ISnapshotStorageProvider<in TAggregateKey, in TSnapshotKey>
+    public interface ISnapshotStorageProvider<in TSnapshotKey>
     {
         int SnapshotFrequency { get; }
 
-        Task<TSnapshot> GetSnapshotAsync<TSnapshot>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>;
+        Task<TSnapshot> GetSnapshotAsync<TSnapshot, TAggregateKey>(TAggregateKey aggregateId)
+            where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>;
 
-        Task SaveSnapshotAsync<TSnapshot>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>;
+        Task SaveSnapshotAsync<TSnapshot, TAggregateKey>(TSnapshot snapshot)
+            where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>;
     }
 
     // Implement the interfaces

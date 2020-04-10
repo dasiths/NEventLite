@@ -5,58 +5,52 @@ using EventStore.ClientAPI;
 using NEventLite.Core;
 using NEventLite.Core.Domain;
 using NEventLite.Storage;
+using NEventLite.StorageProviders.EventStore.Core;
 
 namespace NEventLite.StorageProviders.EventStore
 {
-    public class EventStoreSnapshotStorageProvider : 
-        EventStoreSnapshotStorageProvider<Guid>,
-        ISnapshotStorageProvider
-    {
-        public EventStoreSnapshotStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider) : base(eventStoreStorageConnectionProvider)
-        {
-        }
-    }
-
-    public class EventStoreSnapshotStorageProvider<TAggregateKey> : 
-        EventStoreStorageProviderBase<TAggregateKey>, 
-        ISnapshotStorageProvider<TAggregateKey, Guid>
+    public class EventStoreSnapshotStorageProvider : ISnapshotStorageProvider
     {
         private readonly IEventStoreStorageConnectionProvider _eventStoreStorageConnectionProvider;
+        private readonly IEventStoreStorageCore _eventStoreStorageCore;
+        private readonly IEventStoreSettings _eventStoreSettings;
 
-        public EventStoreSnapshotStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider)
+        public EventStoreSnapshotStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider, 
+            IEventStoreStorageCore eventStoreStorageCore, 
+            IEventStoreSettings eventStoreSettings)
         {
             _eventStoreStorageConnectionProvider = eventStoreStorageConnectionProvider;
+            _eventStoreStorageCore = eventStoreStorageCore;
+            _eventStoreSettings = eventStoreSettings;
         }
 
-        private Task<IEventStoreConnection> GetEventStoreConnectionAsync() => _eventStoreStorageConnectionProvider.GetConnectionAsync();
+        private Task<IEventStoreConnection> GetEventStoreConnectionAsync() => _eventStoreStorageConnectionProvider.ConnectAsync();
 
-        protected override string GetStreamNamePrefix() => _eventStoreStorageConnectionProvider.SnapshotStreamPrefix;
+        public int SnapshotFrequency => _eventStoreSettings.SnapshotFrequency;
 
-        public int SnapshotFrequency => _eventStoreStorageConnectionProvider.SnapshotFrequency;
-
-        public async Task<TSnapshot> GetSnapshotAsync<TSnapshot>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, Guid>
+        public async Task<TSnapshot> GetSnapshotAsync<TSnapshot, TAggregateKey>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, Guid>
         {
-            TSnapshot snapshot = default(TSnapshot);
+            var snapshot = default(TSnapshot);
             var connection = await GetEventStoreConnectionAsync();
 
             var streamEvents = await connection.ReadStreamEventsBackwardAsync(
-                $"{TypeToStreamName<TSnapshot>(aggregateId.ToString())}", StreamPosition.End, 1, false);
+                $"{_eventStoreStorageCore.TypeToStreamName<TSnapshot>(aggregateId.ToString(), _eventStoreSettings.SnapshotStreamPrefix)}", StreamPosition.End, 1, false);
 
             if (streamEvents.Events.Any())
             {
                 var result = streamEvents.Events.FirstOrDefault();
-                snapshot = DeserializeSnapshotEvent<TSnapshot>(result);
+                snapshot = _eventStoreStorageCore.DeserializeSnapshotEvent<TSnapshot>(result);
             }
 
             return snapshot;
         }
 
-        public async Task SaveSnapshotAsync<TSnapshot>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, Guid>
+        public async Task SaveSnapshotAsync<TSnapshot, TAggregateKey>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, Guid>
         {
             var connection = await GetEventStoreConnectionAsync();
-            var snapshotEvent = SerializeSnapshotEvent(snapshot, snapshot.Version);
+            var snapshotEvent = _eventStoreStorageCore.SerializeSnapshotEvent<TSnapshot, TAggregateKey>(snapshot, snapshot.Version);
 
-            await connection.AppendToStreamAsync($"{TypeToStreamName<TSnapshot>(snapshot.AggregateId.ToString())}",
+            await connection.AppendToStreamAsync($"{_eventStoreStorageCore.TypeToStreamName<TSnapshot>(snapshot.AggregateId.ToString(), _eventStoreSettings.SnapshotStreamPrefix)}",
                 ExpectedVersion.Any, snapshotEvent);
         }
     }

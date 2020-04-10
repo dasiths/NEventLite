@@ -5,57 +5,55 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using NEventLite.Core.Domain;
 using NEventLite.Storage;
+using NEventLite.StorageProviders.EventStore.Core;
 
 namespace NEventLite.StorageProviders.EventStore
 {
-    public class EventStoreEventStorageProvider :
-        EventStoreEventStorageProvider<Guid>,
-        IEventStorageProvider
-    {
-        public EventStoreEventStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider) : base(eventStoreStorageConnectionProvider)
-        {
-        }
-    }
 
-    public class EventStoreEventStorageProvider<TAggregateKey> : 
-        EventStoreStorageProviderBase<TAggregateKey>, IEventStorageProvider<TAggregateKey, Guid>
+    public class EventStoreEventStorageProvider :  IEventStorageProvider
     {
         private readonly IEventStoreStorageConnectionProvider _eventStoreStorageConnectionProvider;
+        private readonly IEventStoreStorageCore _eventStoreStorageCore;
+        private readonly IEventStoreSettings _eventStoreSettings;
 
-        public EventStoreEventStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider)
+        public EventStoreEventStorageProvider(IEventStoreStorageConnectionProvider eventStoreStorageConnectionProvider,
+            IEventStoreStorageCore eventStoreStorageCore,
+            IEventStoreSettings eventStoreSettings)
         {
             _eventStoreStorageConnectionProvider = eventStoreStorageConnectionProvider;
+            _eventStoreStorageCore = eventStoreStorageCore;
+            _eventStoreSettings = eventStoreSettings;
         }
 
-        private Task<IEventStoreConnection> GetEventStoreConnectionAsync() => _eventStoreStorageConnectionProvider.GetConnectionAsync();
+        private Task<IEventStoreConnection> GetEventStoreConnectionAsync() => _eventStoreStorageConnectionProvider.ConnectAsync();
 
-        protected override string GetStreamNamePrefix() => _eventStoreStorageConnectionProvider.EventStreamPrefix;
 
-        public async Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid>>> GetEventsAsync<TAggregate>(TAggregateKey aggregateId, int start, int count) 
+        public async Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid>>> GetEventsAsync<TAggregate, TAggregateKey>(
+            TAggregateKey aggregateId, int start, int count) 
             where TAggregate : AggregateRoot<TAggregateKey, Guid>
         {
             var connection = await GetEventStoreConnectionAsync();
-            var events = await ReadEvents<TAggregate>(connection, aggregateId, start, count);
+            var events = await ReadEvents<TAggregate, TAggregateKey>(connection, aggregateId, start, count);
 
             return events;
         }
 
-        public async Task<IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid>> GetLastEventAsync<TAggregate>(TAggregateKey aggregateId) 
+        public async Task<IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid>> GetLastEventAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId) 
             where TAggregate : AggregateRoot<TAggregateKey, Guid>
         {
             var connection = await GetEventStoreConnectionAsync();
             var results = await connection.ReadStreamEventsBackwardAsync(
-                $"{TypeToStreamName<TAggregate>(aggregateId.ToString())}", StreamPosition.End, 1, false);
+                $"{_eventStoreStorageCore.TypeToStreamName<TAggregate>(aggregateId.ToString(), _eventStoreSettings.EventStreamPrefix)}", StreamPosition.End, 1, false);
 
             if (results.Status == SliceReadStatus.Success && results.Events.Any())
             {
-                return DeserializeEvent<TAggregate>(results.Events.First());
+                return _eventStoreStorageCore.DeserializeEvent<TAggregate, TAggregateKey>(results.Events.First());
             }
 
             return null;
         }
 
-        public async Task SaveAsync<TAggregate>(TAggregate aggregate) where TAggregate : AggregateRoot<TAggregateKey, Guid>
+        public async Task SaveAsync<TAggregate, TAggregateKey>(TAggregate aggregate) where TAggregate : AggregateRoot<TAggregateKey, Guid>
         {
             var connection = await GetEventStoreConnectionAsync();
             var events = aggregate.GetUncommittedChanges();
@@ -63,19 +61,20 @@ namespace NEventLite.StorageProviders.EventStore
             if (events.Any())
             {
                 var lastVersion = aggregate.LastCommittedVersion;
-                List<EventData> lstEventData = new List<EventData>();
+                var lstEventData = new List<EventData>();
 
                 foreach (var @event in events)
                 {
-                    lstEventData.Add(SerializeEvent(@event, aggregate.LastCommittedVersion + 1));
+                    lstEventData.Add(_eventStoreStorageCore.SerializeEvent(@event, aggregate.LastCommittedVersion + 1));
                 }
 
-                await connection.AppendToStreamAsync($"{TypeToStreamName<TAggregate>(aggregate.Id.ToString())}",
+                await connection.AppendToStreamAsync($"{_eventStoreStorageCore.TypeToStreamName<TAggregate>(aggregate.Id.ToString(), _eventStoreSettings.EventStreamPrefix)}",
                     (lastVersion < 0 ? ExpectedVersion.NoStream : lastVersion), lstEventData);
             }
         }
 
-        protected async Task<IEnumerable<IEvent<TAggregate, TAggregateKey, Guid>>> ReadEvents<TAggregate>(IEventStoreConnection connection, TAggregateKey aggregateId, int start, int count)
+        protected async Task<IEnumerable<IEvent<TAggregate, TAggregateKey, Guid>>> ReadEvents<TAggregate, TAggregateKey>(
+            IEventStoreConnection connection, TAggregateKey aggregateId, int start, int count)
             where TAggregate : AggregateRoot<TAggregateKey, Guid>
         {
             var events = new List<IEvent<TAggregate, TAggregateKey, Guid>>();
@@ -90,13 +89,13 @@ namespace NEventLite.StorageProviders.EventStore
             {
                 var nextReadCount = count - streamEvents.Count();
 
-                if (nextReadCount > _eventStoreStorageConnectionProvider.PageSize)
+                if (nextReadCount > _eventStoreSettings.PageSize)
                 {
-                    nextReadCount = _eventStoreStorageConnectionProvider.PageSize;
+                    nextReadCount = _eventStoreSettings.PageSize;
                 }
 
                 currentSlice = await connection.ReadStreamEventsForwardAsync(
-                    $"{TypeToStreamName<TAggregate>(aggregateId.ToString())}", nextSliceStart, nextReadCount, false);
+                    $"{_eventStoreStorageCore.TypeToStreamName<TAggregate>(aggregateId.ToString(), _eventStoreSettings.EventStreamPrefix)}", nextSliceStart, nextReadCount, false);
 
                 nextSliceStart = currentSlice.NextEventNumber;
 
@@ -107,7 +106,7 @@ namespace NEventLite.StorageProviders.EventStore
             //Deserialize and add to events list
             foreach (var returnedEvent in streamEvents)
             {
-                events.Add(DeserializeEvent<TAggregate>(returnedEvent));
+                events.Add(_eventStoreStorageCore.DeserializeEvent<TAggregate, TAggregateKey>(returnedEvent));
             }
 
             return events;

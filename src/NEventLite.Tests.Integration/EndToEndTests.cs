@@ -20,11 +20,12 @@ namespace NEventLite.Tests.Integration
         private readonly MockClock _clock;
         private readonly IRepository<Schedule, Guid, Guid> _repository;
         private readonly IRepository<Schedule, Guid, Guid> _eventOnlyRepository;
+        const int SnapshotFrequency = 2;
 
         public EndToEndTests()
         {
             //This path is used to save in memory storage
-            string strTempDataFolderPath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
+            var strTempDataFolderPath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
 
             //create temp directory if it doesn't exist
             new FileInfo(strTempDataFolderPath).Directory?.Create();
@@ -35,11 +36,11 @@ namespace NEventLite.Tests.Integration
             File.Delete(inMemoryEventStorePath);
             File.Delete(inMemorySnapshotStorePath);
 
-            IEventStorageProvider<Guid, Guid> eventStorage =
+            IEventStorageProvider<Guid> eventStorage =
                 new InMemoryEventStorageProvider(inMemoryEventStorePath);
-
-            ISnapshotStorageProvider<Guid, Guid> snapshotStorage =
-                new InMemorySnapshotStorageProvider(2, inMemorySnapshotStorePath);
+            
+            ISnapshotStorageProvider<Guid> snapshotStorage =
+                new InMemorySnapshotStorageProvider(SnapshotFrequency, inMemorySnapshotStorePath);
 
             _clock = new MockClock();
             _eventPublisher = new MockEventPublisher();

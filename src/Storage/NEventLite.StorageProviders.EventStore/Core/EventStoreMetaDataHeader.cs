@@ -1,4 +1,4 @@
-﻿namespace NEventLite.StorageProviders.EventStore
+﻿namespace NEventLite.StorageProviders.EventStore.Core
 {
     public class EventStoreMetaDataHeader
     {

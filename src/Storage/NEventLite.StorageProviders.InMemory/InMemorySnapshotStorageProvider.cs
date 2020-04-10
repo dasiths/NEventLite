@@ -10,16 +10,16 @@ using NEventLite.Storage;
 namespace NEventLite.StorageProviders.InMemory
 {
     public class InMemorySnapshotStorageProvider : 
-        InMemorySnapshotStorageProvider<Guid, Guid>, ISnapshotStorageProvider
+        InMemorySnapshotStorageProvider<Guid>, ISnapshotStorageProvider
     {
         public InMemorySnapshotStorageProvider(int frequency, string memoryDumpFile) : base(frequency, memoryDumpFile)
         {
         }
     }
 
-    public class InMemorySnapshotStorageProvider<TAggregateKey, TSnapshotKey> : ISnapshotStorageProvider<TAggregateKey, TSnapshotKey>
+    public class InMemorySnapshotStorageProvider<TSnapshotKey> : ISnapshotStorageProvider<TSnapshotKey>
     {
-        private readonly Dictionary<TAggregateKey, object> _items = new Dictionary<TAggregateKey, object>();
+        private readonly Dictionary<object, object> _items = new Dictionary<object, object>();
 
         private readonly string _memoryDumpFile;
         public int SnapshotFrequency { get; }
@@ -35,11 +35,11 @@ namespace NEventLite.StorageProviders.InMemory
 
             if (!string.IsNullOrWhiteSpace(_memoryDumpFile) && File.Exists(_memoryDumpFile))
             {
-                _items = SerializerHelper.LoadFromFile(_memoryDumpFile) as Dictionary<TAggregateKey, object> ?? new Dictionary<TAggregateKey, object>();
+                _items = SerializerHelper.LoadFromFile(_memoryDumpFile) as Dictionary<object, object> ?? new Dictionary<object, object>();
             }
         }
 
-        public Task<TSnapshot> GetSnapshotAsync<TSnapshot>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
+        public Task<TSnapshot> GetSnapshotAsync<TSnapshot, TAggregateKey>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
         {
             if (_items.ContainsKey(aggregateId))
             {
@@ -49,7 +49,7 @@ namespace NEventLite.StorageProviders.InMemory
             return Task.FromResult(default(TSnapshot));
         }
 
-        public Task SaveSnapshotAsync<TSnapshot>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
+        public Task SaveSnapshotAsync<TSnapshot, TAggregateKey>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, TSnapshotKey>
         {
             if (_items.ContainsKey(snapshot.AggregateId))
             {

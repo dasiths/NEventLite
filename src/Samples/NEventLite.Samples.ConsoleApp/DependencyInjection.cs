@@ -13,16 +13,20 @@ using NEventLite.Samples.Common.Domain.Schedule.Snapshots;
 using NEventLite.Samples.ConsoleApp.Handlers;
 using NEventLite.Storage;
 using NEventLite.StorageProviders.EventStore;
+using NEventLite.StorageProviders.EventStore.Core;
 using NEventLite.StorageProviders.InMemory;
 
 namespace NEventLite.Samples.ConsoleApp
 {
     public static class DependencyInjection
     {
+        private const int SnapshotFrequency = 2;
+        private const int PageSize = 100;
+
         public static ServiceProvider GetContainer(bool useEventStore = false)
         {
             //This path is used to save in memory storage
-            string strTempDataFolderPath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
+            var strTempDataFolderPath = AppDomain.CurrentDomain.BaseDirectory + @"App_Data\";
 
             //create temp directory if it doesn't exist
             new FileInfo(strTempDataFolderPath).Directory?.Create();
@@ -39,7 +43,10 @@ namespace NEventLite.Samples.ConsoleApp
 
             if (useEventStore)
             {
+                services.AddScoped<IEventStoreSettings, EventStoreSettings>(
+                    (sp) => new EventStoreSettings(SnapshotFrequency, PageSize));
                 services.AddScoped<IEventStoreStorageConnectionProvider, EventStoreStorageConnectionProvider>();
+                services.AddScoped<IEventStoreStorageCore, EventStoreStorageCore>();
                 services.AddScoped<IEventStorageProvider, EventStoreEventStorageProvider>();
                 services.AddScoped<ISnapshotStorageProvider, EventStoreSnapshotStorageProvider>();
             }
@@ -48,7 +55,7 @@ namespace NEventLite.Samples.ConsoleApp
                 services.AddScoped<IEventStorageProvider>(
                     provider => new InMemoryEventStorageProvider(inMemoryEventStorePath));
                 services.AddScoped<ISnapshotStorageProvider>(
-                    provider => new InMemorySnapshotStorageProvider(2, inMemorySnapshotStorePath));
+                    provider => new InMemorySnapshotStorageProvider(SnapshotFrequency, inMemorySnapshotStorePath));
             }
 
             // Add the repository registration manually
