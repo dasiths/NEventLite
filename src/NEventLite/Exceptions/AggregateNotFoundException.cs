@@ -4,7 +4,6 @@
     {
         public AggregateNotFoundException(string msg) : base(msg)
         {
-            
         }
     }
 }

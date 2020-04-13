@@ -8,10 +8,10 @@ using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class Repository<TAggregate, TSnapshot> : 
-        Repository<TAggregate, TSnapshot, Guid, Guid, Guid>, 
-        IRepository<TAggregate> 
-        where TAggregate : AggregateRoot<Guid, Guid>, new() 
+    public class Repository<TAggregate, TSnapshot> :
+        Repository<TAggregate, TSnapshot, Guid, Guid, Guid>,
+        IRepository<TAggregate>
+        where TAggregate : AggregateRoot<Guid, Guid>, new()
         where TSnapshot : ISnapshot<Guid, Guid>
     {
         public Repository(IClock clock,
@@ -54,7 +54,6 @@ namespace NEventLite.Repository
 
         public async Task<TAggregate> GetByIdAsync(TAggregateKey id)
         {
-            var item = default(TAggregate);
             var isSnapshottable =
                 typeof(ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey>).IsAssignableFrom(typeof(TAggregate));
 
@@ -65,12 +64,13 @@ namespace NEventLite.Repository
                 snapshot = await _snapshotStorageProvider.GetSnapshotAsync<TSnapshot, TAggregateKey>(id);
             }
 
+            TAggregate item;
+
             if (snapshot != null)
             {
                 item = CreateNewInstance();
-                var snapshottableItem = (item as ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey>);
 
-                if (snapshottableItem == null)
+                if (!(item is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottableItem))
                 {
                     throw new NullReferenceException(nameof(snapshottableItem));
                 }
@@ -89,6 +89,10 @@ namespace NEventLite.Repository
                 {
                     item = CreateNewInstance();
                     await item.LoadsFromHistoryAsync(events);
+                }
+                else
+                {
+                    throw new AggregateNotFoundException($"No events for the aggregate with id={id} were found.");
                 }
             }
 
@@ -109,13 +113,17 @@ namespace NEventLite.Repository
 
             var item = await _eventStorageProvider.GetLastEventAsync<TAggregate, TAggregateKey>(aggregate.Id);
 
-            if ((item != null) && (expectedVersion == (int)StreamState.NoStream))
+            if ((item != null))
             {
-                throw new AggregateCreationException($"Aggregate {item.CorrelationId} can't be created as it already exists with version {item.TargetVersion + 1}");
-            }
-            else if ((item != null) && ((item.TargetVersion + 1) != expectedVersion))
-            {
-                throw new ConcurrencyException($"Aggregate {item.CorrelationId} has been modified externally and has an updated state. Can't commit changes.");
+                if (expectedVersion == (int)StreamState.NoStream)
+                {
+                    throw new AggregateCreationException($"Aggregate {item.CorrelationId} can't be created as it already exists with version {item.TargetVersion + 1}");
+                }
+
+                if ((item.TargetVersion + 1) != expectedVersion)
+                {
+                    throw new ConcurrencyException($"Aggregate {item.CorrelationId} has been modified externally and has an updated state. Can't commit changes.");
+                }
             }
 
             var changesToCommit = aggregate
@@ -143,7 +151,7 @@ namespace NEventLite.Repository
 
             //If the Aggregate implements snapshottable
 
-            if ((aggregate is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottable) && (_snapshotStorageProvider != null))
+            if ((_snapshotStorageProvider != null) && (aggregate is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottable))
             {
                 //Every N events we save a snapshot
                 if ((aggregate.CurrentVersion >= _snapshotStorageProvider.SnapshotFrequency) &&
@@ -162,14 +170,14 @@ namespace NEventLite.Repository
             aggregate.MarkChangesAsCommitted();
         }
 
-        private TAggregate CreateNewInstance()
-        {
-            return new TAggregate();
-        }
-
         private void DoPreCommitTasks(IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> e)
         {
             e.EventCommittedTimestamp = _clock.Now();
+        }
+
+        private static TAggregate CreateNewInstance()
+        {
+            return new TAggregate();
         }
     }
 }

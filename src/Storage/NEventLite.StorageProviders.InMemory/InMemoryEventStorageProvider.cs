@@ -24,8 +24,8 @@ namespace NEventLite.StorageProviders.InMemory
     public class InMemoryEventStorageProvider<TEventKey> : IEventStorageProvider<TEventKey>
     {
         private readonly string _memoryDumpFile;
-        private readonly Dictionary<object, List<object>> _eventStream =
-            new Dictionary<object, List<object>>();
+        private readonly Dictionary<string, List<object>> _eventStream =
+            new Dictionary<string, List<object>>();
 
         public InMemoryEventStorageProvider() : this(string.Empty)
         {
@@ -39,54 +39,46 @@ namespace NEventLite.StorageProviders.InMemory
             {
                 _eventStream =
                     SerializerHelper.LoadFromFile(_memoryDumpFile) as
-                        Dictionary<object, List<object>> ??
-                    new Dictionary<object, List<object>>();
+                        Dictionary<string, List<object>> ??
+                    new Dictionary<string, List<object>>();
             }
         }
 
         public Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, int start, int count)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
-            try
+            IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> result = null;
+
+            if (_eventStream.ContainsKey(aggregateId.ToString()))
             {
-                IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> result = null;
 
-                if (_eventStream.ContainsKey(aggregateId))
+                //this is needed for make sure it doesn't fail when we have int.maxValue for count
+                if (count > int.MaxValue - start)
                 {
-
-                    //this is needed for make sure it doesn't fail when we have int.maxValue for count
-                    if (count > int.MaxValue - start)
-                    {
-                        count = int.MaxValue - start;
-                    }
-
-                    result = _eventStream[aggregateId].Where(
-                                o =>
-                                    (_eventStream[aggregateId].IndexOf(o) >= start) &&
-                                    (_eventStream[aggregateId].IndexOf(o) < (start + count)))
-                            .Cast<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>()
-                            .ToArray();
-                }
-                else
-                {
-                    result = new List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>();
+                    count = int.MaxValue - start;
                 }
 
-                return Task.FromResult(result);
+                result = _eventStream[aggregateId.ToString()].Where(
+                            o =>
+                                (_eventStream[aggregateId.ToString()].IndexOf(o) >= start) &&
+                                (_eventStream[aggregateId.ToString()].IndexOf(o) < (start + count)))
+                        .Cast<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>()
+                        .ToArray();
             }
-            catch (Exception ex)
+            else
             {
-                throw new AggregateNotFoundException($"The aggregate with {aggregateId} was not found. Details {ex.Message}");
+                result = new List<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>();
             }
 
+            return Task.FromResult(result);
         }
 
         public Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
-            if (_eventStream.ContainsKey(aggregateId))
+            if (_eventStream.ContainsKey(aggregateId.ToString()))
             {
-                return Task.FromResult((IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>)_eventStream[aggregateId].Last());
+                return Task.FromResult((IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>)_eventStream[aggregateId.ToString()].Last());
             }
 
             return Task.FromResult((IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>)null);
@@ -99,13 +91,13 @@ namespace NEventLite.StorageProviders.InMemory
 
             if (events.Any())
             {
-                if (_eventStream.ContainsKey(aggregate.Id) == false)
+                if (_eventStream.ContainsKey(aggregate.Id.ToString()) == false)
                 {
-                    _eventStream.Add(aggregate.Id, events.Cast<object>().ToList());
+                    _eventStream.Add(aggregate.Id.ToString(), events.Cast<object>().ToList());
                 }
                 else
                 {
-                    _eventStream[aggregate.Id].AddRange(events);
+                    _eventStream[aggregate.Id.ToString()].AddRange(events);
                 }
             }
 
