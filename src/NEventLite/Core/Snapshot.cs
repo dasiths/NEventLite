@@ -4,7 +4,7 @@ namespace NEventLite.Core
 {
     public abstract class Snapshot : Snapshot<Guid, Guid>
     {
-        protected Snapshot(Guid id, Guid aggregateId, int version) : base(id, aggregateId, version)
+        protected Snapshot(Guid id, Guid aggregateId, long version) : base(id, aggregateId, version)
         {
         }
     }
@@ -13,9 +13,10 @@ namespace NEventLite.Core
     {
         public TSnapshotKey Id { get; private set; }
         public TAggregateKey AggregateId { get; private set; }
-        public int Version { get; private set; }
+        public int SchemaVersion { get; set; }
+        public long Version { get; private set; }
 
-        protected Snapshot(TSnapshotKey id, TAggregateKey aggregateId, int version)
+        protected Snapshot(TSnapshotKey id, TAggregateKey aggregateId, long version)
         {
             Id = id;
             AggregateId = aggregateId;

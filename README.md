@@ -29,7 +29,7 @@ NEventLite is **not a framework** that manages your application end to end. It d
 
 ## :hammer: Using It
 
-1. Install and reference the Nuget `NEventLite`
+1. Install and reference the NuGet `NEventLite`
 
     In the NuGet Package Manager Console, type:
 
@@ -55,7 +55,7 @@ NEventLite is **not a framework** that manages your application end to end. It d
             public Guid TodoId { get; set; }
             public string Text { get; set; }
 
-            public TodoCreatedEvent(Guid aggregateId, int targetVersion, Guid todoId, string text) : base(Guid.NewGuid(), aggregateId, targetVersion)
+            public TodoCreatedEvent(Guid aggregateId, long targetVersion, Guid todoId, string text) : base(Guid.NewGuid(), aggregateId, targetVersion)
             {
                 TodoId = todoId;
                 Text = text;
@@ -246,13 +246,14 @@ It's very easy to implement your own as well. Implement `IEventStorageProvider` 
     // Interface for persisting and reading events
     public interface IEventStorageProvider<TEventKey>
     {
-        Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, int start, int count)
+        Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, long start, long count)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>;
 
         Task<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> GetLastEventAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>;
 
-        Task SaveAsync<TAggregate, TAggregateKey>(TAggregate aggregate) where TAggregate: AggregateRoot<TAggregateKey, TEventKey>;
+        Task SaveAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> events)
+            where TAggregate: AggregateRoot<TAggregateKey, TEventKey>;
     }
 
     // Interface for persisting and reading snapshots

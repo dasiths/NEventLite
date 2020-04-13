@@ -44,7 +44,7 @@ namespace NEventLite.StorageProviders.EventStore.Core
 
         public EventData SerializeEvent<TAggregateKey>(
             IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid> @event,
-            int commitNumber)
+            long commitNumber)
         {
             var header = new EventStoreMetaDataHeader()
             {
@@ -69,7 +69,7 @@ namespace NEventLite.StorageProviders.EventStore.Core
                     _serializerSettings);
         }
 
-        public EventData SerializeSnapshotEvent<TSnapshot, TAggregateKey>(TSnapshot @event, int commitNumber)
+        public EventData SerializeSnapshotEvent<TSnapshot, TAggregateKey>(TSnapshot @event, long commitNumber)
             where TSnapshot : ISnapshot<TAggregateKey, Guid>
         {
             var header = new EventStoreMetaDataHeader()

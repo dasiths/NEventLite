@@ -44,7 +44,7 @@ namespace NEventLite.StorageProviders.InMemory
             }
         }
 
-        public Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, int start, int count)
+        public Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, long start, long count)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
             IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> result = null;
@@ -53,9 +53,9 @@ namespace NEventLite.StorageProviders.InMemory
             {
 
                 //this is needed for make sure it doesn't fail when we have int.maxValue for count
-                if (count > int.MaxValue - start)
+                if (count > long.MaxValue - start)
                 {
-                    count = int.MaxValue - start;
+                    count = long.MaxValue - start;
                 }
 
                 result = _eventStream[aggregateId.ToString()].Where(
@@ -84,20 +84,21 @@ namespace NEventLite.StorageProviders.InMemory
             return Task.FromResult((IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>)null);
         }
 
-        public Task SaveAsync<TAggregate, TAggregateKey>(TAggregate aggregate)
+
+        public Task SaveAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> events)
             where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {
-            var events = aggregate.GetUncommittedChanges();
+            var changesToCommit = events.ToList();
 
-            if (events.Any())
+            if (changesToCommit.Any())
             {
-                if (_eventStream.ContainsKey(aggregate.Id.ToString()) == false)
+                if (_eventStream.ContainsKey(aggregateId.ToString()) == false)
                 {
-                    _eventStream.Add(aggregate.Id.ToString(), events.Cast<object>().ToList());
+                    _eventStream.Add(aggregateId.ToString(), changesToCommit.Cast<object>().ToList());
                 }
                 else
                 {
-                    _eventStream[aggregate.Id.ToString()].AddRange(events);
+                    _eventStream[aggregateId.ToString()].AddRange(changesToCommit);
                 }
             }
 

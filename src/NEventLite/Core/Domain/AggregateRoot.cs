@@ -16,8 +16,8 @@ namespace NEventLite.Core.Domain
     public abstract class AggregateRoot<TAggregateKey, TEventKey> : IAggregateRoot
     {
         public TAggregateKey Id { get; private set; }
-        public int CurrentVersion { get; private set; }
-        public int LastCommittedVersion { get; private set; }
+        public long CurrentVersion { get; private set; }
+        public long LastCommittedVersion { get; private set; }
         public StreamState StreamState => (CurrentVersion == -1) ? StreamState.NoStream : StreamState.HasStream;
 
         private readonly IList<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>> _uncommittedChanges = 
@@ -28,8 +28,8 @@ namespace NEventLite.Core.Domain
 
         protected AggregateRoot()
         {
-            CurrentVersion = (int)StreamState.NoStream;
-            LastCommittedVersion = (int)StreamState.NoStream;
+            CurrentVersion = (long)StreamState.NoStream;
+            LastCommittedVersion = (long)StreamState.NoStream;
             _eventHandlerCache = ReflectionHelper.FindEventHandlerMethodsInAggregate<TAggregateKey, TEventKey>(this.GetType());
         }
 

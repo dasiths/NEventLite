@@ -3,6 +3,6 @@
     public class EventStoreMetaDataHeader
     {
         public string ClrType { get; set; }
-        public int CommitNumber { get; set; }
+        public long CommitNumber { get; set; }
     }
 }

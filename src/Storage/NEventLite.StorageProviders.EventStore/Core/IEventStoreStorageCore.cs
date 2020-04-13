@@ -9,10 +9,10 @@ namespace NEventLite.StorageProviders.EventStore.Core
     {
         string TypeToStreamName<T>(string id, string prefix);
         IEvent<TAggregate, TAggregateKey, Guid> DeserializeEvent<TAggregate, TAggregateKey>(ResolvedEvent returnedEvent) where TAggregate : AggregateRoot<TAggregateKey, Guid>;
-        EventData SerializeEvent<TAggregateKey>(IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid> @event, int commitNumber);
+        EventData SerializeEvent<TAggregateKey>(IEvent<AggregateRoot<TAggregateKey, Guid>, TAggregateKey, Guid> @event, long commitNumber);
         TSnapshot DeserializeSnapshotEvent<TSnapshot>(ResolvedEvent returnedEvent);
 
-        EventData SerializeSnapshotEvent<TSnapshot, TAggregateKey>(TSnapshot @event, int commitNumber)
+        EventData SerializeSnapshotEvent<TSnapshot, TAggregateKey>(TSnapshot @event, long commitNumber)
             where TSnapshot : ISnapshot<TAggregateKey, Guid>;
     }
 }

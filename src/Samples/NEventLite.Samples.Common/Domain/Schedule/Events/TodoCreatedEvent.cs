@@ -8,7 +8,7 @@ namespace NEventLite.Samples.Common.Domain.Schedule.Events
         public Guid TodoId { get; set; }
         public string Text { get; set; }
 
-        public TodoCreatedEvent(Guid aggregateId, int targetVersion, Guid todoId, string text) : base(Guid.NewGuid(), aggregateId, targetVersion)
+        public TodoCreatedEvent(Guid aggregateId, long targetVersion, Guid todoId, string text) : base(Guid.NewGuid(), aggregateId, targetVersion)
         {
             TodoId = todoId;
             Text = text;

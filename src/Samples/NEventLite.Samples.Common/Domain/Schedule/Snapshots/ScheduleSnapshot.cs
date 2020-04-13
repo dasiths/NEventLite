@@ -16,7 +16,7 @@ namespace NEventLite.Samples.Common.Domain.Schedule.Snapshots
         public string ScheduleName { get; set; }
         public IList<TodoSnapshot> Todos { get; set; }
 
-        public ScheduleSnapshot(Guid id, Guid aggregateId, int version) : base(id, aggregateId, version)
+        public ScheduleSnapshot(Guid id, Guid aggregateId, long version) : base(id, aggregateId, version)
         {
         }
     }

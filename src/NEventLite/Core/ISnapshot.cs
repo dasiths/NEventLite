@@ -13,6 +13,7 @@ namespace NEventLite.Core
 
     public interface ISnapshot
     {
-        int Version { get; }
+        int SchemaVersion { get; set; }
+        long Version { get; }
     }
 }

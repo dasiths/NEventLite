@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NEventLite.Core;
@@ -78,12 +79,12 @@ namespace NEventLite.Repository
                 item.HydrateFromSnapshot(snapshot);
                 snapshottableItem.ApplySnapshot(snapshot);
 
-                var events = await _eventStorageProvider.GetEventsAsync<TAggregate, TAggregateKey>(id, snapshot.Version + 1, int.MaxValue);
+                var events = await _eventStorageProvider.GetEventsAsync<TAggregate, TAggregateKey>(id, snapshot.Version + 1, long.MaxValue);
                 await item.LoadsFromHistoryAsync(events);
             }
             else
             {
-                var events = (await _eventStorageProvider.GetEventsAsync<TAggregate, TAggregateKey>(id, 0, int.MaxValue)).ToList();
+                var events = (await _eventStorageProvider.GetEventsAsync<TAggregate, TAggregateKey>(id, 0, long.MaxValue)).ToList();
 
                 if (events.Any())
                 {
@@ -115,7 +116,7 @@ namespace NEventLite.Repository
 
             if ((item != null))
             {
-                if (expectedVersion == (int)StreamState.NoStream)
+                if (expectedVersion == (long)StreamState.NoStream)
                 {
                     throw new AggregateCreationException($"Aggregate {item.CorrelationId} can't be created as it already exists with version {item.TargetVersion + 1}");
                 }
@@ -128,51 +129,62 @@ namespace NEventLite.Repository
 
             var changesToCommit = aggregate
                 .GetUncommittedChanges()
-                .Select(e => (IEvent<TAggregate, TAggregateKey, TEventKey>)e)
+                .Cast<IEvent<TAggregate, TAggregateKey, TEventKey>>()
                 .ToList();
 
             //perform pre commit actions
-            foreach (var e in changesToCommit)
-            {
-                DoPreCommitTasks(e);
-            }
+            DoPreCommitTasks(changesToCommit);
 
             //CommitAsync events to storage provider
-            await _eventStorageProvider.SaveAsync<TAggregate, TAggregateKey>(aggregate);
+            await _eventStorageProvider.SaveAsync<TAggregate, TAggregateKey>(aggregate.Id, changesToCommit);
 
             //Publish to event publisher asynchronously
-            foreach (var e in changesToCommit)
-            {
-                if (_eventPublisher != null)
-                {
-                    await _eventPublisher.PublishAsync(e);
-                }
-            }
+            await PublishEventsAsync(changesToCommit);
 
             //If the Aggregate implements snapshottable
+            await SaveSnapshotAsync(aggregate, changesToCommit);
 
-            if ((_snapshotStorageProvider != null) && (aggregate is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottable))
+            //Finally mark them committed
+            aggregate.MarkChangesAsCommitted();
+        }
+
+        private async Task SaveSnapshotAsync(TAggregate aggregate, List<IEvent<TAggregate, TAggregateKey, TEventKey>> changesToCommit)
+        {
+            if ((_snapshotStorageProvider != null) &&
+                (aggregate is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottable))
             {
                 //Every N events we save a snapshot
                 if ((aggregate.CurrentVersion >= _snapshotStorageProvider.SnapshotFrequency) &&
-                        (
-                            (changesToCommit.Count >= _snapshotStorageProvider.SnapshotFrequency) ||
-                            (aggregate.CurrentVersion % _snapshotStorageProvider.SnapshotFrequency < changesToCommit.Count) ||
-                            (aggregate.CurrentVersion % _snapshotStorageProvider.SnapshotFrequency == 0)
-                        )
+                    (
+                        (changesToCommit.Count >= _snapshotStorageProvider.SnapshotFrequency) ||
+                        (aggregate.CurrentVersion % _snapshotStorageProvider.SnapshotFrequency < changesToCommit.Count) ||
+                        (aggregate.CurrentVersion % _snapshotStorageProvider.SnapshotFrequency == 0)
                     )
+                )
                 {
                     var snapshot = snapshottable.TakeSnapshot();
                     await _snapshotStorageProvider.SaveSnapshotAsync<TSnapshot, TAggregateKey>(snapshot);
                 }
             }
-
-            aggregate.MarkChangesAsCommitted();
         }
 
-        private void DoPreCommitTasks(IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> e)
+        private void DoPreCommitTasks(IEnumerable<IEvent<TAggregate, TAggregateKey, TEventKey>> events)
         {
-            e.EventCommittedTimestamp = _clock.Now();
+            foreach (var e in events)
+            {
+                e.EventCommittedTimestamp = _clock.Now();
+            }
+        }
+
+        private async Task PublishEventsAsync(IEnumerable<IEvent<TAggregate, TAggregateKey, TEventKey>> events)
+        {
+            if (_eventPublisher != null)
+            {
+                foreach (var e in events)
+                {
+                    await _eventPublisher.PublishAsync(e);
+                }
+            }
         }
 
         private static TAggregate CreateNewInstance()

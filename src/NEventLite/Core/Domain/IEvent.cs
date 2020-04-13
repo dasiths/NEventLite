@@ -13,7 +13,7 @@ namespace NEventLite.Core.Domain
 
     public interface IEvent
     {
-        int TargetVersion { get; set; }
+        long TargetVersion { get; set; }
         DateTimeOffset EventCommittedTimestamp { get; set; }
         int EventSchemaVersion { get; set; }
         string CorrelationId { get; set; }
