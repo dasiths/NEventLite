@@ -31,7 +31,7 @@ namespace NEventLite.Repository
         public int SnapshotFrequency { get; } = int.MaxValue;
         public async Task<TSnapshot> GetSnapshotAsync<TSnapshot, TAggregateKey>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, IMockSnapshotKeyType>
         {
-            return default;
+            return default(TSnapshot);
         }
 
         public async Task SaveSnapshotAsync<TSnapshot, TAggregateKey>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, IMockSnapshotKeyType>
