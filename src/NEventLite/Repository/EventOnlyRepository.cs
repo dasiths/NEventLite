@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using NEventLite.Core;
 using NEventLite.Core.Domain;
 using NEventLite.Storage;
@@ -6,36 +7,43 @@ using NEventLite.Storage;
 namespace NEventLite.Repository
 {
     public class EventOnlyRepository<TAggregate> : 
-        EventOnlyRepository<TAggregate, Guid, Guid>,
-        IRepository<TAggregate> 
+        EventOnlyRepository<TAggregate, Guid, Guid>
         where TAggregate : AggregateRoot<Guid, Guid>, new()
     {
         public EventOnlyRepository(IClock clock, IEventStorageProvider<Guid> eventStorageProvider, IEventPublisher eventPublisher) : 
             base(clock, eventStorageProvider, eventPublisher)
         {
         }
-
-        public EventOnlyRepository(IClock clock, IEventStorageProvider eventStorageProvider, IEventPublisher eventPublisher) :
-            base(clock, eventStorageProvider, eventPublisher)
-        {
-        }
     }
 
-    public class EventOnlyRepository<TAggregate, TAggregateKey, TEventKey> : Repository<TAggregate, IMockSnapShot<TAggregateKey>, TAggregateKey, TEventKey, IMockAggregateKeyType>
+    public class EventOnlyRepository<TAggregate, TAggregateKey, TEventKey> : Repository<TAggregate, IMockSnapShot<TAggregateKey>, TAggregateKey, TEventKey, IMockSnapshotKeyType>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
     {
         public EventOnlyRepository(IClock clock,
             IEventStorageProvider<TEventKey> eventStorageProvider,
-            IEventPublisher eventPublisher) : base(clock, eventStorageProvider, eventPublisher, null)
+            IEventPublisher eventPublisher) : base(clock, eventStorageProvider, eventPublisher, new MockSnapshotStorageProvider())
         {
         }
     }
 
-    public interface IMockSnapShot<out TAggregateKey> : ISnapshot<TAggregateKey, IMockAggregateKeyType>
+    internal sealed class MockSnapshotStorageProvider : ISnapshotStorageProvider<IMockSnapshotKeyType>
+    {
+        public int SnapshotFrequency { get; } = int.MaxValue;
+        public async Task<TSnapshot> GetSnapshotAsync<TSnapshot, TAggregateKey>(TAggregateKey aggregateId) where TSnapshot : ISnapshot<TAggregateKey, IMockSnapshotKeyType>
+        {
+            return default;
+        }
+
+        public async Task SaveSnapshotAsync<TSnapshot, TAggregateKey>(TSnapshot snapshot) where TSnapshot : ISnapshot<TAggregateKey, IMockSnapshotKeyType>
+        {
+        }
+    }
+
+    public interface IMockSnapShot<out TAggregateKey> : ISnapshot<TAggregateKey, IMockSnapshotKeyType>
     {
     }
 
-    public interface IMockAggregateKeyType
+    public interface IMockSnapshotKeyType
     {
     }
 }

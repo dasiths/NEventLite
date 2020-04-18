@@ -15,10 +15,6 @@ namespace NEventLite.Repository
         public Session(IRepository<TAggregate, Guid, Guid> repository) : base(repository)
         {
         }
-
-        public Session(IRepository<TAggregate> repository) : base(repository)
-        {
-        }
     }
 
     public class Session<TAggregate, TAggregateKey, TEventKey> : ISession<TAggregate, TAggregateKey, TEventKey>

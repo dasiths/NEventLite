@@ -10,7 +10,7 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemoryEventStorageProvider : InMemoryEventStorageProvider<Guid>, IEventStorageProvider
+    public class InMemoryEventStorageProvider : InMemoryEventStorageProvider<Guid>
     {
         public InMemoryEventStorageProvider() : this(string.Empty)
         {

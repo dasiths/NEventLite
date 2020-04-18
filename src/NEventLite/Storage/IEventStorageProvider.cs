@@ -5,10 +5,6 @@ using NEventLite.Core.Domain;
 
 namespace NEventLite.Storage
 {
-    public interface IEventStorageProvider : IEventStorageProvider<Guid> 
-    { 
-    }
-
     public interface IEventStorageProvider<TEventKey>
     {
         Task<IEnumerable<IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey>>> GetEventsAsync<TAggregate, TAggregateKey>(TAggregateKey aggregateId, long start, long count) 

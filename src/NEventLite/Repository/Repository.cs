@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,8 +11,7 @@ using NEventLite.Storage;
 namespace NEventLite.Repository
 {
     public class Repository<TAggregate, TSnapshot> :
-        Repository<TAggregate, TSnapshot, Guid, Guid, Guid>,
-        IRepository<TAggregate>
+        Repository<TAggregate, TSnapshot, Guid, Guid, Guid>
         where TAggregate : AggregateRoot<Guid, Guid>, new()
         where TSnapshot : ISnapshot<Guid, Guid>
     {
@@ -19,14 +19,6 @@ namespace NEventLite.Repository
             IEventStorageProvider<Guid> eventStorageProvider,
             IEventPublisher eventPublisher,
             ISnapshotStorageProvider<Guid> snapshotStorageProvider) :
-            base(clock, eventStorageProvider, eventPublisher, snapshotStorageProvider)
-        {
-        }
-
-        public Repository(IClock clock,
-            IEventStorageProvider eventStorageProvider,
-            IEventPublisher eventPublisher,
-            ISnapshotStorageProvider snapshotStorageProvider) :
             base(clock, eventStorageProvider, eventPublisher, snapshotStorageProvider)
         {
         }
@@ -55,25 +47,24 @@ namespace NEventLite.Repository
 
         public async Task<TAggregate> GetByIdAsync(TAggregateKey id)
         {
-            var isSnapshottable =
-                typeof(ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey>).IsAssignableFrom(typeof(TAggregate));
-
+            TAggregate item;
             var snapshot = default(TSnapshot);
 
-            if ((isSnapshottable) && (_snapshotStorageProvider != null))
+            var isSnapshottable =
+                typeof(ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey>).IsAssignableFrom(typeof(TAggregate));
+            
+            if (isSnapshottable)
             {
-                snapshot = await _snapshotStorageProvider.GetSnapshotAsync<TSnapshot, TAggregateKey>(id);
+                snapshot = await GetLatestSnapshotAsync(id);
             }
-
-            TAggregate item;
-
+            
             if (snapshot != null)
             {
                 item = CreateNewInstance();
 
                 if (!(item is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottableItem))
                 {
-                    throw new NullReferenceException(nameof(snapshottableItem));
+                    throw new Exception($"{nameof(snapshottableItem)} is not of ISnapshottable<{typeof(TSnapshot).Name}, {typeof(TAggregateKey).Name}, {typeof(TSnapshotKey).Name}>");
                 }
 
                 item.HydrateFromSnapshot(snapshot);
@@ -148,10 +139,15 @@ namespace NEventLite.Repository
             aggregate.MarkChangesAsCommitted();
         }
 
-        private async Task SaveSnapshotAsync(TAggregate aggregate, List<IEvent<TAggregate, TAggregateKey, TEventKey>> changesToCommit)
+        private async Task<TSnapshot> GetLatestSnapshotAsync(TAggregateKey aggregateId)
         {
-            if ((_snapshotStorageProvider != null) &&
-                (aggregate is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottable))
+            var snapshot = await _snapshotStorageProvider.GetSnapshotAsync<TSnapshot, TAggregateKey>(aggregateId);
+            return snapshot;
+        }
+
+        private async Task SaveSnapshotAsync(TAggregate aggregate, ICollection changesToCommit)
+        {
+            if (aggregate is ISnapshottable<TSnapshot, TAggregateKey, TSnapshotKey> snapshottable)
             {
                 //Every N events we save a snapshot
                 if ((aggregate.CurrentVersion >= _snapshotStorageProvider.SnapshotFrequency) &&

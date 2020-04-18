@@ -47,23 +47,25 @@ namespace NEventLite.Samples.ConsoleApp
                     (sp) => new EventStoreSettings(SnapshotFrequency, PageSize));
                 services.AddScoped<IEventStoreStorageConnectionProvider, EventStoreStorageConnectionProvider>();
                 services.AddScoped<IEventStoreStorageCore, EventStoreStorageCore>();
-                services.AddScoped<IEventStorageProvider, EventStoreEventStorageProvider>();
-                services.AddScoped<ISnapshotStorageProvider, EventStoreSnapshotStorageProvider>();
+                services.AddScoped<IEventStorageProvider<Guid>, EventStoreEventStorageProvider>();
+                services.AddScoped<ISnapshotStorageProvider<Guid>, EventStoreSnapshotStorageProvider>();
             }
             else
             {
-                services.AddScoped<IEventStorageProvider>(
+                services.AddScoped<IEventStorageProvider<Guid>>(
                     provider => new InMemoryEventStorageProvider(inMemoryEventStorePath));
-                services.AddScoped<ISnapshotStorageProvider>(
+                services.AddScoped<ISnapshotStorageProvider<Guid>>(
                     provider => new InMemorySnapshotStorageProvider(SnapshotFrequency, inMemorySnapshotStorePath));
             }
 
             // Add the repository registration manually
-            // services.AddScoped<IRepository<Schedule>, Repository<Schedule, ScheduleSnapshot>>();
+            // services.AddScoped<IRepository<Schedule, Guid, Guid>, Repository<Schedule, ScheduleSnapshot>>();
             // services.AddScoped<ISession<Schedule>, Session<Schedule>>();
+            // or if prefer to you use the more detailed interface
+            // services.AddScoped<ISession<Schedule, Guid, Guid>, Session<Schedule>>();
 
             // or add the by scanning for all aggregate types
-            services.ScanAndRegisterAggregates();
+            //services.ScanAndRegisterAggregates();
 
             services.AddScoped<CreateScheduleHandler>();
             services.AddScoped<CreateTodoHandler>();

@@ -163,20 +163,26 @@ The library is built with DI as a first class concept. Wiring it up is easy. Thi
         var services = new ServiceCollection();
 
         // Wiring up the event storage provider. "https://eventstore.com/" in this example
+
+        // Event Store specific settings etc
         services.AddScoped<IEventStoreSettings, EventStoreSettings>(
             (sp) => new EventStoreSettings(SnapshotFrequency, PageSize));
         services.AddScoped<IEventStoreStorageConnectionProvider, EventStoreStorageConnectionProvider>();
         services.AddScoped<IEventStoreStorageCore, EventStoreStorageCore>();
-        services.AddScoped<IEventStorageProvider, EventStoreEventStorageProvider>();
-        services.AddScoped<ISnapshotStorageProvider, EventStoreSnapshotStorageProvider>();
+
+        // The storage provider implementations
+        services.AddScoped<IEventStorageProvider<Guid>, EventStoreEventStorageProvider>();
+        services.AddScoped<ISnapshotStorageProvider<Guid>, EventStoreSnapshotStorageProvider>();
 
         // Register the repository
-        services.AddScoped<IRepository<Schedule>, Repository<Schedule, ScheduleSnapshot>>();
+        services.AddScoped<IRepository<Schedule, Guid, Guid>, Repository<Schedule, ScheduleSnapshot>>();
         // If you prefer to work without snapshots and use events only repository
-        // services.AddScoped<IRepository<Schedule>, EventOnlyRepository<Schedule>>();
+        // services.AddScoped<IRepository<Schedule, Guid, Guid>, EventOnlyRepository<Schedule>>();
 
         // register the session implementation for the Aggregate
         services.AddScoped<ISession<Schedule>, Session<Schedule>>();
+        // or if prefer to you use the more detailed interface
+        // services.AddScoped<ISession<Schedule, Guid, Guid>, Session<Schedule>>();
 
         // Or
         // Instead of specifying each Aggregate and Snapshot type you can use the convenience
@@ -199,37 +205,59 @@ The library is built with DI as a first class concept. Wiring it up is easy. Thi
     }
 ```
 
-If you want to use it with a different dependency injection framework, you can look at how the assembly scanning and registration is implemented for `Microsoft.Extensions.DependencyInjection` as an example and come up with your own implementation. The file is [located here](https://github.com/dasiths/NEventLite/blob/master/src/Extensions/NEventLite.Extensions.Microsoft.DependencyInjection/Extensions.cs)
+If you want to use it with a different dependency injection framework, you can look at how the assembly scanning and registration is implemented for `Microsoft.Extensions.DependencyInjection` as an example and come up with your own implementation. The file is [located here](https://github.com/dasiths/NEventLite/blob/master/src/Extensions/NEventLite.Extensions.Microsoft.DependencyInjection/Extensions.cs).
 
 ```csharp
-        public static void ScanAndRegisterAggregates(this ServiceCollection services, IList<Assembly> assemblies)
+        public static void ScanAndRegisterAggregates<TAggregateKey, TEventKey>(this ServiceCollection services, IList<Assembly> assemblies)
         {
             var allAggregates = assemblies
                 .SelectMany(a =>
                     a.GetTypes()
-                        .Where(t => t.IsClass && !t.IsAbstract & typeof(IAggregateRoot).IsAssignableFrom(t)))
+                        .Where(t => t.IsClass && !t.IsAbstract & typeof(AggregateRoot<TAggregateKey, TEventKey>).IsAssignableFrom(t)))
                 .ToList();
 
-            var aggregates = allAggregates.Select(a =>
+
+            foreach (var aggregateType in allAggregates)
             {
-                var interfaces = a.GetInterfaces();
-                var snapshottable = interfaces.FirstOrDefault(i =>
-                    i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(ISnapshottable<>) ||
-                                        i.GetGenericTypeDefinition() == typeof(ISnapshottable<,,>)));
+                services.RegisterAggregate<TAggregateKey, TEventKey>(aggregateType);
+            }
+        }
 
-                return new KeyValuePair<Type, Type>(a, snapshottable?.GetGenericArguments()[0]);
-            }).ToList();
+        public static void RegisterAggregate<TAggregateKey, TEventKey>(this ServiceCollection services, Type aggregateType)
+        {
+            var snapshottableSimple = aggregateType.GetInterfaces().FirstOrDefault(i =>
+                i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(ISnapshottable<>)));
 
-            foreach (var kvp in aggregates)
+            var snapshottableComplex = aggregateType.GetInterfaces().FirstOrDefault(i =>
+                i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(ISnapshottable<,,>)));
+
+            Type snapshotType = null;
+            Type snapshotKeyType = null;
+
+            if (snapshottableSimple != null)
             {
-                var aggregateType = kvp.Key;
-                var snapshotType = kvp.Value;
+                snapshotType = snapshottableSimple.GetGenericArguments()[0];
+                snapshotKeyType = typeof(Guid);
+            }
+            else if (snapshottableComplex != null)
+            {
+                snapshotType = snapshottableComplex.GetGenericArguments()[0];
+                snapshotKeyType = snapshottableComplex.GetGenericArguments()[2];
+            }
 
-                services.AddScoped(typeof(IRepository<>).MakeGenericType(aggregateType),
-                    snapshotType != null
-                        ? typeof(Repository<,>).MakeGenericType(aggregateType, snapshotType)
-                        : typeof(EventOnlyRepository<>).MakeGenericType(aggregateType));
+            // Register full generic types
+            services.AddScoped(typeof(IRepository<,,>).MakeGenericType(aggregateType, typeof(TAggregateKey), typeof(TEventKey)),
+                snapshotType != null
+                    ? typeof(Repository<,,,,>).MakeGenericType(aggregateType, snapshotType, typeof(TAggregateKey),
+                        typeof(TEventKey), snapshotKeyType)
+                    : typeof(EventOnlyRepository<,,>).MakeGenericType(aggregateType, typeof(TAggregateKey), typeof(TEventKey)));
 
+            services.AddScoped(typeof(ISession<,,>).MakeGenericType(aggregateType, typeof(TAggregateKey), typeof(TEventKey)),
+                typeof(Session<,,>).MakeGenericType(aggregateType, typeof(TAggregateKey), typeof(TEventKey)));
+
+            // Register the convenience GUID scoped ISession interface as well
+            if (typeof(TAggregateKey) == typeof(Guid) && typeof(TEventKey) == typeof(Guid))
+            {
                 services.AddScoped(typeof(ISession<>).MakeGenericType(aggregateType),
                     typeof(Session<>).MakeGenericType(aggregateType));
             }
@@ -270,8 +298,8 @@ It's very easy to implement your own as well. Implement `IEventStorageProvider` 
 
     // Implement the interfaces
     // Then register them in your DI
-    services.AddScoped<IEventStorageProvider, MyEventStorageProvider>();
-    services.AddScoped<ISnapshotStorageProvider, MySnapshotStorageProvider>();
+    services.AddScoped<IEventStorageProvider<YourKeyType>, MyEventStorageProvider>();
+    services.AddScoped<ISnapshotStorageProvider<YourKeyType>, MySnapshotStorageProvider>();
 ```
 
 ## Examples

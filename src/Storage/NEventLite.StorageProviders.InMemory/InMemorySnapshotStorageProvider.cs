@@ -9,8 +9,7 @@ using NEventLite.Storage;
 
 namespace NEventLite.StorageProviders.InMemory
 {
-    public class InMemorySnapshotStorageProvider : 
-        InMemorySnapshotStorageProvider<Guid>, ISnapshotStorageProvider
+    public class InMemorySnapshotStorageProvider : InMemorySnapshotStorageProvider<Guid>
     {
         public InMemorySnapshotStorageProvider(int frequency, string memoryDumpFile) : base(frequency, memoryDumpFile)
         {

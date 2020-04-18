@@ -10,7 +10,7 @@ using NEventLite.StorageProviders.EventStore.Core;
 namespace NEventLite.StorageProviders.EventStore
 {
 
-    public class EventStoreEventStorageProvider : IEventStorageProvider
+    public class EventStoreEventStorageProvider : IEventStorageProvider<Guid>
     {
         private readonly IEventStoreStorageConnectionProvider _eventStoreStorageConnectionProvider;
         private readonly IEventStoreStorageCore _eventStoreStorageCore;

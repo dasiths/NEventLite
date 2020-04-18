@@ -9,7 +9,7 @@ using NEventLite.StorageProviders.EventStore.Core;
 
 namespace NEventLite.StorageProviders.EventStore
 {
-    public class EventStoreSnapshotStorageProvider : ISnapshotStorageProvider
+    public class EventStoreSnapshotStorageProvider : ISnapshotStorageProvider<Guid>
     {
         private readonly IEventStoreStorageConnectionProvider _eventStoreStorageConnectionProvider;
         private readonly IEventStoreStorageCore _eventStoreStorageCore;
