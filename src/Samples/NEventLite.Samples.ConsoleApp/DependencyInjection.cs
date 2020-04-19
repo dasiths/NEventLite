@@ -59,13 +59,13 @@ namespace NEventLite.Samples.ConsoleApp
             }
 
             // Add the repository registration manually
-            // services.AddScoped<IRepository<Schedule, Guid, Guid>, Repository<Schedule, ScheduleSnapshot>>();
-            // services.AddScoped<ISession<Schedule>, Session<Schedule>>();
+            //services.AddScoped<IRepository<Schedule, Guid, Guid>, Repository<Schedule, ScheduleSnapshot, Guid, Guid, Guid>>();
+            //services.AddScoped<ISession<Schedule>, Session<Schedule>>();
             // or if prefer to you use the more detailed interface
-            // services.AddScoped<ISession<Schedule, Guid, Guid>, Session<Schedule>>();
+            //services.AddScoped<ISession<Schedule, Guid, Guid>, Session<Schedule>>();
 
             // or add the by scanning for all aggregate types
-            //services.ScanAndRegisterAggregates();
+            services.ScanAndRegisterAggregates();
 
             services.AddScoped<CreateScheduleHandler>();
             services.AddScoped<CreateTodoHandler>();

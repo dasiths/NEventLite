@@ -6,16 +6,6 @@ using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class EventOnlyRepository<TAggregate> : 
-        EventOnlyRepository<TAggregate, Guid, Guid>
-        where TAggregate : AggregateRoot<Guid, Guid>, new()
-    {
-        public EventOnlyRepository(IClock clock, IEventStorageProvider<Guid> eventStorageProvider, IEventPublisher eventPublisher) : 
-            base(clock, eventStorageProvider, eventPublisher)
-        {
-        }
-    }
-
     public class EventOnlyRepository<TAggregate, TAggregateKey, TEventKey> : Repository<TAggregate, IMockSnapShot<TAggregateKey>, TAggregateKey, TEventKey, IMockSnapshotKeyType>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
     {

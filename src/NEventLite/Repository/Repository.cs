@@ -10,20 +10,6 @@ using NEventLite.Storage;
 
 namespace NEventLite.Repository
 {
-    public class Repository<TAggregate, TSnapshot> :
-        Repository<TAggregate, TSnapshot, Guid, Guid, Guid>
-        where TAggregate : AggregateRoot<Guid, Guid>, new()
-        where TSnapshot : ISnapshot<Guid, Guid>
-    {
-        public Repository(IClock clock,
-            IEventStorageProvider<Guid> eventStorageProvider,
-            IEventPublisher eventPublisher,
-            ISnapshotStorageProvider<Guid> snapshotStorageProvider) :
-            base(clock, eventStorageProvider, eventPublisher, snapshotStorageProvider)
-        {
-        }
-    }
-
     public class Repository<TAggregate, TSnapshot, TAggregateKey, TEventKey, TSnapshotKey> :
         IRepository<TAggregate, TAggregateKey, TEventKey>
         where TAggregate : AggregateRoot<TAggregateKey, TEventKey>, new()
