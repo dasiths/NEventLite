@@ -9,7 +9,7 @@ namespace NEventLite.Core
         Task PublishAsync<TAggregate, TAggregateKey, TEventKey>(IEvent<TAggregate, TAggregateKey, TEventKey> @event) where TAggregate : AggregateRoot<TAggregateKey, TEventKey>;
     }
 
-    class DefaultNoOpEventPublisher : IEventPublisher
+    public class DefaultNoOpEventPublisher : IEventPublisher
     {
         public Task PublishAsync<TAggregate, TAggregateKey, TEventKey>(IEvent<TAggregate, TAggregateKey, TEventKey> @event) where TAggregate : AggregateRoot<TAggregateKey, TEventKey>
         {

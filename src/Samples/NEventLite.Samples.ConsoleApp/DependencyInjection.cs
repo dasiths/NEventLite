@@ -10,7 +10,7 @@ using NEventLite.Repository;
 using NEventLite.Samples.Common;
 using NEventLite.Samples.Common.Domain.Schedule;
 using NEventLite.Samples.Common.Domain.Schedule.Snapshots;
-using NEventLite.Samples.ConsoleApp.Handlers;
+using NEventLite.Samples.Common.Handlers;
 using NEventLite.Storage;
 using NEventLite.StorageProviders.EventStore;
 using NEventLite.StorageProviders.EventStore.Core;

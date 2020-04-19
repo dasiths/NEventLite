@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using NEventLite.Repository;
 using NEventLite.Samples.Common.Domain.Schedule;
 
-namespace NEventLite.Samples.ConsoleApp.Handlers
+namespace NEventLite.Samples.Common.Handlers
 {
     public class UpdateTodoNameHandler
     {

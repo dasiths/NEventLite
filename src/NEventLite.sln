@@ -15,7 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Samples.Common",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.StorageProviders.EventStore", "Storage\NEventLite.StorageProviders.EventStore\NEventLite.StorageProviders.EventStore.csproj", "{F040E6CE-2C15-4CAB-882F-411D79DD0485}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.Extensions.Microsoft.DependencyInjection", "Extensions\NEventLite.Extensions.Microsoft.DependencyInjection\NEventLite.Extensions.Microsoft.DependencyInjection.csproj", "{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventLite.Extensions.Microsoft.DependencyInjection", "Extensions\NEventLite.Extensions.Microsoft.DependencyInjection\NEventLite.Extensions.Microsoft.DependencyInjection.csproj", "{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.Samples.Autofac", "Samples\NEventLite.Samples.Autofac\NEventLite.Samples.Autofac.csproj", "{CACC4756-226D-4664-920A-53C316783303}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventLite.Extensions.Autofac", "Extensions\NEventLite.Extensions.Autofac\NEventLite.Extensions.Autofac.csproj", "{165E04FD-242E-4446-A57E-4FE690DF86DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +55,14 @@ Global
 		{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFF92C86-54A3-4005-B65F-8F3F3FC6C892}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CACC4756-226D-4664-920A-53C316783303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CACC4756-226D-4664-920A-53C316783303}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CACC4756-226D-4664-920A-53C316783303}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CACC4756-226D-4664-920A-53C316783303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{165E04FD-242E-4446-A57E-4FE690DF86DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{165E04FD-242E-4446-A57E-4FE690DF86DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{165E04FD-242E-4446-A57E-4FE690DF86DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{165E04FD-242E-4446-A57E-4FE690DF86DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
