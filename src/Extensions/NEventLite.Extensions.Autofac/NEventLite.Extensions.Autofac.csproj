@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>3.0.0</Version>
+    <Authors>Dasith Wijesiriwardena</Authors>
+    <Description>Dependency injection support for NEventLite with Autofac</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Dasith Wijesiriwardena - 2020</Copyright>
+    <PackageProjectUrl>https://github.com/dasiths/NEventLite</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dasiths/NEventLite</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>NEventLite, event sourcing, dependency injection ,ioc</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

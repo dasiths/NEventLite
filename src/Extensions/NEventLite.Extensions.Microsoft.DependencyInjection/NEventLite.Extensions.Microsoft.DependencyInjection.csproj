@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>2.1.0</Version>
     <Authors>Dasith Wijesiriwardena</Authors>
-    <Company>Dasith WijesiriwardenaDasith Wijesiriwardena</Company>
+    <Company>Dasith Wijesiriwardena</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/dasiths/NEventLite</PackageProjectUrl>
     <Description>Dependency injection support for NEventLite with Microsoft.Extensions.DependencyInjection</Description>
