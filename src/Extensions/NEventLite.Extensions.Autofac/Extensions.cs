@@ -11,7 +11,11 @@ namespace NEventLite.Extensions.Autofac
     {
         public static ContainerBuilder RegisterMasterSession(this ContainerBuilder services)
         {
-            services.Register(c => new MasterSession.ServiceFactory(c.Resolve))
+            services.Register(c =>
+                {
+                    var context = c.Resolve<IComponentContext>();
+                    return new MasterSession.ServiceFactory(context.Resolve);
+                })
                 .InstancePerLifetimeScope();
             services.RegisterType<MasterSession>().As<IMasterSession>()
                 .InstancePerLifetimeScope();
