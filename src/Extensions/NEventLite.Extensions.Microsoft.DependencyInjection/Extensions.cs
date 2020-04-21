@@ -9,20 +9,30 @@ namespace NEventLite.Extensions.Microsoft.DependencyInjection
 {
     public static class Extensions
     {
-        public static void ScanAndRegisterAggregates(this ServiceCollection services)
+        public static ServiceCollection RegisterMasterSession(this ServiceCollection services)
         {
-            services.ScanAndRegisterAggregates(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddScoped(sp => new MasterSession.ServiceFactory(sp.GetService));
+            services.AddScoped<IMasterSession, MasterSession>();
+
+            return services;
         }
 
-        public static void ScanAndRegisterAggregates(this ServiceCollection services, IList<Assembly> assemblies)
+        public static ServiceCollection ScanAndRegisterAggregates(this ServiceCollection services)
+        {
+            return services.ScanAndRegisterAggregates(AppDomain.CurrentDomain.GetAssemblies());
+        }
+
+        public static ServiceCollection ScanAndRegisterAggregates(this ServiceCollection services, IList<Assembly> assemblies)
         {
             foreach (var a in assemblies.GetAllAggregates())
             {
                 services.RegisterAggregate(a);
             }
+
+            return services;
         }
 
-        public static void RegisterAggregate(this ServiceCollection services, AggregateInformation a)
+        public static ServiceCollection RegisterAggregate(this ServiceCollection services, AggregateInformation a)
         {
             // Register full generic types
             services.AddScoped(typeof(IRepository<,,>).MakeGenericType(a.Aggregate, a.AggregateKey, a.EventKey),
@@ -40,6 +50,8 @@ namespace NEventLite.Extensions.Microsoft.DependencyInjection
                 services.AddScoped(typeof(ISession<>).MakeGenericType(a.Aggregate),
                     typeof(Session<>).MakeGenericType(a.Aggregate));
             }
+
+            return services;
         }
     }
 }

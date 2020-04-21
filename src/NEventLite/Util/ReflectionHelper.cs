@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using NEventLite.Core;
@@ -104,6 +105,17 @@ namespace NEventLite.Util
         public static MemberInfo[] GetMembers(Type t)
         {
             return t.GetTypeInfo().DeclaredMembers.ToArray();
+        }
+
+        // Use this method to cast types that are not IConvertible
+        public static object Cast(this Type Type, object data)
+        {
+            var DataParam = Expression.Parameter(typeof(object), "data");
+            var Body = Expression.Block(Expression.Convert(Expression.Convert(DataParam, data.GetType()), Type));
+
+            var Run = Expression.Lambda(Body, DataParam).Compile();
+            var ret = Run.DynamicInvoke(data);
+            return ret;
         }
     }
 }
