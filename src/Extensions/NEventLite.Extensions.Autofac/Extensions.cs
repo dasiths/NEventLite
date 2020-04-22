@@ -9,20 +9,38 @@ namespace NEventLite.Extensions.Autofac
 {
     public static class Extensions
     {
-        public static void ScanAndRegisterAggregates(this ContainerBuilder services)
+        public static ContainerBuilder RegisterMasterSession(this ContainerBuilder services)
         {
-            services.ScanAndRegisterAggregates(AppDomain.CurrentDomain.GetAssemblies());
+            services.Register(c =>
+                {
+                    var context = c.Resolve<IComponentContext>();
+                    return new MasterSession.ServiceFactory(context.Resolve);
+                })
+                .InstancePerLifetimeScope();
+
+            services.RegisterType<MasterSession>().As<IMasterSession>()
+                .InstancePerLifetimeScope();
+
+            return services;
         }
 
-        public static void ScanAndRegisterAggregates(this ContainerBuilder services, IList<Assembly> assemblies)
+        public static ContainerBuilder ScanAndRegisterAggregates(this ContainerBuilder services)
+        {
+            services.ScanAndRegisterAggregates(AppDomain.CurrentDomain.GetAssemblies());
+            return services;
+        }
+
+        public static ContainerBuilder ScanAndRegisterAggregates(this ContainerBuilder services, IList<Assembly> assemblies)
         {
             foreach (var a in assemblies.GetAllAggregates())
             {
                 services.RegisterAggregate(a);
             }
+
+            return services;
         }
 
-        public static void RegisterAggregate(this ContainerBuilder services, AggregateInformation a)
+        public static ContainerBuilder RegisterAggregate(this ContainerBuilder services, AggregateInformation a)
         {
             // Register full generic types
             services.RegisterType(a.Snapshot != null
@@ -42,6 +60,8 @@ namespace NEventLite.Extensions.Autofac
                     .As(typeof(ISession<>).MakeGenericType(a.Aggregate))
                     .InstancePerLifetimeScope();
             }
+
+            return services;
         }
     }
 }

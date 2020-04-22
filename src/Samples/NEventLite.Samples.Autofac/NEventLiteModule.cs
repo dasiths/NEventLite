@@ -41,7 +41,9 @@ namespace NEventLite.Samples.Autofac
             builder.Register(c => new InMemorySnapshotStorageProvider(SnapshotFrequency, inMemorySnapshotStorePath))
                 .As<ISnapshotStorageProvider<Guid>>().InstancePerLifetimeScope();
 
-            builder.ScanAndRegisterAggregates();
+            builder
+                .ScanAndRegisterAggregates()
+                .RegisterMasterSession();
 
             //Or add the repository registration manually
             //builder.RegisterType<Repository<Schedule, ScheduleSnapshot, Guid, Guid, Guid>>().As<IRepository<Schedule, Guid, Guid>>().InstancePerLifetimeScope();

@@ -7,16 +7,16 @@ namespace NEventLite.Samples.Common.Handlers
 {
     public class CompleteTodoHandler
     {
-        private readonly ISession<Schedule> _session;
+        private readonly IMasterSession _session; // This examples use the IMasterSession
 
-        public CompleteTodoHandler(ISession<Schedule> session)
+        public CompleteTodoHandler(IMasterSession session)
         {
             _session = session;
         }
 
         public async Task HandleAsync(Guid scheduleId, Guid todoId)
         {
-            var schedule = await _session.GetByIdAsync(scheduleId);
+            var schedule = await _session.GetByIdAsync<Schedule>(scheduleId);
             await schedule.CompleteTodoAsync(todoId);
             await _session.SaveAsync();
         }

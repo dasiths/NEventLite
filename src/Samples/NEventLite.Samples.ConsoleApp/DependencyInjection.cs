@@ -65,7 +65,9 @@ namespace NEventLite.Samples.ConsoleApp
             //services.AddScoped<ISession<Schedule, Guid, Guid>, Session<Schedule>>();
 
             // or add the by scanning for all aggregate types
-            services.ScanAndRegisterAggregates();
+            services
+                .ScanAndRegisterAggregates()
+                .RegisterMasterSession();
 
             services.AddScoped<CreateScheduleHandler>();
             services.AddScoped<CreateTodoHandler>();
