@@ -130,6 +130,7 @@ namespace NEventLite.Repository
         public void Dispose()
         {
            _trackedItems.Clear();
+           _syncLock?.Dispose();
         }
     }
 }

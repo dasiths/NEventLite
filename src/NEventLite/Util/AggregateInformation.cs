@@ -29,6 +29,7 @@ namespace NEventLite.Util
 
         public static AggregateInformation ValidResult(Type aggregate, Type aggregateKey, Type eventKey, Type snapshot, Type snapshotKey) 
             => new AggregateInformation(aggregate, aggregateKey, eventKey, snapshot, snapshotKey);
+
         public static AggregateInformation InvalidResult => new AggregateInformation();
     }
 }

@@ -17,6 +17,7 @@ namespace NEventLite.Extensions.Autofac
                     return new MasterSession.ServiceFactory(context.Resolve);
                 })
                 .InstancePerLifetimeScope();
+
             services.RegisterType<MasterSession>().As<IMasterSession>()
                 .InstancePerLifetimeScope();
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +12,29 @@ namespace NEventLite.Repository
 {
     public class MasterSession : IMasterSession
     {
-        public delegate object ServiceFactory(Type type); 
+        public delegate object ServiceFactory(Type type);
 
-        private sealed class MockAggregate : AggregateRoot
+        private class MockAggregate : AggregateRoot
         {
         }
 
-        private readonly Dictionary<Type, Func<object, object>> _repositoryGetByIdMethods = new Dictionary<Type, Func<object, object>>();
-        private readonly Dictionary<Type, Func<object, Task>> _repositorySaveMethods = new Dictionary<Type, Func<object, Task>>();
-        private readonly Dictionary<Type, AggregateInformation> _aggregateInformationCache = new Dictionary<Type, AggregateInformation>();
-        private readonly Dictionary<Type, Dictionary<object, object>> _allTrackedItems = new Dictionary<Type, Dictionary<object, object>>(); // type, key, value
+        private class AggregateTypeContainer
+        {
+            public AggregateInformation AggregateInformation { get; }
+            public Func<object, object> GetByIdMethod { get; }
+            public Func<object, Task> RepositorySaveMethod { get; }
+            public Dictionary<object, object> TrackedItems { get; } =
+                new Dictionary<object, object>(); // key, value of id, aggregate
+
+            public AggregateTypeContainer(AggregateInformation aggregateInformation, Func<object, object> byIdMethod, Func<object, Task> repositorySaveMethod)
+            {
+                AggregateInformation = aggregateInformation;
+                GetByIdMethod = byIdMethod;
+                RepositorySaveMethod = repositorySaveMethod;
+            }
+        }
+
+        private readonly Dictionary<Type, AggregateTypeContainer> _aggregateTypeContainerCache = new Dictionary<Type, AggregateTypeContainer>();
         private readonly ServiceFactory _factory;
 
         private readonly SemaphoreSlim _syncLock = new SemaphoreSlim(1, 1);
@@ -39,20 +53,20 @@ namespace NEventLite.Repository
                 var aggregateType = typeof(TAggregate);
                 SetupAggregateInfo(aggregateType);
 
-                var aggregateInfo = _aggregateInformationCache[aggregateType];
-                if (aggregateInfo.AggregateKey != id.GetType())
+                var typeContainer = _aggregateTypeContainerCache[aggregateType];
+                if (typeContainer.AggregateInformation.AggregateKey != id.GetType())
                 {
-                    throw new ArgumentException($"Id is not of type {aggregateInfo.AggregateKey.Name}", nameof(id));
+                    throw new ArgumentException($"Id is not of type {typeContainer.AggregateInformation.AggregateKey.Name}", nameof(id));
                 }
 
-                var itemExists = _allTrackedItems[aggregateType].TryGetValue(id, out var result);
+                var itemExists = typeContainer.TrackedItems.TryGetValue(id, out var result);
                 if (itemExists)
                 {
                     return (TAggregate)result;
                 }
 
-                result = await (Task<TAggregate>)_repositoryGetByIdMethods[aggregateType](id);
-                _allTrackedItems[aggregateType].Add(id, result);
+                result = await (Task<TAggregate>)typeContainer.GetByIdMethod(id);
+                typeContainer.TrackedItems.Add(id, result);
 
                 return (TAggregate)result;
             }
@@ -72,14 +86,15 @@ namespace NEventLite.Repository
                 SetupAggregateInfo(aggregateType);
 
                 var id = GetId(aggregate);
+                var typeContainer = _aggregateTypeContainerCache[aggregateType];
 
-                var itemExists = _allTrackedItems[aggregateType].TryGetValue(id, out var result);
+                var itemExists = typeContainer.TrackedItems.TryGetValue(id, out _);
                 if (itemExists)
                 {
                     throw new ArgumentException("Item with the same id is already tracked", nameof(aggregate));
                 }
 
-                _allTrackedItems[aggregateType].Add(id, aggregate);
+                typeContainer.TrackedItems.Add(id, aggregate);
             }
             finally
             {
@@ -97,11 +112,12 @@ namespace NEventLite.Repository
                 SetupAggregateInfo(aggregateType);
 
                 var id = GetId(aggregate);
+                var typeContainer = _aggregateTypeContainerCache[aggregateType];
 
-                var itemExists = _allTrackedItems[aggregateType].TryGetValue(id, out var result);
+                var itemExists = typeContainer.TrackedItems.TryGetValue(id, out var result);
                 if (itemExists)
                 {
-                    _allTrackedItems[aggregateType].Remove(id);
+                    typeContainer.TrackedItems.Remove(id);
                 }
                 else
                 {
@@ -120,12 +136,13 @@ namespace NEventLite.Repository
 
             try
             {
-                foreach (var t in _allTrackedItems)
+                foreach (var t in _aggregateTypeContainerCache)
                 {
-                    var saveMethod = _repositorySaveMethods[t.Key];
-                    foreach (var keyValuePair in t.Value)
+                    var typeContainer = t.Value;
+                    var saveMethod = typeContainer.RepositorySaveMethod;
+                    foreach (var keyValuePair in typeContainer.TrackedItems)
                     {
-                        await (Task)saveMethod(keyValuePair.Value);
+                        await saveMethod(keyValuePair.Value);
                     }
                 }
             }
@@ -141,9 +158,9 @@ namespace NEventLite.Repository
 
             try
             {
-                foreach (var t in _allTrackedItems)
+                foreach (var t in _aggregateTypeContainerCache)
                 {
-                    t.Value.Clear();
+                    t.Value.TrackedItems.Clear();
                 }
             }
             finally
@@ -154,7 +171,7 @@ namespace NEventLite.Repository
 
         private void SetupAggregateInfo(Type aggregateType)
         {
-            if (_aggregateInformationCache.ContainsKey(aggregateType))
+            if (_aggregateTypeContainerCache.ContainsKey(aggregateType))
             {
                 return;
             }
@@ -165,8 +182,7 @@ namespace NEventLite.Repository
                 throw new ArgumentException("The type is not a valid AggregateType", nameof(aggregateType));
             }
 
-            var repositoryType =
-                typeof(IRepository<,,>).MakeGenericType(result.Aggregate, result.AggregateKey, result.EventKey);
+            var repositoryType = typeof(IRepository<,,>).MakeGenericType(result.Aggregate, result.AggregateKey, result.EventKey);
             var repository = _factory(repositoryType);
 
             if (repository == null)
@@ -176,26 +192,33 @@ namespace NEventLite.Repository
 
             repository = repositoryType.Cast(repository); // convert to type of interface
 
-            _aggregateInformationCache.Add(aggregateType, result);
-            _repositoryGetByIdMethods.Add(aggregateType, id =>
-                {
-                    var genericMethod = repositoryType.GetMethod(nameof(IRepository<MockAggregate, Guid, Guid>.GetByIdAsync));
-                    return genericMethod.Invoke(repository, new[] { id });
-                });
+            Func<object, object> getByIdMethodAsync = (id) =>
+            {
+                var genericMethod =
+                    repositoryType.GetMethod(nameof(IRepository<MockAggregate, Guid, Guid>.GetByIdAsync));
+                return genericMethod.Invoke(repository, new[] { id });
+            }; // returns Task<TAggregate>
 
-            _repositorySaveMethods.Add(aggregateType, aggregate =>
+            Func<object, Task> saveMethodAsync = (aggregate) =>
             {
                 var genericMethod = repositoryType.GetMethod(nameof(IRepository<MockAggregate, Guid, Guid>.SaveAsync));
                 return (Task)genericMethod.Invoke(repository, new[] { aggregate });
-            });
+            }; // returns Task
 
-            _allTrackedItems.Add(aggregateType, new Dictionary<object, object>());
+            _aggregateTypeContainerCache.Add(result.Aggregate,
+                new AggregateTypeContainer(result, getByIdMethodAsync, saveMethodAsync));
         }
 
         private static object GetId<TAggregate>(TAggregate aggregate) where TAggregate : IAggregateRoot
         {
             var id = typeof(TAggregate).GetProperty(nameof(MockAggregate.Id)).GetMethod.Invoke(aggregate, null);
             return id;
+        }
+
+        public void Dispose()
+        {
+            _aggregateTypeContainerCache.Clear();
+            _syncLock?.Dispose();
         }
     }
 }
